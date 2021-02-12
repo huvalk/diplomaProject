@@ -28,6 +28,7 @@ func main() {
 
 	if *env != "prod" {
 		golog.SetLevel("debug")
+		golog.Debug(*env)
 		golog.Debug("Debug")
 	}
 
