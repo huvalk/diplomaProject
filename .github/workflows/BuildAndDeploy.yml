@@ -67,6 +67,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ${{ env.PROJ_PATH }}
+            git checkout dev
             git pull
 
       - name: Run project
