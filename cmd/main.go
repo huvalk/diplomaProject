@@ -25,6 +25,7 @@ func main() {
 		sslPath  = flag.String("ssl_path", "/etc/letsencrypt/", "ssl cert path")
 		port = flag.Uint64("p", 8080, "port")
 	)
+	flag.Parse()
 
 	if *env != "prod" {
 		golog.SetLevel("debug")
