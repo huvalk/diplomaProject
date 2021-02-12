@@ -37,7 +37,7 @@ jobs:
           -f docker/app.Dockerfile . \
       - name: Push the images
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
 
   deploy:
     runs-on: ubuntu-latest
