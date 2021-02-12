@@ -40,7 +40,7 @@ jobs:
           file: docker/app.Dockerfile
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/app:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/app:${{github['sha']::8}}
+            ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
 
   deploy:
     runs-on: ubuntu-latest
