@@ -30,7 +30,7 @@ func main() {
 		golog.Debug("Debug")
 	}
 
-	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", port),
+	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", *port),
 		"/etc/letsencrypt/fullchain.pem",
 		"/etc/letsencrypt/privkey.pem",
 		nil)
