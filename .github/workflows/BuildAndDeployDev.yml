@@ -2,6 +2,8 @@ name: Build and Deploy dev
 
 env:
   DEV_TAG: dev-${GITHUB_SHA::8}
+  PROD_TAG: dev-${GITHUB_SHA::8}
+  ENV
 
 on:
   push:
@@ -35,12 +37,12 @@ jobs:
       - name: Build Docker images
         run: |
           docker build \
-          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:dev_tag \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:${env.DEV_TAG} \
           --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:latest \
           -f docker/app.Dockerfile . \
       - name: Push the images
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:DEV_TAG
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:${env.DEV_TAG}
 
   deploy:
     runs-on: ubuntu-latest
