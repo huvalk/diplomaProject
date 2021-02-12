@@ -26,7 +26,7 @@ func main() {
 	)
 
 	if *env == "dev" {
-		golog.SetLevel(golog.DebugLevel.String())
+		golog.SetLevel("debug")
 		golog.Debug("Debug")
 	}
 
