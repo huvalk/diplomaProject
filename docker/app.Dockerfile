@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN apk add make && make build-app
 
-CMD ["/app/app"]
+CMD ["sh", "-c", "/app/app ${ENV}"]

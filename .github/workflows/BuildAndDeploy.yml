@@ -3,6 +3,8 @@ name: Build and Deploy
 env:
   DEV_TAG: dev-${GITHUB_SHA::8}
   PROD_TAG: prod-${GITHUB_SHA::8}
+  PROJ_PATH: /home/haha/diplomaProject
+
 
 on:
   push:
@@ -57,7 +59,7 @@ jobs:
     if: contains(github.ref, 'dev')
     needs: build
     steps:
-      - name: Pull Docker images
+      - name: Pull docker-compose
         uses: appleboy/ssh-action@master
         with:
           envs: GITHUB_SHA
@@ -65,8 +67,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.DEV_TAG }}
+            cd ${{ env.PROJ_PATH }}
+            git pull
+
       - name: Run project
         uses: appleboy/ssh-action@master
         with:
@@ -75,6 +78,5 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            docker stop -t 2 app
-            docker rm -f app
-            docker run --name app -v ${{ secrets.SSL_PATH }}:/etc/letsencrypt/ ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.DEV_TAG }}
+            docker-compose stop
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev docker-compose up
