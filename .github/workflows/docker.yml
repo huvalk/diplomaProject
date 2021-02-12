@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
+            docker pull ${{ steps.docker_meta.outputs.tags[0] }}
       - name: Run project
         uses: appleboy/ssh-action@master
         with:
