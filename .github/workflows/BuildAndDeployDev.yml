@@ -40,7 +40,7 @@ jobs:
           -f docker/app.Dockerfile . \
       - name: Push the images
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:dev_tag
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:DEV_TAG
 
   deploy:
     runs-on: ubuntu-latest
