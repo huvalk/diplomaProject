@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kataras/golog"
 	"net/http"
-	"os"
 )
 
 
@@ -20,8 +19,8 @@ func main() {
 	})
 
 	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", 8080),
-		os.Getenv("SSL_PATH") + "fullchain.pem",
-		os.Getenv("SSL_PATH") + "privkey.pem",
+		"/etc/letsencrypt/fullchain.pem",
+		"/etc/letsencrypt/privkey.pem",
 		nil)
 
 	if err != nil {
