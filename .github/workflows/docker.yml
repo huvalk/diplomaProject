@@ -25,38 +25,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v2
-      - name: Docker meta
-        id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/app
-          tag-sha: true
-
+      - uses: actions/checkout@v1
       - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          file: docker/app.Dockerfile
-          tags: ${{ steps.docker_meta.outputs.tags }}
+      - name: Build Docker images
+        run: |
+          docker build \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8} \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:latest \
+          -f docker/app.Dockerfile . \
+      - name: Push the images
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Docker meta
-        id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/app
-          tag-sha: true
       - name: Pull Docker images
         uses: appleboy/ssh-action@master
         with:
@@ -66,11 +52,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            echo "hi"
-            echo ${ steps.docker_meta.outputs.tags }
-            echo ${{ steps.docker_meta.outputs.tags }}
-            echo ${ steps.docker_meta.outputs.tag-custom }
-            echo ${{ steps.docker_meta.outputs.tag-custom }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
       - name: Run project
         uses: appleboy/ssh-action@master
         with:
