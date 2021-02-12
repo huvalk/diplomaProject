@@ -1,10 +1,12 @@
-name: Docker build
+name: Build and Deploy dev
+
+dev_tag: ${GITHUB_SHA::8}
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - dev
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -32,12 +34,12 @@ jobs:
       - name: Build Docker images
         run: |
           docker build \
-          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8} \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:dev_tag \
           --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:latest \
           -f docker/app.Dockerfile . \
       - name: Push the images
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:dev_tag
 
   deploy:
     runs-on: ubuntu-latest
@@ -52,7 +54,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app:dev_tag
       - name: Run project
         uses: appleboy/ssh-action@master
         with:
@@ -63,4 +65,4 @@ jobs:
           script: |
             docker stop -t 2 app
             docker rm -f app
-            docker run --name app -v ${{ secrets.SSL_PATH }}:/etc/letsencrypt/ ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
+            docker run --name app -v ${{ secrets.SSL_PATH }}:/etc/letsencrypt/ ${{ secrets.DOCKERHUB_USERNAME }}/app:dev_tag
