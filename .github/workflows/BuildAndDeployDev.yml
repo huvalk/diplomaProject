@@ -1,6 +1,7 @@
 name: Build and Deploy dev
 
-dev_tag: ${GITHUB_SHA::8}
+env:
+  DEV_TAG: dev-${GITHUB_SHA::8}
 
 on:
   push:
