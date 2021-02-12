@@ -36,12 +36,12 @@ jobs:
       - name: Build Docker images
         run: |
           docker build \
-          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:${env.DEV_TAG} \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.DEV_TAG }} \
           --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:latest \
           -f docker/app.Dockerfile . \
       - name: Push the images
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:${env.DEV_TAG}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/app:${ env.DEV_TAG }
 
   deploy:
     runs-on: ubuntu-latest
