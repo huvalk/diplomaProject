@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/kataras/golog"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 
 func main() {
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		golog.Debug("Knok-knok")
 
@@ -18,7 +20,17 @@ func main() {
 		}
 	})
 
-	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", 8080),
+	var (
+		env  = flag.String("env", "dev", "enables debug mode")
+		port = flag.Uint64("p", 8080, "port")
+	)
+
+	if *env == "dev" {
+		golog.SetLevel(golog.DebugLevel.String())
+		golog.Debug("Debug")
+	}
+
+	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", port),
 		"/etc/letsencrypt/fullchain.pem",
 		"/etc/letsencrypt/privkey.pem",
 		nil)
