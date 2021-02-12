@@ -60,6 +60,8 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            echo "hi"
+            echo ${ steps.docker_meta.outputs.tags }
             echo ${{ steps.docker_meta.outputs.tags }}
             echo ${{ steps.docker_meta.outputs.tags[0] }}
             docker pull ${{ steps.docker_meta.outputs.tags[0] }}
