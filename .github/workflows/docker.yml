@@ -71,7 +71,6 @@ jobs:
             echo ${ steps.docker_meta.outputs.tags[0] }
             echo ${{ steps.docker_meta.outputs.tags[0] }}
             echo ${{ steps.docker_meta.outputs.tags[0] }}
-            docker pull ${{ steps.docker_meta.outputs.tags[0] }}
       - name: Run project
         uses: appleboy/ssh-action@master
         with:
