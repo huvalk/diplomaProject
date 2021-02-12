@@ -3,7 +3,6 @@ name: Build and Deploy dev
 env:
   DEV_TAG: dev-${GITHUB_SHA::8}
   PROD_TAG: dev-${GITHUB_SHA::8}
-  ENV
 
 on:
   push:
