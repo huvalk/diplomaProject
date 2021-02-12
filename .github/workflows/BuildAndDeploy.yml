@@ -79,7 +79,6 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ${{ env.PROJ_PATH }}
-            pwd
-            ls -al
-            docker-compose stop
+            echo ${{ secrets.DOCKERHUB_USERNAME }}
+            echo ${{ env.DEV_TAG }}
             REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev docker-compose up
