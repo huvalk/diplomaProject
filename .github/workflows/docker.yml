@@ -69,8 +69,8 @@ jobs:
             echo "hi"
             echo ${ steps.docker_meta.outputs.tags }
             echo ${{ steps.docker_meta.outputs.tags }}
-            echo ${ steps.docker_meta.outputs.tags[0] }
-            echo ${{ steps.docker_meta.outputs.tags[0] }}
+            echo ${ steps.docker_meta.outputs.tag-custom }
+            echo ${{ steps.docker_meta.outputs.tag-custom }}
       - name: Run project
         uses: appleboy/ssh-action@master
         with:
