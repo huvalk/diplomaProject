@@ -67,7 +67,7 @@ jobs:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-            key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             docker stop -t 2 app
             docker rm -f app
