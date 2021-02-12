@@ -1,8 +1,8 @@
 name: Build and Deploy
 
 env:
-  DEV_TAG: dev-${ GITHUB_SHA::8 }
-  PROD_TAG: prod-${ GITHUB_SHA::8 }
+  DEV_TAG: dev-${{ GITHUB_SHA::8 }}
+  PROD_TAG: prod-${{ GITHUB_SHA::8 }}
   PROJ_PATH: /home/haha/diplomaProject
 
 on:
@@ -78,4 +78,4 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             docker-compose stop
-            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG="${{ env.DEV_TAG }}" ENV=dev docker-compose up
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev docker-compose up
