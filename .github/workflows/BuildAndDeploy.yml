@@ -81,4 +81,5 @@ jobs:
             cd ${{ env.PROJ_PATH }}
             echo ${{ secrets.DOCKERHUB_USERNAME }}
             echo ${{ env.DEV_TAG }}
-            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev docker-compose up
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev SSL_PATH=/etc/letsencrypt/live/hahao.ru \
+            docker-compose up
