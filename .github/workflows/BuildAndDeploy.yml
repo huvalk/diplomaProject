@@ -44,7 +44,7 @@ jobs:
           -f docker/app.Dockerfile .
 
       - name: Tag prod images
-        if: contains(github.ref, "master")
+        if: contains(github.ref, 'master')
         run: |
           docker image tag app ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.PROD_TAG }}
 
@@ -54,7 +54,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: contains(github.ref, "dev")
+    if: contains(github.ref, 'dev')
     needs: build
     steps:
       - name: Pull Docker images
