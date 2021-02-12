@@ -21,12 +21,12 @@ func main() {
 	})
 
 	var (
-		env  = flag.String("env", "dev", "enables debug mode")
+		env  = flag.String("env", "test", "enables debug mode")
 		sslPath  = flag.String("ssl_path", "/etc/letsencrypt/", "ssl cert path")
 		port = flag.Uint64("p", 8080, "port")
 	)
 
-	if *env == "dev" {
+	if *env != "prod" {
 		golog.SetLevel("debug")
 		golog.Debug("Debug")
 	}
