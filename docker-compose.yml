@@ -5,7 +5,7 @@ services:
     env_file:
       - ../env.list
     volumes:
-      - ${SSL_PATH}:/etc/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
     working_dir: /go/src/haha/cmd/
     ports:
       - "8080:8080"

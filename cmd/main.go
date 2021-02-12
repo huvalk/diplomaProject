@@ -22,6 +22,7 @@ func main() {
 
 	var (
 		env  = flag.String("env", "dev", "enables debug mode")
+		sslPath  = flag.String("ssl_path", "/etc/letsencrypt/", "ssl cert path")
 		port = flag.Uint64("p", 8080, "port")
 	)
 
@@ -31,8 +32,8 @@ func main() {
 	}
 
 	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", *port),
-		"/etc/letsencrypt/fullchain.pem",
-		"/etc/letsencrypt/privkey.pem",
+		*sslPath + "fullchain.pem",
+		*sslPath + "privkey.pem",
 		nil)
 
 	if err != nil {
