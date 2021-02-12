@@ -66,4 +66,4 @@ jobs:
           script: |
             docker stop -t 2 app
             docker rm -f app
-            docker run --name app -v ${{ secrets.$SSL_PATH }}:/etc/letsencrypt/ ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
+            docker run --name app -v ${{ secrets.SSL_PATH }}:/etc/letsencrypt/ ${{ secrets.DOCKERHUB_USERNAME }}/app:${GITHUB_SHA::8}
