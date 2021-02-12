@@ -77,5 +77,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            cd ${{ env.PROJ_PATH }}
             docker-compose stop
-            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${ env.DEV_TAG } ENV=dev docker-compose up
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev docker-compose up
