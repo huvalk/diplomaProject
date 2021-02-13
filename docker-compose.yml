@@ -12,8 +12,6 @@ services:
     working_dir: /go/src/haha/cmd/
     ports:
       - "8080:8080"
-    stdin_open: true
-    tty: true
     network_mode: host
 
 #  prometheus:
