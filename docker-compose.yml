@@ -4,8 +4,11 @@ services:
     image: ${REPO}/app:${TAG}
     env_file:
       - ../env.list
+    environment:
+      - ENV=${ENV}
+      - SSL=${SSL}
     volumes:
-      - ${SSL_PATH}:${SSL_PATH}
+      - /etc/letsencrypt:/etc/letsencrypt
     working_dir: /go/src/haha/cmd/
     ports:
       - "8080:8080"

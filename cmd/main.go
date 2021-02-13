@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/kataras/golog"
 	"net/http"
-	"os"
 )
 
 
@@ -33,7 +32,8 @@ func main() {
 		golog.Debug("Debug")
 	}
 
-	golog.Debug(os.Getenv("SSL_PATH"))
+	golog.Debug(*env)
+	golog.Debug(*sslPath)
 
 	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", *port),
 		*sslPath + "/fullchain.pem",
