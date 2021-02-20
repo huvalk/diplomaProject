@@ -1,11 +1,15 @@
 package http
 
 import (
+	"diplomaProject/application/models"
 	"diplomaProject/application/user"
-	"fmt"
+	"diplomaProject/pkg/constants"
 	"github.com/labstack/echo"
+	"github.com/mailru/easyjson"
 	"log"
+	"net/http"
 	"strconv"
+	"time"
 )
 
 type UserHandler struct {
@@ -16,25 +20,64 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 
 	handler := UserHandler{useCase: usecase}
 
-	e.GET("/oauth", handler.Hello)
 	e.GET("/user/:id", handler.Profile)
+	e.POST("/login", handler.Login)
 	return nil
 }
 
-func (uh UserHandler) Hello(ctx echo.Context) error {
-	return ctx.String(200, "WORKS!")
+func (uh *UserHandler) Login(ctx echo.Context) error {
+	usr := &models.VkUser{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
+		log.Println(err)
+		return ctx.String(499, err.Error())
+	}
+	sessionId, token, err := uh.useCase.Login(usr.FirstName, usr.Email)
+	if err != nil {
+		return ctx.String(498, err.Error())
+	}
+
+	uh.setCookie(ctx, sessionId)
+	uh.setCsrfToken(ctx, token)
+
+	return ctx.String(200, "OK")
 }
 
 func (uh *UserHandler) Profile(ctx echo.Context) error {
 	uid, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		log.Println(err)
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	usr, err := uh.useCase.Get(uid)
 	if err != nil {
 		log.Println(err)
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	return ctx.String(200, fmt.Sprintf("%v", *usr))
+	if _, err = easyjson.MarshalToWriter(usr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (uh *UserHandler) setCookie(ctx echo.Context, sessionId string) {
+	cookie := &http.Cookie{
+		Name:    constants.CookieName,
+		Value:   sessionId,
+		Path:    "/",
+		Expires: time.Now().Add(constants.CookieDuration),
+		//SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+	}
+	ctx.SetCookie(cookie)
+}
+
+func (uh *UserHandler) setCsrfToken(ctx echo.Context, token string) {
+	cookie := &http.Cookie{
+		Name:    constants.CSRFHeader,
+		Value:   token,
+		Path:    "/",
+		Expires: time.Now().Add(time.Hour),
+		//SameSite: http.SameSiteStrictMode,
+	}
+	ctx.SetCookie(cookie)
 }

@@ -12,3 +12,6 @@ type VkUser struct {
 //	ClientSecret string `gorm:"column:client_secret"`
 //	RedirectUrl  string `gorm:"column:redirect_url"`
 //}
+
+//easyjson:json
+type UserArr []VkUser

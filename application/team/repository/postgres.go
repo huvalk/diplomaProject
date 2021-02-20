@@ -1,0 +1,56 @@
+package repository
+
+import (
+	"diplomaProject/application/models"
+	"diplomaProject/application/team"
+	"diplomaProject/application/user/repository"
+	"diplomaProject/pkg/infrastructure"
+	"errors"
+	"github.com/jinzhu/gorm"
+)
+
+type TeamDatabase struct {
+	conn *gorm.DB
+}
+
+func NewTeamDatabase(db *gorm.DB) team.Repository {
+	return &TeamDatabase{conn: db}
+}
+
+func (e TeamDatabase) Get(id int) (*models.Team, error) {
+	for ind := range infrastructure.MockTeams {
+		if infrastructure.MockTeams[ind].Id == int64(id) {
+			return &infrastructure.MockTeams[ind], nil
+		}
+	}
+	return &models.Team{}, errors.New("team not found")
+}
+
+func (e TeamDatabase) Create(newTeam *models.Team) error {
+	newTeam.Id = int64(len(infrastructure.MockTeams))
+	infrastructure.MockTeams = append(infrastructure.MockTeams, *newTeam)
+	return nil
+}
+
+func (e TeamDatabase) AddMember(tid, uid int) error {
+	teamIDs, ok := infrastructure.TeamMembers[tid]
+	if !ok {
+		return errors.New("team not found")
+	}
+	infrastructure.TeamMembers[tid] = append(teamIDs, uid)
+	return nil
+}
+
+func (e TeamDatabase) GetTeamMembers(tid int) (*models.UserArr, error) {
+	users := models.UserArr{}
+	userDB := repository.NewUserDatabase(e.conn)
+	membersID := infrastructure.TeamMembers[tid]
+	for ind := range membersID {
+		user, err := userDB.GetByID(membersID[ind])
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, *user)
+	}
+	return &users, nil
+}

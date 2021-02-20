@@ -1,0 +1,10 @@
+	e.GET("/user/:id", handler.Profile)
+	e.POST("/login", handler.Login)
+
+	e.GET("/team/:id", handler.GetTeam)
+    e.GET("/user/:id/team", handler.GetTeam)
+    e.POST("/team", handler.CreateTeam)
+    e.POST("/team/add", handler.AddMember)
+
+    e.GET("/event/:id", handler.GetEvent)
+    e.POST("/event", handler.CreateEvent)
