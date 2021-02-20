@@ -9,7 +9,12 @@ type Team struct {
 //easyjson:json
 type TeamArr []Team
 
-type Adder struct {
+type AddToTeam struct {
 	TID int `json:"tid"`
 	UID int `json:"uid"`
+}
+
+type AddToUser struct {
+	UID1 int `json:"uid1"`
+	UID2 int `json:"uid2"`
 }

@@ -20,6 +20,10 @@ func (u *User) Get(uid int) (*models.VkUser, error) {
 	return u.users.GetByID(uid)
 }
 
+func (u *User) JoinEvent(uid, evtID int) error {
+	return u.users.JoinEvent(uid, evtID)
+}
+
 func (u *User) Login(username string, password string) (sessionId string, csrfToken string, err error) {
 	if username == "" || password == "" {
 		return "", "", errors.New("(((")

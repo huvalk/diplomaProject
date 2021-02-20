@@ -26,19 +26,23 @@ func (e TeamDatabase) Get(id int) (*models.Team, error) {
 	return &models.Team{}, errors.New("team not found")
 }
 
-func (e TeamDatabase) Create(newTeam *models.Team) error {
-	newTeam.Id = int64(len(infrastructure.MockTeams))
+func (e TeamDatabase) Create(newTeam *models.Team) (*models.Team, error) {
+	newTeam.Id = int64(len(infrastructure.MockTeams) + 1)
 	infrastructure.MockTeams = append(infrastructure.MockTeams, *newTeam)
-	return nil
+	infrastructure.TeamMembers[int(newTeam.Id)] = []int{}
+	return newTeam, nil
 }
 
-func (e TeamDatabase) AddMember(tid, uid int) error {
+func (e TeamDatabase) AddMember(tid int, uid ...int) (*models.Team, error) {
 	teamIDs, ok := infrastructure.TeamMembers[tid]
 	if !ok {
-		return errors.New("team not found")
+		return nil, errors.New("team not found")
 	}
-	infrastructure.TeamMembers[tid] = append(teamIDs, uid)
-	return nil
+	for i := range uid {
+		teamIDs = append(teamIDs, uid[i])
+	}
+	infrastructure.TeamMembers[tid] = teamIDs
+	return e.Get(tid)
 }
 
 func (e TeamDatabase) GetTeamMembers(tid int) (*models.UserArr, error) {

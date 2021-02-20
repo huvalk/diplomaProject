@@ -6,6 +6,7 @@ import (
 	"diplomaProject/pkg/constants"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -22,7 +23,40 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 
 	e.GET("/user/:id", handler.Profile)
 	e.POST("/login", handler.Login)
+	e.POST("/event/:id/join", handler.JoinEvent)
 	return nil
+}
+
+func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	var body []byte
+	defer ctx.Request().Body.Close()
+	body, err = ioutil.ReadAll(ctx.Request().Body)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	add := &models.AddToTeam{}
+	err = add.UnmarshalJSON(body)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusConflict, err.Error())
+	}
+
+	err = uh.useCase.JoinEvent(add.UID, evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	//if _, err = easyjson.MarshalToWriter(usr, ctx.Response().Writer); err != nil {
+	//	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	//}
+	return ctx.String(200, "OK")
 }
 
 func (uh *UserHandler) Login(ctx echo.Context) error {

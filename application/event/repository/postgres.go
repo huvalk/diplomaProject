@@ -26,7 +26,7 @@ func (e EventDatabase) Get(id int) (*models.Event, error) {
 }
 
 func (e EventDatabase) Create(newEvent *models.Event) error {
-	newEvent.Id = int64(len(infrastructure.MockEvents))
+	newEvent.Id = int64(len(infrastructure.MockEvents) + 1)
 	infrastructure.MockEvents = append(infrastructure.MockEvents, *newEvent)
 	return nil
 }

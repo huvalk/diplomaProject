@@ -30,6 +30,7 @@ var MockTeam2 = &models.Team{
 	Members: nil,
 }
 
+//map[team]  = []int{membersID...}
 var TeamMembers = map[int][]int{1: nil, 2: nil}
 
 var MockTeams = []models.Team{*MockTeam1, *MockTeam2}
@@ -49,3 +50,6 @@ var MockEvent2 = &models.Event{
 }
 
 var MockEvents = []models.Event{*MockEvent1, *MockEvent2}
+
+//map[event]  = []int{userID...}
+var EventMembers = map[int][]int{1: nil, 2: nil}
