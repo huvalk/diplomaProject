@@ -53,3 +53,17 @@ var MockEvents = []models.Event{*MockEvent1, *MockEvent2}
 
 //map[event]  = []int{userID...}
 var EventMembers = map[int][]int{1: nil, 2: nil}
+
+var EventFeed1 = &models.Feed{
+	Id:    1,
+	Users: nil,
+	Event: 1,
+}
+
+var EventFeed2 = &models.Feed{
+	Id:    2,
+	Users: nil,
+	Event: 2,
+}
+
+var EventFeeds = models.FeedArr{*EventFeed1, *EventFeed2}

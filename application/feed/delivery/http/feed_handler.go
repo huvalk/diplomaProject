@@ -1,7 +1,7 @@
 package http
 
 import (
-	"diplomaProject/application/event"
+	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
@@ -11,26 +11,26 @@ import (
 	"strconv"
 )
 
-type EventHandler struct {
-	useCase event.UseCase
+type FeedHandler struct {
+	useCase feed.UseCase
 }
 
-func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
+func NewFeedHandler(e *echo.Echo, usecase feed.UseCase) error {
 
-	handler := EventHandler{useCase: usecase}
+	handler := FeedHandler{useCase: usecase}
 
-	e.GET("/event/:id", handler.GetEvent)
-	e.POST("/event", handler.CreateEvent)
+	e.GET("/feed/:id", handler.GetFeed)
+	e.POST("/feed", handler.CreateFeed)
 	return nil
 }
 
-func (eh *EventHandler) GetEvent(ctx echo.Context) error {
+func (fh *FeedHandler) GetFeed(ctx echo.Context) error {
 	uid, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	evt, err := eh.useCase.Get(uid)
+	evt, err := fh.useCase.Get(uid)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -41,7 +41,7 @@ func (eh *EventHandler) GetEvent(ctx echo.Context) error {
 	return nil
 }
 
-func (eh *EventHandler) CreateEvent(ctx echo.Context) error {
+func (fh *FeedHandler) CreateFeed(ctx echo.Context) error {
 	var body []byte
 	defer ctx.Request().Body.Close()
 	body, err := ioutil.ReadAll(ctx.Request().Body)
@@ -49,18 +49,18 @@ func (eh *EventHandler) CreateEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	newEvt := &models.Event{}
-	err = newEvt.UnmarshalJSON(body)
+	newFeed := &models.AddToTeam{}
+	err = newFeed.UnmarshalJSON(body)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
-	newEvt, err = eh.useCase.Create(newEvt)
+	fd, err := fh.useCase.Create(newFeed.UID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	if _, err = easyjson.MarshalToWriter(newEvt, ctx.Response().Writer); err != nil {
+	if _, err = easyjson.MarshalToWriter(fd, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

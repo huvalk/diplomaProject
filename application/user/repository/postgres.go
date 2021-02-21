@@ -5,7 +5,6 @@ import (
 	"diplomaProject/application/user"
 	"diplomaProject/pkg/infrastructure"
 	"errors"
-	"fmt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -23,7 +22,6 @@ func (ud *UserDatabase) JoinEvent(uid, evtID int) error {
 		return errors.New("event with that id not found")
 	}
 	infrastructure.EventMembers[evtID] = append(users, uid)
-	fmt.Println(infrastructure.EventMembers)
 	return nil
 }
 

@@ -5,6 +5,7 @@ type Event struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Founder     string `json:"founder"`
+	Feed        Feed   `json:"feed"`
 }
 
 //easyjson:json

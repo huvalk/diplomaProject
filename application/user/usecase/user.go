@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
 	"diplomaProject/application/user"
 	"diplomaProject/pkg/crypto"
@@ -10,10 +11,11 @@ import (
 
 type User struct {
 	users user.Repository
+	feeds feed.Repository
 }
 
-func NewUser(u user.Repository) user.UseCase {
-	return &User{users: u}
+func NewUser(u user.Repository, f feed.Repository) user.UseCase {
+	return &User{users: u, feeds: f}
 }
 
 func (u *User) Get(uid int) (*models.VkUser, error) {
@@ -21,7 +23,11 @@ func (u *User) Get(uid int) (*models.VkUser, error) {
 }
 
 func (u *User) JoinEvent(uid, evtID int) error {
-	return u.users.JoinEvent(uid, evtID)
+	err := u.users.JoinEvent(uid, evtID)
+	if err != nil {
+		return err
+	}
+	return u.feeds.AddUser(uid, evtID)
 }
 
 func (u *User) Login(username string, password string) (sessionId string, csrfToken string, err error) {
