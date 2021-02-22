@@ -72,3 +72,7 @@ func NewServer(e *echo.Echo) *Server {
 func (s Server) ListenAndServe() error {
 	return s.e.Start(s.port)
 }
+
+func (s Server) ListenAndServeTLS(sslPath string) error {
+	return s.e.StartTLS(s.port, sslPath+"/fullchain.pem", sslPath+"/privkey.pem")
+}
