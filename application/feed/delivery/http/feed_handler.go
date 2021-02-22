@@ -5,7 +5,6 @@ import (
 	"diplomaProject/application/models"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -42,20 +41,13 @@ func (fh *FeedHandler) GetFeed(ctx echo.Context) error {
 }
 
 func (fh *FeedHandler) CreateFeed(ctx echo.Context) error {
-	var body []byte
-	defer ctx.Request().Body.Close()
-	body, err := ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
+	add := &models.AddToTeam{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	newFeed := &models.AddToTeam{}
-	err = newFeed.UnmarshalJSON(body)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
-	}
-	fd, err := fh.useCase.Create(newFeed.UID)
+
+	fd, err := fh.useCase.Create(add.UID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

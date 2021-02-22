@@ -5,7 +5,6 @@ import (
 	"diplomaProject/application/models"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -42,20 +41,12 @@ func (eh *EventHandler) GetEvent(ctx echo.Context) error {
 }
 
 func (eh *EventHandler) CreateEvent(ctx echo.Context) error {
-	var body []byte
-	defer ctx.Request().Body.Close()
-	body, err := ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
+	newEvt := &models.Event{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, newEvt); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	newEvt := &models.Event{}
-	err = newEvt.UnmarshalJSON(body)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
-	}
-	newEvt, err = eh.useCase.Create(newEvt)
+	newEvt, err := eh.useCase.Create(newEvt)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

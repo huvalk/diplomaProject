@@ -6,7 +6,6 @@ import (
 	"diplomaProject/pkg/constants"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -33,29 +32,16 @@ func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	var body []byte
-	defer ctx.Request().Body.Close()
-	body, err = ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
+	add := &models.AddToTeam{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	add := &models.AddToTeam{}
-	err = add.UnmarshalJSON(body)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
-	}
-
 	err = uh.useCase.JoinEvent(add.UID, evtID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	//if _, err = easyjson.MarshalToWriter(usr, ctx.Response().Writer); err != nil {
-	//	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	//}
 	return ctx.String(200, "OK")
 }
 
@@ -63,11 +49,11 @@ func (uh *UserHandler) Login(ctx echo.Context) error {
 	usr := &models.User{}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
 		log.Println(err)
-		return ctx.String(499, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	sessionId, token, err := uh.useCase.Login(usr.FirstName, usr.Email)
 	if err != nil {
-		return ctx.String(498, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	uh.setCookie(ctx, sessionId)

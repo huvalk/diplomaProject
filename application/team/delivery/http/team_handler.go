@@ -5,7 +5,6 @@ import (
 	"diplomaProject/application/team"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -75,19 +74,12 @@ func (th *TeamHandler) CreateTeam(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	var body []byte
-	defer ctx.Request().Body.Close()
-	body, err = ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
+	newTeam := &models.Team{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, newTeam); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	newTeam := &models.Team{}
-	err = newTeam.UnmarshalJSON(body)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
-	}
+
 	newTeam, err = th.useCase.Create(newTeam, evtID)
 	if err != nil {
 		log.Println(err)
@@ -106,19 +98,12 @@ func (th *TeamHandler) AddMember(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	var body []byte
-	defer ctx.Request().Body.Close()
-	body, err = ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
+	add := &models.AddToTeam{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	add := &models.AddToTeam{}
-	err = add.UnmarshalJSON(body)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
-	}
+
 	tm, err := th.useCase.AddMember(tID, add.UID)
 	if err != nil {
 		log.Println(err)
@@ -137,18 +122,10 @@ func (th *TeamHandler) Union(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	var body []byte
-	defer ctx.Request().Body.Close()
-	body, err = ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
+	add := &models.AddToUser{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	add := &models.AddToUser{}
-	err = add.UnmarshalJSON(body)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	}
 	tm, err := th.useCase.Union(add.UID1, add.UID2, evtID)
 	if err != nil {
