@@ -2,32 +2,41 @@ package infrastructure
 
 import "diplomaProject/application/models"
 
-var Usr1 = models.VkUser{
+var Usr1 = models.User{
 	Id:        1,
 	FirstName: "FName1",
 	LastName:  "LNAME1",
 	Email:     "EMAIL1",
 }
 
-var Usr2 = models.VkUser{
+var Usr2 = models.User{
 	Id:        2,
 	FirstName: "FName2",
 	LastName:  "LNAME2",
 	Email:     "EMAIL2",
 }
 
-var Users = []models.VkUser{Usr1, Usr2}
+var Usr3 = models.User{
+	Id:        3,
+	FirstName: "FName3",
+	LastName:  "LNAME3",
+	Email:     "EMAIL3",
+}
+
+var Users = []models.User{Usr1, Usr2, Usr3}
 
 var MockTeam1 = &models.Team{
 	Id:      1,
 	Name:    "NAME1",
 	Members: nil,
+	EventID: 1,
 }
 
 var MockTeam2 = &models.Team{
 	Id:      2,
 	Name:    "NAME2",
 	Members: nil,
+	EventID: 1,
 }
 
 //map[team]  = []int{membersID...}

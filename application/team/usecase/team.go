@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"diplomaProject/application/event"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
 	"diplomaProject/pkg/infrastructure"
@@ -9,12 +10,13 @@ import (
 )
 
 type Team struct {
-	teams team.Repository
+	teams  team.Repository
+	events event.Repository
 	//users user.Repository
 }
 
-func NewTeam(t team.Repository) team.UseCase {
-	return &Team{teams: t}
+func NewTeam(t team.Repository, e event.Repository) team.UseCase {
+	return &Team{teams: t, events: e}
 }
 
 func (t *Team) Get(id int) (*models.Team, error) {
@@ -30,8 +32,8 @@ func (t *Team) Get(id int) (*models.Team, error) {
 	return tm, err
 }
 
-func (t *Team) Create(newTeam *models.Team) (*models.Team, error) {
-	return t.teams.Create(newTeam)
+func (t *Team) Create(newTeam *models.Team, evtID int) (*models.Team, error) {
+	return t.teams.Create(newTeam, evtID)
 }
 
 func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
@@ -39,7 +41,7 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	usrs, err := t.teams.GetTeamMembers(int(tm.Id))
+	usrs, err := t.teams.GetTeamMembers(tm.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -47,29 +49,38 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 	return tm, nil
 }
 
-func (t *Team) GetTeamByUser(uid int) (*models.Team, error) {
+func (t *Team) GetTeamByUser(uid, evtID int) (*models.Team, error) {
 	for ind := range infrastructure.TeamMembers {
 		for i := range infrastructure.TeamMembers[ind] {
 			if infrastructure.TeamMembers[ind][i] == uid {
-				return t.Get(ind)
+				tm, err := t.Get(ind)
+				if err != nil {
+					return nil, err
+				}
+				if tm.EventID == evtID {
+					return tm, nil
+				}
 			}
 		}
 	}
 	return &models.Team{}, errors.New("no team for user")
 }
 
-func (t *Team) Union(uid1, uid2 int) (*models.Team, error) {
-	t1, err1 := t.GetTeamByUser(uid1)
-	t2, err2 := t.GetTeamByUser(uid2)
+func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
+	if !t.events.CheckUser(evtID, uid1) || !t.events.CheckUser(evtID, uid2) {
+		return nil, errors.New("user does not join event")
+	}
+	t1, err1 := t.GetTeamByUser(uid1, evtID)
+	t2, err2 := t.GetTeamByUser(uid2, evtID)
 	if err1 != nil {
 		if err2 != nil {
 			newTeam := &models.Team{
 				Name: fmt.Sprintf("team-%v-%v", uid1, uid2),
 			}
-			newTeam, _ = t.Create(newTeam)
-			return t.AddMember(int(newTeam.Id), uid1, uid2)
+			newTeam, _ = t.Create(newTeam, evtID)
+			return t.AddMember(newTeam.Id, uid1, uid2)
 		} else {
-			tm, err := t.AddMember(int(t2.Id), uid1)
+			tm, err := t.AddMember(t2.Id, uid1)
 			if err != nil {
 				return nil, err
 			}
@@ -77,7 +88,7 @@ func (t *Team) Union(uid1, uid2 int) (*models.Team, error) {
 		}
 	}
 
-	tm, err := t.AddMember(int(t1.Id), uid2)
+	tm, err := t.AddMember(t1.Id, uid2)
 	if err != nil {
 		return nil, err
 	}

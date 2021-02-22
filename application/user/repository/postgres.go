@@ -25,21 +25,21 @@ func (ud *UserDatabase) JoinEvent(uid, evtID int) error {
 	return nil
 }
 
-func (ud *UserDatabase) GetByID(uid int) (*models.VkUser, error) {
+func (ud *UserDatabase) GetByID(uid int) (*models.User, error) {
 	for i := range infrastructure.Users {
-		if int64(uid) == infrastructure.Users[i].Id {
+		if uid == infrastructure.Users[i].Id {
 			return &infrastructure.Users[i], nil
 		}
 	}
-	return &models.VkUser{}, errors.New("user with that id not found")
+	return &models.User{}, errors.New("user with that id not found")
 }
 
-func (ud *UserDatabase) GetByName(name string) (*models.VkUser, error) {
+func (ud *UserDatabase) GetByName(name string) (*models.User, error) {
 	for i := range infrastructure.Users {
 		if name == infrastructure.Users[i].FirstName {
 			return &infrastructure.Users[i], nil
 		}
 	}
 
-	return &models.VkUser{}, errors.New("user with that name not found")
+	return &models.User{}, errors.New("user with that name not found")
 }

@@ -23,12 +23,12 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 
 	e.GET("/user/:id", handler.Profile)
 	e.POST("/login", handler.Login)
-	e.POST("/event/:id/join", handler.JoinEvent)
+	e.POST("/event/:evtid/join", handler.JoinEvent)
 	return nil
 }
 
 func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
-	evtID, err := strconv.Atoi(ctx.Param("id"))
+	evtID, err := strconv.Atoi(ctx.Param("evtid"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -60,7 +60,7 @@ func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
 }
 
 func (uh *UserHandler) Login(ctx echo.Context) error {
-	usr := &models.VkUser{}
+	usr := &models.User{}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
 		log.Println(err)
 		return ctx.String(499, err.Error())

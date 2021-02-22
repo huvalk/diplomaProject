@@ -18,7 +18,7 @@ func NewFeedDatabase(db *gorm.DB) feed.Repository {
 
 func (f FeedDatabase) Get(feedID int) (*models.Feed, error) {
 	for ind := range infrastructure.EventFeeds {
-		if infrastructure.EventFeeds[ind].Id == int64(feedID) {
+		if infrastructure.EventFeeds[ind].Id == feedID {
 			return &infrastructure.EventFeeds[ind], nil
 		}
 	}
@@ -36,11 +36,11 @@ func (f FeedDatabase) GetByEvent(eventID int) (*models.Feed, error) {
 
 func (f FeedDatabase) Create(eventID int) (*models.Feed, error) {
 	infrastructure.EventFeeds = append(infrastructure.EventFeeds, models.Feed{
-		Id:    int64(len(infrastructure.EventFeeds)) + 1,
+		Id:    len(infrastructure.EventFeeds) + 1,
 		Users: nil,
 		Event: eventID,
 	})
-	panic("implement me")
+	return &infrastructure.EventFeeds[len(infrastructure.EventFeeds)-1], nil
 }
 
 func (f FeedDatabase) AddUser(uid, eventID int) error {
@@ -49,7 +49,7 @@ func (f FeedDatabase) AddUser(uid, eventID int) error {
 		return err
 	}
 	for i := range infrastructure.Users {
-		if int64(uid) == infrastructure.Users[i].Id {
+		if uid == infrastructure.Users[i].Id {
 			fd.Users = append(fd.Users, infrastructure.Users[i])
 			return nil
 		}
@@ -63,7 +63,7 @@ func (f FeedDatabase) RemoveUser(uid, eventID int) error {
 		return err
 	}
 	for ind := range fd.Users {
-		if fd.Users[ind].Id == int64(uid) {
+		if fd.Users[ind].Id == uid {
 			fd.Users = append(fd.Users[:ind], fd.Users[ind:]...)
 			return nil
 		}

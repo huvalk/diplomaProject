@@ -4,7 +4,6 @@ import (
 	"diplomaProject/application/event"
 	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
-	"fmt"
 )
 
 type Event struct {
@@ -21,12 +20,10 @@ func (e *Event) Get(id int) (*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(newEvent)
 	fd, err := e.feeds.GetByEvent(int(newEvent.Id))
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fd)
 	newEvent.Feed = *fd
 
 	return newEvent, nil

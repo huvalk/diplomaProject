@@ -19,17 +19,18 @@ func NewTeamDatabase(db *gorm.DB) team.Repository {
 
 func (e TeamDatabase) Get(id int) (*models.Team, error) {
 	for ind := range infrastructure.MockTeams {
-		if infrastructure.MockTeams[ind].Id == int64(id) {
+		if infrastructure.MockTeams[ind].Id == id {
 			return &infrastructure.MockTeams[ind], nil
 		}
 	}
 	return &models.Team{}, errors.New("team not found")
 }
 
-func (e TeamDatabase) Create(newTeam *models.Team) (*models.Team, error) {
-	newTeam.Id = int64(len(infrastructure.MockTeams) + 1)
+func (e TeamDatabase) Create(newTeam *models.Team, evtID int) (*models.Team, error) {
+	newTeam.Id = len(infrastructure.MockTeams) + 1
+	newTeam.EventID = evtID
 	infrastructure.MockTeams = append(infrastructure.MockTeams, *newTeam)
-	infrastructure.TeamMembers[int(newTeam.Id)] = []int{}
+	infrastructure.TeamMembers[newTeam.Id] = []int{}
 	return newTeam, nil
 }
 

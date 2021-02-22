@@ -51,7 +51,7 @@ func NewServer(e *echo.Echo) *Server {
 
 	//team handler
 	teams := repository3.NewTeamDatabase(nil)
-	team := usecase3.NewTeam(teams)
+	team := usecase3.NewTeam(teams, events)
 	err = http3.NewTeamHandler(e, team)
 	if err != nil {
 		log.Println(err)

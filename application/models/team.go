@@ -1,9 +1,10 @@
 package models
 
 type Team struct {
-	Id      int64   `json:"id"`
+	Id      int     `json:"id"`
 	Name    string  `json:"name"`
 	Members UserArr `json:"members"`
+	EventID int     `json:"eventid"`
 }
 
 //easyjson:json

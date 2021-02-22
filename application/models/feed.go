@@ -1,7 +1,7 @@
 package models
 
 type Feed struct {
-	Id    int64   `json:"id"`
+	Id    int     `json:"id"`
 	Users UserArr `json:"users"`
 	Event int     `json:"event"`
 }

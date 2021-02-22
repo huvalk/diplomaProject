@@ -18,7 +18,7 @@ func NewUser(u user.Repository, f feed.Repository) user.UseCase {
 	return &User{users: u, feeds: f}
 }
 
-func (u *User) Get(uid int) (*models.VkUser, error) {
+func (u *User) Get(uid int) (*models.User, error) {
 	return u.users.GetByID(uid)
 }
 

@@ -18,7 +18,7 @@ func NewEventDatabase(db *gorm.DB) event.Repository {
 
 func (e EventDatabase) Get(id int) (*models.Event, error) {
 	for ind := range infrastructure.MockEvents {
-		if infrastructure.MockEvents[ind].Id == int64(id) {
+		if infrastructure.MockEvents[ind].Id == id {
 			return &infrastructure.MockEvents[ind], nil
 		}
 	}
@@ -26,7 +26,16 @@ func (e EventDatabase) Get(id int) (*models.Event, error) {
 }
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.Event, error) {
-	newEvent.Id = int64(len(infrastructure.MockEvents) + 1)
+	newEvent.Id = len(infrastructure.MockEvents) + 1
 	infrastructure.MockEvents = append(infrastructure.MockEvents, *newEvent)
 	return newEvent, nil
+}
+
+func (e EventDatabase) CheckUser(evtID, uid int) bool {
+	for ind := range infrastructure.EventMembers[evtID] {
+		if infrastructure.EventMembers[evtID][ind] == uid {
+			return true
+		}
+	}
+	return false
 }
