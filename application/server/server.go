@@ -48,6 +48,10 @@ func NewServer(e *echo.Echo) *Server {
 	events := repository2.NewEventDatabase(nil)
 	event := usecase2.NewEvent(events, feeds)
 	err = http2.NewEventHandler(e, event)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 
 	//team handler
 	teams := repository3.NewTeamDatabase(nil)
