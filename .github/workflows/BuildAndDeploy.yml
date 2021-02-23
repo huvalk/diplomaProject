@@ -9,7 +9,9 @@ on:
   push:
     branches:
       - dev
+      - master
   pull_request:
+    types: [assigned, opened, synchronize, reopened]
     branches:
       - master
       - dev
@@ -46,7 +48,7 @@ jobs:
           -f docker/app.Dockerfile .
 
       - name: Tag prod images
-        if: contains(github.ref, 'master')
+        if: ${{ contains(github.ref, 'master') && contains(github.event_name, 'push') }}
         run: |
           docker image tag app ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.PROD_TAG }}
 

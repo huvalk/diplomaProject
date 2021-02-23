@@ -5,14 +5,14 @@ import (
 	"diplomaProject/application/models"
 	"diplomaProject/pkg/infrastructure"
 	"errors"
-	"github.com/jinzhu/gorm"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type FeedDatabase struct {
-	conn *gorm.DB
+	conn *pgxpool.Pool
 }
 
-func NewFeedDatabase(db *gorm.DB) feed.Repository {
+func NewFeedDatabase(db *pgxpool.Pool) feed.Repository {
 	return &FeedDatabase{conn: db}
 }
 
