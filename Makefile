@@ -6,3 +6,6 @@ test-cover:
 	cat cover.out.tmp | grep -v "_easyjson.go" > cover.out
 	go tool cover -func cover.out | grep "total"
 	rm -f cover.out*
+
+lint:
+	golangci-lint run ./...
