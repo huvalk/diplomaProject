@@ -13,6 +13,7 @@ import (
 	"diplomaProject/application/user/delivery/http"
 	"diplomaProject/application/user/repository"
 	"diplomaProject/application/user/usecase"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/labstack/echo"
 	"log"
 )
@@ -22,11 +23,11 @@ type Server struct {
 	e    *echo.Echo
 }
 
-func NewServer(e *echo.Echo) *Server {
+func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	//middleware WIP
 
 	//feed handler
-	feeds := repository4.NewFeedDatabase(nil)
+	feeds := repository4.NewFeedDatabase(db)
 	feed := usecase4.NewFeed(feeds)
 	err := http4.NewFeedHandler(e, feed)
 	if err != nil {
@@ -36,7 +37,7 @@ func NewServer(e *echo.Echo) *Server {
 
 	//user handler
 	//sessions := session.NewSessionDatabase(rd)
-	users := repository.NewUserDatabase(nil)
+	users := repository.NewUserDatabase(db)
 	user := usecase.NewUser(users, feeds)
 	err = http.NewUserHandler(e, user)
 	if err != nil {
@@ -45,12 +46,16 @@ func NewServer(e *echo.Echo) *Server {
 	}
 
 	//event handler
-	events := repository2.NewEventDatabase(nil)
-	event := usecase2.NewEvent(events, feeds)
+	events := repository2.NewEventDatabase(db)
+	event := usecase2.NewEvent(events, feed)
 	err = http2.NewEventHandler(e, event)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 
 	//team handler
-	teams := repository3.NewTeamDatabase(nil)
+	teams := repository3.NewTeamDatabase(db)
 	team := usecase3.NewTeam(teams, events)
 	err = http3.NewTeamHandler(e, team)
 	if err != nil {

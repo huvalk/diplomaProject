@@ -18,9 +18,11 @@ type User struct {
 type UserArr []User
 
 type FeedUser struct {
-	Id        int    `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Tm        Team   `json:"team"`
+	Id        int      `json:"id"`
+	FirstName string   `json:"first_name"`
+	LastName  string   `json:"last_name"`
+	Email     string   `json:"email"`
+	Tm        Team     `json:"team"`
+	JobName   string   `json:"job_name"`
+	Skills    []Skills `json:"skills"`
 }
