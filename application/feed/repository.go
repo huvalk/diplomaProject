@@ -8,4 +8,5 @@ type Repository interface {
 	Create(eventID int) (*models.Feed, error)
 	AddUser(uid, eventID int) error
 	RemoveUser(uid, eventID int) error
+	GetFeedUsers(feedID int) ([]models.User, error)
 }

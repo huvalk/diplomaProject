@@ -2,6 +2,7 @@ package main
 
 import (
 	"diplomaProject/application/server"
+	"diplomaProject/pkg/infrastructure"
 	"flag"
 	"github.com/labstack/echo"
 	"log"
@@ -9,12 +10,18 @@ import (
 
 func main() {
 	e := echo.New()
-	serv := server.NewServer(e)
-	sslPath := flag.String("ssl_path", "/etc/letsencrypt", "ssl cert path")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	conn, err := infrastructure.InitDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	serv := server.NewServer(e, conn)
+	//sslPath := flag.String("ssl_path", "/etc/letsencrypt", "ssl cert path")
 	flag.Parse()
 
-	//log.Fatal(serv.ListenAndServe())
-	log.Fatal(serv.ListenAndServeTLS(*sslPath))
+	log.Fatal(serv.ListenAndServe())
+	//log.Fatal(serv.ListenAndServeTLS(*sslPath))
 
 	//
 	//http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"context"
 	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
-	"diplomaProject/pkg/infrastructure"
 	"errors"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -17,30 +17,35 @@ func NewFeedDatabase(db *pgxpool.Pool) feed.Repository {
 }
 
 func (f FeedDatabase) Get(feedID int) (*models.Feed, error) {
-	for ind := range infrastructure.EventFeeds {
-		if infrastructure.EventFeeds[ind].Id == feedID {
-			return &infrastructure.EventFeeds[ind], nil
-		}
+	fd := models.Feed{}
+	sql := `select * from feed where id = $1`
+	queryResult := f.conn.QueryRow(context.Background(), sql, feedID)
+	err := queryResult.Scan(&fd.Id, &fd.Event)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("feed with that id not found")
+	return &fd, err
 }
 
 func (f FeedDatabase) GetByEvent(eventID int) (*models.Feed, error) {
-	for ind := range infrastructure.EventFeeds {
-		if infrastructure.EventFeeds[ind].Event == eventID {
-			return &infrastructure.EventFeeds[ind], nil
-		}
+	fd := models.Feed{}
+	sql := `select * from feed where event = $1`
+	queryResult := f.conn.QueryRow(context.Background(), sql, eventID)
+	err := queryResult.Scan(&fd.Id, &fd.Event)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("feed for that event not found")
+	return &fd, err
 }
 
 func (f FeedDatabase) Create(eventID int) (*models.Feed, error) {
-	infrastructure.EventFeeds = append(infrastructure.EventFeeds, models.Feed{
-		Id:    len(infrastructure.EventFeeds) + 1,
-		Users: nil,
-		Event: eventID,
-	})
-	return &infrastructure.EventFeeds[len(infrastructure.EventFeeds)-1], nil
+	sql := `insert into feed values(default,$1) returning id`
+	id := 0
+	err := f.conn.QueryRow(context.Background(), sql, eventID).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+	return &models.Feed{Id: id, Users: nil, Event: eventID}, nil
 }
 
 func (f FeedDatabase) AddUser(uid, eventID int) error {
@@ -48,13 +53,16 @@ func (f FeedDatabase) AddUser(uid, eventID int) error {
 	if err != nil {
 		return err
 	}
-	for i := range infrastructure.Users {
-		if uid == infrastructure.Users[i].Id {
-			fd.Users = append(fd.Users, infrastructure.Users[i])
-			return nil
-		}
+	sql := `insert into feed_users values($1,$2)`
+	queryResult, err := f.conn.Exec(context.Background(), sql, fd.Id, uid)
+	if err != nil {
+		return err
 	}
-	return errors.New("user not found")
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("already in feed")
+	}
+	return nil
 }
 
 func (f FeedDatabase) RemoveUser(uid, eventID int) error {
@@ -62,11 +70,35 @@ func (f FeedDatabase) RemoveUser(uid, eventID int) error {
 	if err != nil {
 		return err
 	}
-	for ind := range fd.Users {
-		if fd.Users[ind].Id == uid {
-			fd.Users = append(fd.Users[:ind], fd.Users[ind:]...)
-			return nil
-		}
+	sql := `delete from feed_users where feed_id=$1 AND user_id=$2`
+	queryResult, err := f.conn.Exec(context.Background(), sql, fd.Id, uid)
+	if err != nil {
+		return err
 	}
-	return errors.New("user with that id in that event not found")
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("not in feed")
+	}
+	return nil
+}
+
+func (f FeedDatabase) GetFeedUsers(feedID int) ([]models.User, error) {
+	var us []models.User
+	u := models.User{}
+	sql := `select u1.id,u1.firstname,u1.lastname,u1.email from feed_users f1
+join users u1  on f1.user_id=u1.id where f1.feed_id=$1`
+	queryResult, err := f.conn.Query(context.Background(), sql, feedID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+		if err != nil {
+			return nil, err
+		}
+		us = append(us, u)
+	}
+	queryResult.Close()
+
+	return us, err
 }

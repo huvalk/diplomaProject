@@ -1,61 +1,90 @@
 package repository
 
 import (
+	"context"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
-	"diplomaProject/application/user/repository"
-	"diplomaProject/pkg/infrastructure"
 	"errors"
-	"github.com/jinzhu/gorm"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type TeamDatabase struct {
-	conn *gorm.DB
+	conn *pgxpool.Pool
 }
 
-func NewTeamDatabase(db *gorm.DB) team.Repository {
+func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
-func (e TeamDatabase) Get(id int) (*models.Team, error) {
-	for ind := range infrastructure.MockTeams {
-		if infrastructure.MockTeams[ind].Id == id {
-			return &infrastructure.MockTeams[ind], nil
-		}
+func (t TeamDatabase) Get(id int) (*models.Team, error) {
+	tm := models.Team{}
+	sql := `select * from team where id = $1`
+
+	queryResult := t.conn.QueryRow(context.Background(), sql, id)
+	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID)
+	if err != nil {
+		return nil, err
 	}
-	return &models.Team{}, errors.New("team not found")
+	return &tm, err
 }
 
-func (e TeamDatabase) Create(newTeam *models.Team, evtID int) (*models.Team, error) {
-	newTeam.Id = len(infrastructure.MockTeams) + 1
-	newTeam.EventID = evtID
-	infrastructure.MockTeams = append(infrastructure.MockTeams, *newTeam)
-	infrastructure.TeamMembers[newTeam.Id] = []int{}
-	return newTeam, nil
+func (t TeamDatabase) GetTeamByUser(uid, evtID int) (*models.Team, error) {
+	tm := models.Team{}
+	sql := `select t1.* from team t1 join team_users tu1 on t1.id=tu1.team_id 
+where t1.event = $1 and tu1.user_id=$2`
+
+	queryResult := t.conn.QueryRow(context.Background(), sql, evtID, uid)
+	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID)
+	if err != nil {
+		return nil, err
+	}
+	return &tm, nil
 }
 
-func (e TeamDatabase) AddMember(tid int, uid ...int) (*models.Team, error) {
-	teamIDs, ok := infrastructure.TeamMembers[tid]
-	if !ok {
-		return nil, errors.New("team not found")
+func (t TeamDatabase) Create(newTeam *models.Team, evtID int) (*models.Team, error) {
+	sql := `INSERT INTO team VALUES(default,$1,$2)  RETURNING id`
+	id := 0
+	err := t.conn.QueryRow(context.Background(), sql, newTeam.Name, evtID).Scan(&id)
+	if err != nil {
+		return nil, err
 	}
+	return t.Get(id)
+}
+
+func (t TeamDatabase) AddMember(tid int, uid ...int) (*models.Team, error) {
+	sql := `INSERT INTO team_users VALUES($1,$2)`
 	for i := range uid {
-		teamIDs = append(teamIDs, uid[i])
-	}
-	infrastructure.TeamMembers[tid] = teamIDs
-	return e.Get(tid)
-}
-
-func (e TeamDatabase) GetTeamMembers(tid int) (*models.UserArr, error) {
-	users := models.UserArr{}
-	userDB := repository.NewUserDatabase(e.conn)
-	membersID := infrastructure.TeamMembers[tid]
-	for ind := range membersID {
-		user, err := userDB.GetByID(membersID[ind])
+		queryResult, err := t.conn.Exec(context.Background(), sql, tid, uid[i])
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, *user)
+		affected := queryResult.RowsAffected()
+		if affected != 1 {
+			return nil, errors.New("already in team")
+		}
 	}
-	return &users, nil
+	return t.Get(tid)
+}
+
+func (t TeamDatabase) GetTeamMembers(tid int) ([]models.User, error) {
+	var us []models.User
+	u := models.User{}
+	sql := `select u1.id,u1.firstname,u1.lastname,u1.email from team t1 
+join team_users tu1 on t1.id=tu1.team_id 
+join users u1 on tu1.user_id=u1.id where t1.id = $1`
+
+	queryResult, err := t.conn.Query(context.Background(), sql, tid)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+		if err != nil {
+			return nil, err
+		}
+		us = append(us, u)
+	}
+	queryResult.Close()
+
+	return us, err
 }

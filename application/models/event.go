@@ -1,12 +1,41 @@
 package models
 
+import "time"
+
+type EventDB struct {
+	Id          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Founder     int       `json:"founder"`
+	DateStart   time.Time `json:"date_start"`
+	DateEnd     time.Time `json:"date_end"`
+	State       string    `json:"state"`
+	Place       string    `json:"place"`
+}
+
 type Event struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Founder     string `json:"founder"`
-	Feed        Feed   `json:"feed"`
+	Id                int       `json:"id"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description"`
+	Founder           int       `json:"founder"`
+	DateStart         time.Time `json:"date_start"`
+	DateEnd           time.Time `json:"date_end"`
+	State             string    `json:"state"`
+	Place             string    `json:"place"`
+	Feed              Feed      `json:"feed"`
+	ParticipantsCount int       `json:"participants_count"`
 }
 
 //easyjson:json
 type EventArr []Event
+
+func (e *Event) Convert(evt EventDB) {
+	e.Id = evt.Id
+	e.Name = evt.Name
+	e.Description = evt.Description
+	e.Founder = evt.Founder
+	e.DateStart = evt.DateStart
+	e.DateEnd = evt.DateEnd
+	e.State = evt.State
+	e.Place = evt.Place
+}
