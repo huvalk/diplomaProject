@@ -6,14 +6,14 @@ import (
 )
 
 type Notification struct {
-	Type    uint64    `json:"type,omitempty"`
+	Type    int    `json:"type,omitempty"`
 	Message string    `json:"message"`
-	UserID  uint64    `json:"userID,omitempty"`
+	UserID  int    `json:"userID,omitempty"`
 	Created time.Time `json:"created,omitempty"`
 }
 
 type ChannelUser struct {
-	ID     uint64
+	ID     int
 	Socket *websocket.Conn
 	Send   chan []byte
 	Chan   Channel

@@ -57,6 +57,14 @@ create table team_users
     CONSTRAINT uniq_pair3 UNIQUE (team_id, user_id)
 );
 
+create table notification
+(
+    type integer not null default 0,
+    user_id integer REFERENCES users (id),
+    message varchar(320) not null default '',
+    created timestamp not null,
+    watched bool not null default false
+);
 
 
 
