@@ -1,6 +1,7 @@
 package server
 
 import (
+	httpDebug "diplomaProject/application/debug/delivery/http"
 	http2 "diplomaProject/application/event/delivery/http"
 	repository2 "diplomaProject/application/event/repository"
 	usecase2 "diplomaProject/application/event/usecase"
@@ -18,6 +19,7 @@ import (
 	"diplomaProject/application/user/usecase"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"log"
 )
 
@@ -28,6 +30,8 @@ type Server struct {
 
 func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	//middleware WIP
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	//feed handler
 	feeds := repository4.NewFeedDatabase(db)
@@ -74,6 +78,14 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		log.Println(err)
 		return nil
 	}
+
+	//debug
+	err = httpDebug.NewDebugHandler(e)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
 
 	//prometeus
 

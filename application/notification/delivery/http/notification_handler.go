@@ -14,13 +14,13 @@ const (
 	socketBufferSize = 1024
 )
 
-type EventHandler struct {
+type NotificationHandler struct {
 	useCase notification.UseCase
 	upgrader *websocket.Upgrader
 }
 
 func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
-	handler := EventHandler{
+	handler := NotificationHandler{
 		useCase: usecase,
 		upgrader: &websocket.Upgrader{
 			ReadBufferSize:  socketBufferSize,
@@ -36,7 +36,7 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 	return nil
 }
 
-func (eh *EventHandler) GetPendingNotification(ctx echo.Context) error {
+func (eh *NotificationHandler) GetPendingNotification(ctx echo.Context) error {
 	userID, err := strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
@@ -55,7 +55,7 @@ func (eh *EventHandler) GetPendingNotification(ctx echo.Context) error {
 	return nil
 }
 
-func (eh *EventHandler) ConnectToChannel(ctx echo.Context) error {
+func (eh *NotificationHandler) ConnectToChannel(ctx echo.Context) error {
 	userID, err := strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
