@@ -10,7 +10,7 @@ import (
 const dsn = `pool_max_conns=30 host=localhost port=5432 user=%s password=%s dbname=%s sslmode=disable`
 
 func InitDatabase() (*pgxpool.Pool, error) {
-	dsnFmt := fmt.Sprintf(dsn, os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+	dsnFmt := fmt.Sprintf(dsn, os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"))
 
 	config, err := pgxpool.ParseConfig(dsnFmt)
 	if err != nil {

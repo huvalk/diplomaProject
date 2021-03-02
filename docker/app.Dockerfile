@@ -7,4 +7,4 @@ WORKDIR /app
 RUN apk add make && make build-app
 
 
-CMD ["sh", "-c", "/app/app -ssl_path=${SSL}"]
+CMD ["sh", "-c", "/app/app"]
