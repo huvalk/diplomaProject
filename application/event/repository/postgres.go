@@ -44,8 +44,6 @@ func (e EventDatabase) CheckUser(evtID, uid int) bool {
 
 	queryResult := e.conn.QueryRow(context.Background(), sql, evtID, uid)
 	err := queryResult.Scan(&evtID, &uid)
-	if err != nil {
-		return false
-	}
-	return true
+
+	return err != nil
 }
