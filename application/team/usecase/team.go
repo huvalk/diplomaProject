@@ -4,7 +4,6 @@ import (
 	"diplomaProject/application/event"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
-	"diplomaProject/pkg/infrastructure"
 	"errors"
 	"fmt"
 )
@@ -12,7 +11,6 @@ import (
 type Team struct {
 	teams  team.Repository
 	events event.Repository
-	//users user.Repository
 }
 
 func NewTeam(t team.Repository, e event.Repository) team.UseCase {
@@ -28,7 +26,7 @@ func (t *Team) Get(id int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	tm.Members = *members
+	tm.Members = members
 	return tm, err
 }
 
@@ -45,25 +43,21 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	tm.Members = *usrs
+	tm.Members = usrs
 	return tm, nil
 }
 
 func (t *Team) GetTeamByUser(uid, evtID int) (*models.Team, error) {
-	for ind := range infrastructure.TeamMembers {
-		for i := range infrastructure.TeamMembers[ind] {
-			if infrastructure.TeamMembers[ind][i] == uid {
-				tm, err := t.Get(ind)
-				if err != nil {
-					return nil, err
-				}
-				if tm.EventID == evtID {
-					return tm, nil
-				}
-			}
-		}
+	tm, err := t.teams.GetTeamByUser(uid, evtID)
+	if err != nil {
+		return nil, err
 	}
-	return &models.Team{}, errors.New("no team for user")
+	members, err := t.teams.GetTeamMembers(tm.Id)
+	if err != nil {
+		return nil, err
+	}
+	tm.Members = members
+	return tm, err
 }
 
 func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
@@ -77,7 +71,11 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			newTeam := &models.Team{
 				Name: fmt.Sprintf("team-%v-%v", uid1, uid2),
 			}
-			newTeam, _ = t.Create(newTeam, evtID)
+			newTeam, err2 = t.Create(newTeam, evtID)
+			if err2 != nil {
+				fmt.Println(err2)
+				return nil, err2
+			}
 			return t.AddMember(newTeam.Id, uid1, uid2)
 		} else {
 			tm, err := t.AddMember(t2.Id, uid1)
@@ -87,7 +85,11 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			return tm, nil
 		}
 	}
-
+	if err2 == nil {
+		if t1.Id == t2.Id {
+			return t.Get(t1.Id)
+		}
+	}
 	tm, err := t.AddMember(t1.Id, uid2)
 	if err != nil {
 		return nil, err

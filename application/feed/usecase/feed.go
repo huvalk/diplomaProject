@@ -14,11 +14,29 @@ func NewFeed(f feed.Repository) feed.UseCase {
 }
 
 func (f Feed) Get(feedID int) (*models.Feed, error) {
-	return f.feeds.Get(feedID)
+	fd, err := f.feeds.Get(feedID)
+	if err != nil {
+		return nil, err
+	}
+	us, err := f.feeds.GetFeedUsers(feedID)
+	if err != nil {
+		return nil, err
+	}
+	fd.Users = us
+	return fd, nil
 }
 
 func (f Feed) GetByEvent(eventID int) (*models.Feed, error) {
-	return f.feeds.GetByEvent(eventID)
+	fd, err := f.feeds.GetByEvent(eventID)
+	if err != nil {
+		return nil, err
+	}
+	us, err := f.feeds.GetFeedUsers(fd.Id)
+	if err != nil {
+		return nil, err
+	}
+	fd.Users = us
+	return fd, nil
 }
 
 func (f Feed) Create(eventID int) (*models.Feed, error) {

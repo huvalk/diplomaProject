@@ -8,10 +8,10 @@ import (
 
 type Event struct {
 	events event.Repository
-	feeds  feed.Repository
+	feeds  feed.UseCase
 }
 
-func NewEvent(e event.Repository, f feed.Repository) event.UseCase {
+func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
 }
 
@@ -20,25 +20,27 @@ func (e *Event) Get(id int) (*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	fd, err := e.feeds.GetByEvent(int(newEvent.Id))
+	evt := &models.Event{}
+	evt.Convert(*newEvent)
+	fd, err := e.feeds.GetByEvent(newEvent.Id)
 	if err != nil {
 		return nil, err
 	}
-	newEvent.Feed = *fd
+	evt.Feed = *fd
 
-	return newEvent, nil
+	return evt, nil
 }
 
 func (e *Event) Create(newEvent *models.Event) (*models.Event, error) {
-	newEvent, err := e.events.Create(newEvent)
+	evt, err := e.events.Create(newEvent)
 	if err != nil {
 		return nil, err
 	}
-	fd, err := e.feeds.Create(int(newEvent.Id))
+	newEvent.Convert(*evt)
+	fd, err := e.feeds.Create(newEvent.Id)
 	if err != nil {
 		return nil, err
 	}
 	newEvent.Feed = *fd
-
 	return newEvent, nil
 }

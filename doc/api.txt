@@ -13,3 +13,6 @@
 
     e.GET("/feed/:id", handler.GetFeed)
     e.POST("/feed", handler.CreateFeed)
+
+    e.GET("/notification/:userid", handler.GetPendingNotification)
+    e.GET("/notification/channel/:userid", handler.ConnectToChannel)

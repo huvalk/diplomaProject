@@ -1,45 +1,52 @@
 package repository
 
 import (
+	"context"
 	"diplomaProject/application/models"
 	"diplomaProject/application/user"
-	"diplomaProject/pkg/infrastructure"
 	"errors"
-	"github.com/jinzhu/gorm"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type UserDatabase struct {
-	conn *gorm.DB
+	conn *pgxpool.Pool
 }
 
-func NewUserDatabase(db *gorm.DB) user.Repository {
+func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
 }
 
 func (ud *UserDatabase) JoinEvent(uid, evtID int) error {
-	users, ok := infrastructure.EventMembers[evtID]
-	if !ok {
-		return errors.New("event with that id not found")
+	sql := `insert into event_users values($1,$2)`
+	queryResult, err := ud.conn.Exec(context.Background(), sql, evtID, uid)
+	if err != nil {
+		return err
 	}
-	infrastructure.EventMembers[evtID] = append(users, uid)
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("already join event")
+	}
 	return nil
 }
 
 func (ud *UserDatabase) GetByID(uid int) (*models.User, error) {
-	for i := range infrastructure.Users {
-		if uid == infrastructure.Users[i].Id {
-			return &infrastructure.Users[i], nil
-		}
+	u := models.User{}
+	sql := `select * from users where id = $1`
+	queryResult := ud.conn.QueryRow(context.Background(), sql, uid)
+	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+	if err != nil {
+		return nil, err
 	}
-	return &models.User{}, errors.New("user with that id not found")
+	return &u, err
 }
 
 func (ud *UserDatabase) GetByName(name string) (*models.User, error) {
-	for i := range infrastructure.Users {
-		if name == infrastructure.Users[i].FirstName {
-			return &infrastructure.Users[i], nil
-		}
+	u := models.User{}
+	sql := `select * from users where name = $1`
+	queryResult := ud.conn.QueryRow(context.Background(), sql, name)
+	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+	if err != nil {
+		return nil, err
 	}
-
-	return &models.User{}, errors.New("user with that name not found")
+	return &u, err
 }
