@@ -59,6 +59,7 @@ create table team_users
 
 create table notification
 (
+    id bigserial primary key,
     type integer not null default 0,
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',

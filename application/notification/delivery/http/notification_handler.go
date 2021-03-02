@@ -10,14 +10,14 @@ import (
 	"strconv"
 )
 
+const (
+	socketBufferSize = 1024
+)
+
 type EventHandler struct {
 	useCase notification.UseCase
 	upgrader *websocket.Upgrader
 }
-
-const (
-	socketBufferSize = 1024
-)
 
 func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 	handler := EventHandler{
@@ -56,7 +56,7 @@ func (eh *EventHandler) GetPendingNotification(ctx echo.Context) error {
 }
 
 func (eh *EventHandler) ConnectToChannel(ctx echo.Context) error {
-	userId, err := strconv.Atoi(ctx.Param("userId"))
+	userID, err := strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -68,10 +68,16 @@ func (eh *EventHandler) ConnectToChannel(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err = eh.useCase.EnterChannel(userId, ws)
+	err = eh.useCase.EnterChannel(userID, ws)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	err = eh.useCase.SendPendingNotification(userID)
+	if err != nil {
+		log.Println(err)
+	}
+
 	return nil
 }
