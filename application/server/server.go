@@ -7,6 +7,9 @@ import (
 	http4 "diplomaProject/application/feed/delivery/http"
 	repository4 "diplomaProject/application/feed/repository"
 	usecase4 "diplomaProject/application/feed/usecase"
+	httpNotification "diplomaProject/application/notification/delivery/http"
+	repositoryNotification "diplomaProject/application/notification/repository"
+	usecaseNotification "diplomaProject/application/notification/usecase"
 	http3 "diplomaProject/application/team/delivery/http"
 	repository3 "diplomaProject/application/team/repository"
 	usecase3 "diplomaProject/application/team/usecase"
@@ -30,6 +33,15 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	feeds := repository4.NewFeedDatabase(db)
 	feed := usecase4.NewFeed(feeds)
 	err := http4.NewFeedHandler(e, feed)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	//notification
+	notificationRepo := repositoryNotification.NewNotificationRepository(db)
+	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
+	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
 	if err != nil {
 		log.Println(err)
 		return nil

@@ -32,7 +32,7 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 	}
 
 	e.GET("/notification/:userID", handler.GetPendingNotification)
-	e.POST("/notification/channel/:userID", handler.ConnectToChannel)
+	e.GET("/notification/channel/:userID", handler.ConnectToChannel)
 	return nil
 }
 

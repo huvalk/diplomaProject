@@ -15,7 +15,6 @@ func (c *ConnectedUser) Read() {
 	}
 	c.Socket.SetPongHandler(func(string) error {
 		err = c.Socket.SetReadDeadline(time.Now().Add(pongWait))
-		golog.Error("Ping")
 		if err != nil {
 			golog.Error("Cannot set read deadline: ", err)
 		}

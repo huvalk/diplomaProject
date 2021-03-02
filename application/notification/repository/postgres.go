@@ -7,15 +7,15 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type NotificationDatabase struct {
+type NotificationRepository struct {
 	conn *pgxpool.Pool
 }
 
-func NewNotificationDatabase(db *pgxpool.Pool) notification.Repository {
-	return &NotificationDatabase{conn: db}
+func NewNotificationRepository(db *pgxpool.Pool) notification.Repository {
+	return &NotificationRepository{conn: db}
 }
 
-func (r *NotificationDatabase) SaveNotification(n *channel.Notification) error {
+func (r *NotificationRepository) SaveNotification(n *channel.Notification) error {
 	sql := `insert into notification 
 			(type, user_id, message, created, watched) 
 			values ($1, $2, $3, $4, $5)`
@@ -24,7 +24,7 @@ func (r *NotificationDatabase) SaveNotification(n *channel.Notification) error {
 	return err
 }
 
-func (r *NotificationDatabase) MarkAsWatched(notificationID int) error {
+func (r *NotificationRepository) MarkAsWatched(notificationID int) error {
 	sql := `update notification 
 			set watched = TRUE
 			where id = $1`
@@ -33,7 +33,7 @@ func (r *NotificationDatabase) MarkAsWatched(notificationID int) error {
 	return err
 }
 
-func (r *NotificationDatabase) GetPendingNotification(userID int) (arr []channel.Notification, err error) {
+func (r *NotificationRepository) GetPendingNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
 	sql := `select (id, type, user_id, message, created, watched)
 			from notification 

@@ -18,16 +18,20 @@ type NotificationUseCase struct {
 	channel          channel.Channel
 }
 
-func NewNotification(n notification.Repository) notification.UseCase {
+func NewNotificationUsecase(n notification.Repository) notification.UseCase {
+	ch := channel.NewChannel()
+	go ch.Run()
+
 	return &NotificationUseCase{
+		channel: ch,
 		repo: n,
 	}
 }
 
-func (n *NotificationUseCase) SetChannel(channel channel.Channel) {
-	n.channel = channel
-	go n.channel.Run()
-}
+//func (n *NotificationUseCase) SetChannel(channel channel.Channel) {
+//	n.channel = channel
+//	go n.channel.Run()
+//}
 
 func (n *NotificationUseCase) SendInviteNotificationTo(userID int, message string) (err error) {
 	newNot := &channel.Notification{
