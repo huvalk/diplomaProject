@@ -11,7 +11,7 @@ build-local:
 	docker build -t huvalk/app:local -f docker/app.Dockerfile .
 
 generate-model:
-	docker build -t huvalk/app:local -f docker/app.Dockerfile .
+	cd application/models; easyjson -pkg -all
 
 test-cover:
 	go test ./... -coverprofile cover.out.tmp | grep -v "no test files"

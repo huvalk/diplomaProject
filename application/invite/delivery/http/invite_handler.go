@@ -52,7 +52,7 @@ func (eh *InviteHandler) InviteUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if notify {
-		err = eh.notification.SendInviteNotificationTo(inv.GuestID, "Оповещение о приглашении")
+		err = eh.notification.SendInviteNotificationToUser(inv.GuestID, "Оповещение о приглашении")
 		if err != nil {
 			log.Println("Notification wasnt sent: ", err)
 		}
@@ -82,7 +82,7 @@ func (eh *InviteHandler) InviteTeam(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if notify {
-		err = eh.notification.SendInviteNotificationTo(inv.GuestID, "Оповещение о приглашении")
+		err = eh.notification.SendInviteNotificationToUser(inv.GuestID, "Оповещение о приглашении")
 		if err != nil {
 			log.Println("Notification wasnt sent: ", err)
 		}

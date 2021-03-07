@@ -33,7 +33,7 @@ func NewNotificationUsecase(n notification.Repository) notification.UseCase {
 //	go n.channel.Run()
 //}
 
-func (n *NotificationUseCase) SendInviteNotificationTo(userID int, message string) (err error) {
+func (n *NotificationUseCase) SendInviteNotificationToUser(userID int, message string) (err error) {
 	newNot := &channel.Notification{
 		Type:    0,
 		Message: message,
