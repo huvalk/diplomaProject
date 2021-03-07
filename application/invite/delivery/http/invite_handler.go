@@ -3,7 +3,7 @@ package http
 import (
 	"diplomaProject/application/invite"
 	"diplomaProject/application/models"
-	"github.com/gorilla/websocket"
+	"diplomaProject/application/notification"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
 	"log"
@@ -12,18 +12,14 @@ import (
 )
 
 type InviteHandler struct {
-	useCase invite.UseCase
-	upgrader *websocket.Upgrader
+	invite       invite.UseCase
+	notification notification.UseCase
 }
 
-func NewInviteHandler(e *echo.Echo, usecase invite.UseCase) error {
+func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) error {
 	handler := InviteHandler{
-		useCase: usecase,
-		upgrader: &websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		},
+		invite: iu,
+		notification: nu,
 	}
 
 	e.POST("/event/:eventID/user/:userID/invite", handler.InviteUser)
@@ -42,7 +38,7 @@ func (eh *InviteHandler) InviteUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	inv.UserID, err = 1, nil
+	inv.OwnerID, err = 1, nil
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -50,10 +46,16 @@ func (eh *InviteHandler) InviteUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err = eh.useCase.InviteUser(inv)
+	notify, err := eh.invite.InviteUser(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if notify {
+		err = eh.notification.SendInviteNotificationTo(inv.GuestID, "Оповещение о приглашении")
+		if err != nil {
+			log.Println("Notification wasnt sent: ", err)
+		}
 	}
 
 	return nil
@@ -66,7 +68,7 @@ func (eh *InviteHandler) InviteTeam(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	inv.UserID, err = 1, nil
+	inv.OwnerID, err = 1, nil
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -74,10 +76,16 @@ func (eh *InviteHandler) InviteTeam(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err = eh.useCase.InviteTeam(inv)
+	notify, err := eh.invite.InviteTeam(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if notify {
+		err = eh.notification.SendInviteNotificationTo(inv.GuestID, "Оповещение о приглашении")
+		if err != nil {
+			log.Println("Notification wasnt sent: ", err)
+		}
 	}
 
 	return nil
@@ -86,14 +94,14 @@ func (eh *InviteHandler) InviteTeam(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	inv.UserID, err = 1, nil
+	inv.OwnerID, err = 1, nil
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	users, err := eh.useCase.GetInvitedUser(inv)
+	users, err := eh.invite.GetInvitedUser(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -109,14 +117,14 @@ func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	inv.UserID, err = 1, nil
+	inv.OwnerID, err = 1, nil
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	teams, err := eh.useCase.GetInvitedTeam(inv)
+	teams, err := eh.invite.GetInvitedTeam(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -132,14 +140,14 @@ func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	inv.UserID, err = 1, nil
+	inv.OwnerID, err = 1, nil
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	users, err := eh.useCase.GetInvitationUser(inv)
+	users, err := eh.invite.GetInvitationUser(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -155,14 +163,14 @@ func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitationTeam(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	inv.UserID, err = 1, nil
+	inv.OwnerID, err = 1, nil
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	teams, err := eh.useCase.GetInvitationTeam(inv)
+	teams, err := eh.invite.GetInvitationTeam(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())

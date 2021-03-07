@@ -70,9 +70,10 @@ create table notification
 create table invite
 (
     user_id integer REFERENCES users (id),
+    team_id integer REFERENCES team (id),
     event_id integer REFERENCES event (id),
-    guest_team_id integer REFERENCES team (id),
     guest_user_id integer REFERENCES users (id),
+    guest_team_id integer REFERENCES team (id),
     rejected boolean DEFAULT false,
     approved boolean DEFAULT false,
     silent boolean DEFAULT false,
@@ -80,6 +81,3 @@ create table invite
     CONSTRAINT approved_rejected CHECK (((rejected = false) OR (approved = false))),
     CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
 );
-
-
-
