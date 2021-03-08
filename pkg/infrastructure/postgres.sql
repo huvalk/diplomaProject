@@ -64,7 +64,8 @@ create table notification
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',
     created timestamp not null,
-    watched bool not null default false
+    watched bool not null default false,
+    status varchar(10) not null default 'normal'
 );
 
 create table invite

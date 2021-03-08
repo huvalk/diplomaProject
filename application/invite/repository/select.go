@@ -5,18 +5,6 @@ import (
 	"diplomaProject/application/models"
 )
 
-func (r *InviteRepository) IsInviteUserMutual(invitation *models.Invitation) (is bool, err error) {
-	sql := `select exists( 
-			select 1 from invite as i
-			left join team_users as t
-			on t.team_id = i.team_id
-			)`
-
-	err = r.conn.QueryRow(context.Background(),
-		sql, invitation.GuestID, invitation.OwnerID, invitation.EventID).Scan(&is)
-	return is, err
-}
-
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []int, err error) {
 	arr = []int{}
 	sql := `select distinct guest_user_id

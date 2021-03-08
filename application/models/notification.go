@@ -8,6 +8,7 @@ type Notification struct {
 	UserID  int    `json:"userID"`
 	Type    int    `json:"type"`
 	Message string `json:"message"`
+	Status string `json:"status"`
 }
 
 //easyjson:json
@@ -18,6 +19,7 @@ func NotificationFromChannel(n *channel.Notification) *Notification {
 		UserID:  n.UserID,
 		Type:    n.Type,
 		Message: n.Message,
+		Status: n.Status,
 	}
 }
 
@@ -28,6 +30,7 @@ func NotificationFromChannelArr(ns []channel.Notification) NotificationArr {
 			UserID:  n.UserID,
 			Type:    n.Type,
 			Message: n.Message,
+			Status: n.Status,
 		})
 	}
 
@@ -40,6 +43,7 @@ func NotificationToChannel(n *Notification) *channel.Notification {
 		Type:    n.Type,
 		Message: n.Message,
 		UserID:  n.UserID,
+		Status: n.Status,
 	}
 }
 
@@ -51,6 +55,7 @@ func NotificationToChannelArr(ns NotificationArr) (arr []channel.Notification) {
 			UserID:  n.UserID,
 			Type:    n.Type,
 			Message: n.Message,
+			Status: n.Status,
 		})
 	}
 

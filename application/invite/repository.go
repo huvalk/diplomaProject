@@ -10,7 +10,10 @@ type Repository interface {
 	TeamInviteUser(invitation *models.Invitation) error
 	UserInviteTeam(invitation *models.Invitation) error
 	TeamInviteTeam(invitation *models.Invitation) error
-	IsInviteUserMutual(invitation *models.Invitation) (bool, error)
+	UserMutualUser(invitation *models.Invitation) (is bool, err error)
+	TeamMutualUser(invitation *models.Invitation) (is bool, err error)
+	UserMutualTeam(invitation *models.Invitation) (is bool, err error)
+	TeamMutualTeam(invitation *models.Invitation) (is bool, err error)
 	GetInvitedUser(invitation *models.Invitation) ([]int, error)
 	GetInvitedTeam(invitation *models.Invitation) ([]int, error)
 	GetUserInvitationFromUser(invitation *models.Invitation) ([]int, error)

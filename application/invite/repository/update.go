@@ -6,23 +6,23 @@ import (
 )
 
 func (r *InviteRepository) setUserTeam(userID int, teamID sql.NullInt64, eventID int) error {
-	sql := `update invite 
+	query := `update invite 
 			set team_id = $1
 			where user_id = $2
 			and event_id = $3`
 
-	_, err := r.conn.Exec(context.Background(), sql, teamID, userID, eventID)
+	_, err := r.conn.Exec(context.Background(), query, teamID, userID, eventID)
 
 	return err
 }
 
 func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, eventID int) error {
-	sql := `update invite 
+	query := `update invite 
 			set guest_team_id = $1
 			where guest_user_id = $2
 			and event_id = $3`
 
-	_, err := r.conn.Exec(context.Background(), sql, teamID, userID, eventID)
+	_, err := r.conn.Exec(context.Background(), query, teamID, userID, eventID)
 
 	return err
 }

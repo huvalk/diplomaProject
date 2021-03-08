@@ -47,8 +47,19 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (res bool, err err
 		return false, err
 	}
 
-	// TODO проверять взаимность
-	return i.isMutual(invitation, ownerTeam, guestTeam)
+	if ownerTeam != nil && ownerHasTeamErr == nil {
+		if guestTeam != nil && guestHasTeamErr == nil {
+			return i.invites.TeamMutualTeam(&invitationCopy)
+		} else {
+			return  i.invites.TeamMutualUser(&invitationCopy)
+		}
+	} else {
+		if guestTeam != nil && guestHasTeamErr == nil {
+			return  i.invites.UserMutualTeam(&invitationCopy)
+		} else {
+			return  i.invites.UserMutualUser(&invitationCopy)
+		}
+	}
 }
 
 func (i *InviteUseCase) isMutual(invitation *models.Invitation, ownerTeam *models.Team,

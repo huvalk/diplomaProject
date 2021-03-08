@@ -510,7 +510,7 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels6(in *jlexer.Lexer, ou
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(NotificationArr, 0, 2)
+				*out = make(NotificationArr, 0, 1)
 			} else {
 				*out = NotificationArr{}
 			}
@@ -592,6 +592,8 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels7(in *jlexer.Lexer, ou
 			out.Type = int(in.Int())
 		case "message":
 			out.Message = string(in.String())
+		case "status":
+			out.Status = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -620,6 +622,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels7(out *jwriter.Writer,
 		const prefix string = ",\"message\":"
 		out.RawString(prefix)
 		out.String(string(in.Message))
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		out.String(string(in.Status))
 	}
 	out.RawByte('}')
 }
