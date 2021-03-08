@@ -62,11 +62,6 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (res bool, err err
 	}
 }
 
-func (i *InviteUseCase) isMutual(invitation *models.Invitation, ownerTeam *models.Team,
-	guestTeam *models.Team) (res bool, err error) {
-	return true, err
-}
-
 func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.IDArr, error) {
 	return i.invites.GetInvitedUser(invitation)
 }

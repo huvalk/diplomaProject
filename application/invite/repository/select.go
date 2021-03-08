@@ -6,7 +6,6 @@ import (
 )
 
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []int, err error) {
-	arr = []int{}
 	sql := `select distinct guest_user_id
 			from invite 
 			where user_id = $1
@@ -17,7 +16,6 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []
 }
 
 func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []int, err error) {
-	arr = []int{}
 	sql := `select distinct guest_team_id
 			from invite 
 			where user_id = $1

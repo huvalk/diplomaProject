@@ -38,7 +38,15 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 	}
 
 	inv.OwnerID, err = 1, nil
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
