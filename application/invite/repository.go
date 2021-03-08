@@ -3,6 +3,9 @@ package invite
 import "diplomaProject/application/models"
 
 type Repository interface {
+	UpdateUserJoinedTeam(userID int, teamID int, eventID int) error
+	UpdateUserLeftTeam(userID int, teamID int, eventID int) error
+	UpdateUserChangedTeam(userID int, teamID int, eventID int) error
 	UserInviteUser(invitation *models.Invitation) error
 	TeamInviteUser(invitation *models.Invitation) error
 	UserInviteTeam(invitation *models.Invitation) error

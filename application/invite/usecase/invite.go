@@ -48,20 +48,20 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (res bool, err err
 	}
 
 	// TODO проверять взаимность
-	return i.updateInvites(invitation)
+	return i.isMutual(invitation, ownerTeam, guestTeam)
 }
 
-func (i *InviteUseCase) updateInvites(invitation *models.Invitation) (res bool, err error) {
-	return false, err
+func (i *InviteUseCase) isMutual(invitation *models.Invitation, ownerTeam *models.Team,
+	guestTeam *models.Team) (res bool, err error) {
+	return true, err
 }
 
-func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.UserArr, error) {
-	return nil, nil
+func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.IDArr, error) {
+	return i.invites.GetInvitedUser(invitation)
 }
 
-func (i *InviteUseCase) GetInvitedTeam(invitation *models.Invitation) (users models.TeamArr, err error) {
-
-	return nil, nil
+func (i *InviteUseCase) GetInvitedTeam(invitation *models.Invitation) (models.IDArr, error) {
+	return i.invites.GetInvitedTeam(invitation)
 }
 
 func (i *InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr models.UserArr, err error) {

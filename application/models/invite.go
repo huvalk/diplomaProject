@@ -1,5 +1,8 @@
 package models
 
+//easyjson:json
+type IDArr []int
+
 // Инфайт отправляемый от пользователя или от команды
 type Invitation struct {
 	OwnerID int  `json:"ownerID,omitempty"`

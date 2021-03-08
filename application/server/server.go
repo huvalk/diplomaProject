@@ -8,6 +8,9 @@ import (
 	http4 "diplomaProject/application/feed/delivery/http"
 	repository4 "diplomaProject/application/feed/repository"
 	usecase4 "diplomaProject/application/feed/usecase"
+	httpInvite "diplomaProject/application/invite/delivery/http"
+	repositoryInvite "diplomaProject/application/invite/repository"
+	usecaseInvite "diplomaProject/application/invite/usecase"
 	httpNotification "diplomaProject/application/notification/delivery/http"
 	repositoryNotification "diplomaProject/application/notification/repository"
 	usecaseNotification "diplomaProject/application/notification/usecase"
@@ -42,15 +45,6 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
-	//notification
-	notificationRepo := repositoryNotification.NewNotificationRepository(db)
-	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
-	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
 	//user handler
 	//sessions := session.NewSessionDatabase(rd)
 	users := repository.NewUserDatabase(db)
@@ -74,6 +68,24 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	teams := repository3.NewTeamDatabase(db)
 	team := usecase3.NewTeam(teams, events)
 	err = http3.NewTeamHandler(e, team)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	//notification
+	notificationRepo := repositoryNotification.NewNotificationRepository(db)
+	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo, teams)
+	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	//invite handler
+	invites := repositoryInvite.NewInviteRepository(db)
+	invite := usecaseInvite.NewInviteUseCase(invites, users, teams)
+	err = httpInvite.NewInviteHandler(e, invite, notificationUsecase)
 	if err != nil {
 		log.Println(err)
 		return nil
