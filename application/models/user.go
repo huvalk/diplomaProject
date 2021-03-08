@@ -26,3 +26,6 @@ type FeedUser struct {
 	JobName   string   `json:"job_name"`
 	Skills    []Skills `json:"skills"`
 }
+
+//easyjson:json
+type FeedUserArr []FeedUser

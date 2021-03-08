@@ -10,6 +10,9 @@ start-local:
 build-local:
 	docker build -t huvalk/app:local -f docker/app.Dockerfile .
 
+generate-model:
+	cd application/models; easyjson -pkg -all
+
 test-cover:
 	go test ./... -coverprofile cover.out.tmp | grep -v "no test files"
 	cat cover.out.tmp | grep -v "_easyjson.go" > cover.out
