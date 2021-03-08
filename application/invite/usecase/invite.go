@@ -21,23 +21,25 @@ func NewInviteUseCase(inv invite.Repository, u user.Repository, t team.Repositor
 	}
 }
 
-func (i InviteUseCase) InviteUser(invitation *models.Invitation) (res bool, err error) {
+func (i *InviteUseCase) Invite(invitation *models.Invitation) (res bool, err error) {
+	invitationCopy := *invitation
+
 	ownerTeam, ownerHasTeamErr := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	guestTeam, guestHasTeamErr := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
 	if ownerTeam != nil && ownerHasTeamErr == nil {
 		if guestTeam != nil && guestHasTeamErr == nil {
-			invitation.OwnerID, invitation.GuestID = ownerTeam.Id, guestTeam.Id
-			err = i.invites.TeamInviteTeam(invitation)
+			invitationCopy.OwnerID, invitationCopy.GuestID = ownerTeam.Id, guestTeam.Id
+			err = i.invites.TeamInviteTeam(&invitationCopy)
 		} else {
-			invitation.OwnerID = ownerTeam.Id
-			err = i.invites.TeamInviteUser(invitation)
+			invitationCopy.OwnerID = ownerTeam.Id
+			err = i.invites.TeamInviteUser(&invitationCopy)
 		}
 	} else {
 		if guestTeam != nil && guestHasTeamErr == nil {
-			invitation.GuestID = guestTeam.Id
-			err = i.invites.UserInviteTeam(invitation)
+			invitationCopy.GuestID = guestTeam.Id
+			err = i.invites.UserInviteTeam(&invitationCopy)
 		} else {
-			err = i.invites.UserInviteUser(invitation)
+			err = i.invites.UserInviteUser(&invitationCopy)
 		}
 	}
 
@@ -46,29 +48,23 @@ func (i InviteUseCase) InviteUser(invitation *models.Invitation) (res bool, err 
 	}
 
 	// TODO проверять взаимность
-	//if invitation.Silent == false {
-	//	if is, err := i.invites.IsInviteUserMutual(invitation); err == nil && is {
-	//		res = true
-	//	}
-	//}
-
-	return true, nil
+	return i.updateInvites(invitation)
 }
 
-func (i InviteUseCase) InviteTeam(invitation *models.Invitation) (res bool, err error) {
-	panic("Not implemented")
+func (i *InviteUseCase) updateInvites(invitation *models.Invitation) (res bool, err error) {
+	return false, err
 }
 
-func (i InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.UserArr, error) {
+func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.UserArr, error) {
 	return nil, nil
 }
 
-func (i InviteUseCase) GetInvitedTeam(invitation *models.Invitation) (users models.TeamArr, err error) {
+func (i *InviteUseCase) GetInvitedTeam(invitation *models.Invitation) (users models.TeamArr, err error) {
 
 	return nil, nil
 }
 
-func (i InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr models.UserArr, err error) {
+func (i *InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr models.UserArr, err error) {
 	var userIds []int
 	ownerTeam, ownerHasTeamErr := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	if ownerTeam != nil && ownerHasTeamErr == nil {
@@ -95,7 +91,7 @@ func (i InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr mod
 	return arr, nil
 }
 
-func (i InviteUseCase) GetInvitationTeam(invitation *models.Invitation) (arr models.TeamArr, err error) {
+func (i *InviteUseCase) GetInvitationTeam(invitation *models.Invitation) (arr models.TeamArr, err error) {
 	var userIds []int
 	ownerTeam, ownerHasTeamErr := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	if ownerTeam != nil && ownerHasTeamErr == nil {

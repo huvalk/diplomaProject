@@ -22,8 +22,7 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 		notification: nu,
 	}
 
-	e.POST("/event/:eventID/user/:userID/invite", handler.InviteUser)
-	e.POST("/event/:eventID/team/:teamID/invite", handler.InviteTeam)
+	e.POST("/event/:eventID/user/:userID/invite", handler.Invite)
 	e.GET("/event/:eventID/invited/user", handler.GetInvitedUser)
 	e.GET("/event/:eventID/invited/team", handler.GetInvitedTeam)
 	e.GET("/event/:eventID/invitation/user", handler.GetInvitationUser)
@@ -31,7 +30,7 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 	return nil
 }
 
-func (eh *InviteHandler) InviteUser(ctx echo.Context) (err error) {
+func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, inv); err != nil {
 		log.Println(err)
@@ -46,43 +45,13 @@ func (eh *InviteHandler) InviteUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	notify, err := eh.invite.InviteUser(inv)
+	notify, err := eh.invite.Invite(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if notify {
-		err = eh.notification.SendInviteNotificationToUser(inv.GuestID, "Оповещение о приглашении")
-		if err != nil {
-			log.Println("Notification wasnt sent: ", err)
-		}
-	}
-
-	return nil
-}
-
-func (eh *InviteHandler) InviteTeam(ctx echo.Context) (err error) {
-	inv := &models.Invitation{}
-	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, inv); err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	inv.OwnerID, err = 1, nil
-	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
-	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	notify, err := eh.invite.InviteTeam(inv)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
-	}
-	if notify {
-		err = eh.notification.SendInviteNotificationToUser(inv.GuestID, "Оповещение о приглашении")
+		err = eh.notification.SendInviteNotification(*inv)
 		if err != nil {
 			log.Println("Notification wasnt sent: ", err)
 		}
