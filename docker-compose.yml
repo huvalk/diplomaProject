@@ -13,11 +13,9 @@ services:
 
   app:
     image: ${REPO}/app:${TAG}
+    restart: unless-stopped
     env_file:
       - ../env.list
-    environment:
-      - ENV=${ENV}
-      - SSL=${SSL}
     depends_on:
       - db
     volumes:
