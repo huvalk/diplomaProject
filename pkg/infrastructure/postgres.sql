@@ -64,8 +64,21 @@ create table notification
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',
     created timestamp not null,
-    watched bool not null default false
+    watched bool not null default false,
+    status varchar(10) not null default 'normal'
 );
 
-
-
+create table invite
+(
+    user_id integer REFERENCES users (id),
+    team_id integer REFERENCES team (id),
+    event_id integer REFERENCES event (id),
+    guest_user_id integer REFERENCES users (id),
+    guest_team_id integer REFERENCES team (id),
+    rejected boolean DEFAULT false,
+    approved boolean DEFAULT false,
+    silent boolean DEFAULT false,
+    date timestamp DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT approved_rejected CHECK (((rejected = false) OR (approved = false))),
+    CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
+);
