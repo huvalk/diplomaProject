@@ -7,6 +7,9 @@ start-latest:
 start-local:
 	ENV=dev SSL='' REPO=huvalk TAG=local docker-compose up
 
+start-db:
+	docker-compose -f docker-compose.database.yml up
+
 build-local:
 	docker build -t huvalk/app:local -f docker/app.Dockerfile .
 

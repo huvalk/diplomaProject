@@ -7,8 +7,8 @@ type EventDB struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Founder     int       `json:"founder"`
-	DateStart   time.Time `json:"date_start"`
-	DateEnd     time.Time `json:"date_end"`
+	DateStart   time.Time `json:"dateStart"`
+	DateEnd     time.Time `json:"dateEnd"`
 	State       string    `json:"state"`
 	Place       string    `json:"place"`
 }
@@ -18,12 +18,12 @@ type Event struct {
 	Name              string    `json:"name"`
 	Description       string    `json:"description"`
 	Founder           int       `json:"founder"`
-	DateStart         time.Time `json:"date_start"`
-	DateEnd           time.Time `json:"date_end"`
+	DateStart         time.Time `json:"dateStart"`
+	DateEnd           time.Time `json:"dateEnd"`
 	State             string    `json:"state"`
 	Place             string    `json:"place"`
 	Feed              Feed      `json:"feed"`
-	ParticipantsCount int       `json:"participants_count"`
+	ParticipantsCount int       `json:"participantsCount"`
 }
 
 //easyjson:json

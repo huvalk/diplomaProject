@@ -35,6 +35,7 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	//middleware WIP
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	//feed handler
 	feeds := repository4.NewFeedDatabase(db)

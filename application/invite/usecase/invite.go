@@ -62,6 +62,10 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (res bool, err err
 	}
 }
 
+func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, error) {
+	return i.invites.IsInvited(invitation)
+}
+
 func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.IDArr, error) {
 	return i.invites.GetInvitedUser(invitation)
 }

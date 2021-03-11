@@ -5,6 +5,34 @@ import (
 	"diplomaProject/application/models"
 )
 
+// TODO так надо делать, чтобы не ловить баги при смене команды пользователем между запросами
+func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, err error) {
+	sql := `select exists (
+				select 1 from invite
+				where ( 
+					user_id = $1
+					or team_id = (
+						select distinct(team_id) 
+						from team_users
+						where user_id = $1
+					)
+				)
+				and event_id = $2
+				and ( 
+					guest_user_id = $3
+					or guest_team_id = (
+						select distinct(team_id) 
+						from team_users
+						where user_id = $3
+					)
+				)
+			)`
+
+	err = r.conn.QueryRow(context.Background(), sql, invitation.OwnerID, invitation.EventID, invitation.GuestID).
+		Scan(&is)
+	return is, err
+}
+
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []int, err error) {
 	sql := `select distinct guest_user_id
 			from invite 
