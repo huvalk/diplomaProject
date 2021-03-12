@@ -26,3 +26,10 @@ type FeedUser struct {
 	JobName   string   `json:"job_name"`
 	Skills    []Skills `json:"skills"`
 }
+
+func (fu *FeedUser) Convert(usr User) {
+	fu.Id = usr.Id
+	fu.FirstName = usr.FirstName
+	fu.LastName = usr.LastName
+	fu.Email = usr.Email
+}

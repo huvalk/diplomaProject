@@ -57,6 +57,31 @@ create table team_users
     CONSTRAINT uniq_pair3 UNIQUE (team_id, user_id)
 );
 
+create table job
+(
+    id   bigserial primary key,
+    name varchar(80) not null
+);
+
+create table skills
+(
+    id     bigserial primary key,
+    name   varchar(80) not null,
+    job_id integer REFERENCES job (id)
+
+);
+
+-- job_skills is overhead???
+create table job_skills_users
+(
+    job_id   integer REFERENCES job (id),
+    skill_id integer REFERENCES skills (id),
+    user_id  integer REFERENCES users (id)
+);
+
+
+
+
 
 
 

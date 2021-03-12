@@ -39,6 +39,27 @@ func (f Feed) GetByEvent(eventID int) (*models.Feed, error) {
 	return fd, nil
 }
 
+func (f Feed) FilterFeed(eventID int, params map[string][]string) (*models.Feed, error) {
+	fd, err := f.feeds.GetByEvent(eventID)
+	if err != nil {
+		return nil, err
+	}
+	if len(params["job"]) == 0 {
+		us, err := f.feeds.GetFeedUsers(fd.Id)
+		if err != nil {
+			return nil, err
+		}
+		fd.Users = us
+		return fd, nil
+	}
+	us, err := f.feeds.FilterFeedBySkills(fd.Id, params["job"][0], params["skills"])
+	if err != nil {
+		return nil, err
+	}
+	fd.Users = us
+	return fd, nil
+}
+
 func (f Feed) Create(eventID int) (*models.Feed, error) {
 	return f.feeds.Create(eventID)
 }

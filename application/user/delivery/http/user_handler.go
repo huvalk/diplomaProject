@@ -21,8 +21,27 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 	handler := UserHandler{useCase: usecase}
 
 	e.GET("/user/:id", handler.Profile)
+	e.GET("/user/:id/events", handler.GetUserEvents)
 	e.POST("/login", handler.Login)
 	e.POST("/event/:evtid/join", handler.JoinEvent)
+	e.POST("/event/:evtid/leave", handler.LeaveEvent)
+	return nil
+}
+
+func (uh *UserHandler) GetUserEvents(ctx echo.Context) error {
+	uid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	evtArr, err := uh.useCase.GetUserEvents(uid)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(evtArr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 
@@ -38,6 +57,25 @@ func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	err = uh.useCase.JoinEvent(add.UID, evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	return ctx.String(200, "OK")
+}
+
+func (uh *UserHandler) LeaveEvent(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("evtid"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	add := &models.AddToTeam{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	err = uh.useCase.LeaveEvent(add.UID, evtID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -68,7 +106,7 @@ func (uh *UserHandler) Profile(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	usr, err := uh.useCase.Get(uid)
+	usr, err := uh.useCase.GetForFeed(uid)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
