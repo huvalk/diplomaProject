@@ -19,3 +19,6 @@
 
     e.GET("/notification/:userid", handler.GetPendingNotification)
     e.GET("/notification/channel/:userid", handler.ConnectToChannel)
+
+    e.GET("/job", handler.GetJobs)
+    e.GET("/job/:name/skills", handler.GetSkillsByJob)

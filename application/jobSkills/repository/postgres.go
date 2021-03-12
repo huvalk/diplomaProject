@@ -55,8 +55,7 @@ func (j JobSkillsDatabase) GetSkillsByJob(jobName string) (*[]models.Skills, err
 	var skillArr []models.Skills
 	sk := models.Skills{}
 	sql := `select s1.* from skills s1
-join job_skills_users jsu1 on s1.id=jsu1.skill_id
-join job j1 on jsu1.job_id=j1.id
+join job j1 on s1.job_id=j1.id
 where j1.name = $1`
 	queryResult, err := j.conn.Query(context.Background(), sql, jobName)
 	if err != nil {
