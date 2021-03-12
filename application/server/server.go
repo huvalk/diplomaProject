@@ -111,15 +111,6 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
-	//team handler
-	teams := repository3.NewTeamDatabase(db)
-	team := usecase3.NewTeam(teams, events)
-	err = http3.NewTeamHandler(e, team)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
 	//prometeus
 
 	//prometheus.MustRegister(middleware.FooCount, middleware.Hits)
