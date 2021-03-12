@@ -4,6 +4,7 @@ import "diplomaProject/application/models"
 
 type UseCase interface {
 	Invite(invitation *models.Invitation) (bool, error)
+	IsInvited(invitation *models.Invitation) (bool, error)
 	GetInvitedUser(invitation *models.Invitation) (models.IDArr, error)
 	GetInvitedTeam(invitation *models.Invitation) (models.IDArr, error)
 	GetInvitationUser(invitation *models.Invitation) (models.UserArr, error)

@@ -10,3 +10,7 @@ type Invitation struct {
 	EventID int  `json:"eventID,omitempty"`
 	Silent  bool `json:"silent,omitempty"`
 }
+
+type IsInvited struct {
+	IsInvited bool `json:"isInvited"`
+}
