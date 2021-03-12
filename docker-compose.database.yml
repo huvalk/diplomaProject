@@ -1,7 +1,7 @@
 version: '3'
 services:
   db:
-    image: postgres
+    image: postgres:12.6
     restart: always
     volumes:
       - ./pkg/infrastructure/postgres.sql:/docker-entrypoint-initdb.d/init.sql
