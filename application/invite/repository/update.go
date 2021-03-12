@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"diplomaProject/application/models"
 )
 
 func (r *InviteRepository) setUserTeam(userID int, teamID sql.NullInt64, eventID int) error {
@@ -67,4 +68,15 @@ func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID
 	}
 
 	return r.setGuestUserTeam(userID, nullTeamID, eventID)
+}
+
+func (r *InviteRepository) Deny(inv *models.Invitation) error {
+	query := `update invite 
+			set rejected = true
+			where user_id = $1
+			and event_id = $2`
+
+	_, err := r.conn.Exec(context.Background(), query, inv.OwnerID, inv.EventID, inv.GuestID)
+
+	return err
 }

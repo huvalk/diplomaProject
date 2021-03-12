@@ -62,6 +62,14 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (res bool, err err
 	}
 }
 
+func (i *InviteUseCase) UnInvite(invitation *models.Invitation) error {
+	return i.invites.UnInvite(invitation)
+}
+
+func (i *InviteUseCase) Deny(invitation *models.Invitation) error {
+	return i.invites.Deny(invitation)
+}
+
 func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, error) {
 	return i.invites.IsInvited(invitation)
 }

@@ -4,6 +4,8 @@ import "diplomaProject/application/models"
 
 type Repository interface {
 	IsInvited(invitation *models.Invitation) (bool, error)
+	UnInvite(invitation *models.Invitation) error
+	Deny(invitation *models.Invitation) error
 	UpdateUserJoinedTeam(userID int, teamID int, eventID int) error
 	UpdateUserLeftTeam(userID int, teamID int, eventID int) error
 	UpdateUserChangedTeam(userID int, teamID int, eventID int) error

@@ -23,6 +23,8 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 	}
 
 	e.POST("/event/:eventID/user/:userID/invite", handler.Invite)
+	e.POST("/event/:eventID/user/:userID/uninvite", handler.UnInvite)
+	e.POST("/event/:eventID/user/:userID/deny", handler.Deny)
 	e.GET("/event/:eventID/invited/user/:userID", handler.IsInvited)
 	e.GET("/event/:eventID/invited/users", handler.GetInvitedUser)
 	e.GET("/event/:eventID/invited/teams", handler.GetInvitedTeam)
@@ -65,6 +67,64 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 		if err != nil {
 			log.Println("Notification wasnt sent: ", err)
 		}
+	}
+
+	return nil
+}
+
+func (eh *InviteHandler) UnInvite(ctx echo.Context) (err error) {
+	inv := &models.Invitation{}
+
+	// TODO хардкод
+	inv.OwnerID, err = 1, nil
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = eh.invite.UnInvite(inv)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	return nil
+}
+
+func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
+	inv := &models.Invitation{}
+
+	// TODO хардкод
+	inv.OwnerID, err = 1, nil
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = eh.invite.Deny(inv)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
 	return nil
