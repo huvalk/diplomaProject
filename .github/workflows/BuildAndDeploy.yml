@@ -20,6 +20,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    args: ./...
     steps:
       - uses: actions/checkout@v2
       - name: Run golangci-lint
