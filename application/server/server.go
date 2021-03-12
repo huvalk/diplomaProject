@@ -14,6 +14,9 @@ import (
 	httpNotification "diplomaProject/application/notification/delivery/http"
 	repositoryNotification "diplomaProject/application/notification/repository"
 	usecaseNotification "diplomaProject/application/notification/usecase"
+	http5 "diplomaProject/application/jobSkills/delivery/http"
+	repository5 "diplomaProject/application/jobSkills/repository"
+	usecase5 "diplomaProject/application/jobSkills/usecase"
 	http3 "diplomaProject/application/team/delivery/http"
 	repository3 "diplomaProject/application/team/repository"
 	usecase3 "diplomaProject/application/team/usecase"
@@ -83,6 +86,15 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
+	//jobskills handler
+	jobs := repository5.NewJobSkillsDatabase(db)
+	job := usecase5.NewJobSkills(jobs)
+	err = http5.NewJobSkillsHandler(e, job)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
 	//invite handler
 	invites := repositoryInvite.NewInviteRepository(db)
 	invite := usecaseInvite.NewInviteUseCase(invites, users, teams)
@@ -99,6 +111,14 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
+	//team handler
+	teams := repository3.NewTeamDatabase(db)
+	team := usecase3.NewTeam(teams, events)
+	err = http3.NewTeamHandler(e, team)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 
 	//prometeus
 

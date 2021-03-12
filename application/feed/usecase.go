@@ -8,4 +8,5 @@ type UseCase interface {
 	Create(eventID int) (*models.Feed, error)
 	AddUser(uid, eventID int) error
 	RemoveUser(uid, eventID int) error
+	FilterFeed(eventID int, params map[string][]string) (*models.Feed, error)
 }

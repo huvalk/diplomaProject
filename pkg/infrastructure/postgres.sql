@@ -82,3 +82,32 @@ create table invite
     CONSTRAINT approved_rejected CHECK (((rejected = false) OR (approved = false))),
     CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
 );
+
+create table job
+(
+    id   bigserial primary key,
+    name varchar(80) not null
+);
+
+create table skills
+(
+    id     bigserial primary key,
+    name   varchar(80) not null,
+    job_id integer REFERENCES job (id)
+
+);
+
+-- job_skills is overhead???
+create table job_skills_users
+(
+    job_id   integer REFERENCES job (id),
+    skill_id integer REFERENCES skills (id),
+    user_id  integer REFERENCES users (id)
+);
+
+
+
+
+
+
+

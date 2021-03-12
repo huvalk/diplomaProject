@@ -1,9 +1,9 @@
 package models
 
 type Skills struct {
-	Id          int      `json:"id"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	JobID int    `json:"jobId"`
 }
 
 //easyjson:json

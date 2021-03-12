@@ -29,3 +29,10 @@ type FeedUser struct {
 
 //easyjson:json
 type FeedUserArr []FeedUser
+
+func (fu *FeedUser) Convert(usr User) {
+	fu.Id = usr.Id
+	fu.FirstName = usr.FirstName
+	fu.LastName = usr.LastName
+	fu.Email = usr.Email
+}
