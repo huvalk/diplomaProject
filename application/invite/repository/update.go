@@ -102,10 +102,25 @@ func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID
 }
 
 func (r *InviteRepository) Deny(inv *models.Invitation) error {
-	query := `update invite 
+	query := `update invite
 			set rejected = true
-			where user_id = $1
-			and event_id = $2`
+			where ( 
+				user_id = $1
+				or team_id = (
+					select distinct(team_id) 
+					from team_users
+					where user_id = $1
+				)
+			)
+			and event_id = $2
+			and ( 
+				guest_user_id = $3
+				or guest_team_id = (
+					select distinct(team_id) 
+					from team_users
+					where user_id = $3
+				)
+			)`
 
 	_, err := r.conn.Exec(context.Background(), query, inv.OwnerID, inv.EventID, inv.GuestID)
 
