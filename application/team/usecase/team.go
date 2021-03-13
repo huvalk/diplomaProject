@@ -87,6 +87,9 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 				return nil, err2
 			}
 			err := t.teams.UpdateUserJoinedTeam(uid1, uid2, newTeam.Id, evtID)
+			if err != nil {
+				return nil, err
+			}
 			err = t.teams.UpdateUserJoinedTeam(uid2, uid1, newTeam.Id, evtID)
 			if err != nil {
 				return nil, err
@@ -139,8 +142,14 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	for i := range t2.Members {
 		newTeamIDS = append(newTeamIDS, t2.Members[i].Id)
 	}
-	_ = t.teams.RemoveUsers(t1.Id)
-	_ = t.teams.RemoveUsers(t2.Id)
+	err = t.teams.RemoveUsers(t1.Id)
+	if err != nil {
+		return nil, err
+	}
+	err = t.teams.RemoveUsers(t2.Id)
+	if err != nil {
+		return nil, err
+	}
 	//teamjointeam
 	return t.AddMember(newTeam.Id, newTeamIDS...)
 
