@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"diplomaProject/application/invite/repository"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
 	"errors"
@@ -14,6 +15,16 @@ type TeamDatabase struct {
 
 func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
+}
+
+func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
+	invRepo := repository.NewInviteRepository(t.conn)
+
+	return invRepo.IsInvited(&models.Invitation{
+		OwnerID: uid1,
+		GuestID: uid2,
+		EventID: evtID,
+	})
 }
 
 func (t TeamDatabase) Get(id int) (*models.Team, error) {

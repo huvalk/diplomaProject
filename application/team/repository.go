@@ -8,4 +8,5 @@ type Repository interface {
 	AddMember(tid int, uid ...int) (*models.Team, error)
 	GetTeamMembers(tid int) ([]models.User, error)
 	GetTeamByUser(uid, evtID int) (*models.Team, error)
+	CheckInviteStatus(uid1, uid2, evtID int) (bool, error)
 }
