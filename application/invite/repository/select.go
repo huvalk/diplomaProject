@@ -40,7 +40,9 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []
 			from invite 
 			where user_id = $1
 			and event_id = $2
-			and guest_team_id is null`
+			and guest_team_id is null
+			and rejected = false
+			and approved = false`
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
@@ -50,7 +52,9 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []
 			from invite 
 			where user_id = $1
 			and event_id = $2
-			and guest_team_id is not null`
+			and guest_team_id is not null
+			and rejected = false
+			and approved = false`
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
@@ -62,7 +66,9 @@ func (r *InviteRepository) GetUserInvitationFromUser(invitation *models.Invitati
 			and event_id = $2
 			and team_id is null
 			and guest_team_id is null
-			and silent = false`
+			and silent = false
+			and rejected = false
+			and approved = false`
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
@@ -73,7 +79,9 @@ func (r *InviteRepository) GetTeamInvitationFromUser(invitation *models.Invitati
 			where guest_team_id = $1
 			and event_id = $2
 			and team_id is null
-			and silent = false`
+			and silent = false
+			and rejected = false
+			and approved = false`
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
@@ -84,7 +92,9 @@ func (r *InviteRepository) GetUserInvitationFromTeam(invitation *models.Invitati
 			where guest_user_id = $1
 			and event_id = $2
 			and guest_team_id is null
-			and silent = false`
+			and silent = false
+			and rejected = false
+			and approved = false`
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
@@ -94,7 +104,9 @@ func (r *InviteRepository) GetTeamInvitationFromTeam(invitation *models.Invitati
 			from invite 
 			where guest_team_id = $1
 			and event_id = $2
-			and silent = false`
+			and silent = false
+			and rejected = false
+			and approved = false`
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
