@@ -24,6 +24,8 @@ COPY public.users (id, firstname, lastname, email) FROM stdin;
 2	Олег	Елизаров	oe@eo.ru
 1	Сергей	Куклин	akiraq@yandex.ru
 3	Михаил	Балицкий	miks@yandex.ru
+4	Марат	Ишимбаев	ii@doc.ru
+5	Петр	Трактаренко	t@t.com
 \.
 
 
@@ -78,6 +80,7 @@ COPY public.feed_users (feed_id, user_id) FROM stdin;
 --
 
 COPY public.team (id, name, event) FROM stdin;
+2	team-3-4	1
 \.
 
 
@@ -86,6 +89,7 @@ COPY public.team (id, name, event) FROM stdin;
 --
 
 COPY public.invite (user_id, team_id, event_id, guest_user_id, guest_team_id, rejected, approved, silent, date) FROM stdin;
+2	\N	1	1	\N	f	f	f	2021-03-13 14:01:08.853042
 \.
 
 
@@ -112,6 +116,12 @@ COPY public.skills (id, name, job_id) FROM stdin;
 3	TypeScript	1
 2	Angular	1
 1	React	1
+4	Писать	2
+5	Код	3
+6	Быстро	4
+7	Качественно	5
+8	Эффективно	6
+9	Умный	7
 \.
 
 
@@ -120,6 +130,7 @@ COPY public.skills (id, name, job_id) FROM stdin;
 --
 
 COPY public.job_skills_users (job_id, skill_id, user_id) FROM stdin;
+1	1	1
 \.
 
 
@@ -171,7 +182,7 @@ SELECT pg_catalog.setval('public.notification_id_seq', 1, false);
 -- Name: skills_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.skills_id_seq', 3, true);
+SELECT pg_catalog.setval('public.skills_id_seq', 9, true);
 
 
 --
@@ -185,7 +196,7 @@ SELECT pg_catalog.setval('public.team_id_seq', 1, false);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 1, false);
+SELECT pg_catalog.setval('public.users_id_seq', 1, true);
 
 
 --
