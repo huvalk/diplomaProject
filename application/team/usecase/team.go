@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"diplomaProject/application/event"
-	"diplomaProject/application/invite"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
 	"errors"
@@ -12,7 +11,6 @@ import (
 type Team struct {
 	teams   team.Repository
 	events  event.Repository
-	invites invite.Repository
 }
 
 func NewTeam(t team.Repository, e event.Repository) team.UseCase {
