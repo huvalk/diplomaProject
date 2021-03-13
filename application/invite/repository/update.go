@@ -101,6 +101,55 @@ func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID
 	return r.setGuestUserTeam(userID, nullTeamID, eventID)
 }
 
+func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventID int) error {
+	query := 	`update invite
+				set team_id = $1
+				where team_id = $2
+				and event_id = $3`
+
+	if _, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID); err != nil {
+		return err
+	}
+
+	query = 	`update invite
+				set guest_team_id = $1
+				where guest_team_id = $2
+				and event_id = $3`
+
+	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID)
+
+	return err
+}
+
+func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error {
+	query := 	`update invite
+				set team_id = $1,
+				guest_team_id = $1,
+				approved = true
+				where ((
+						team_id = $2
+						and guest_team_id = $3
+					)
+					or (
+						team_id = $3
+						and guest_team_id = $2
+					)
+				) 
+				and event_id = $4`
+
+	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID1, teamFromID2, eventID)
+
+	if err != nil {
+		return err
+	}
+
+	if err = r.changeTeamToTeam(teamFromID1, teamToID, eventID); err != nil {
+		return err
+	}
+
+	return r.changeTeamToTeam(teamFromID1, teamToID, eventID)
+}
+
 func (r *InviteRepository) Deny(inv *models.Invitation) error {
 	query := `update invite
 			set rejected = true
