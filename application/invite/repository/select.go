@@ -26,6 +26,8 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, er
 						where user_id = $3
 					)
 				)
+				and rejected = false
+				and approved = false
 			)`
 
 	err = r.conn.QueryRow(context.Background(), sql, invitation.OwnerID, invitation.EventID, invitation.GuestID).

@@ -33,6 +33,8 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 	return nil
 }
 
+
+
 func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, inv); err != nil {
