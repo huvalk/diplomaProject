@@ -17,6 +17,21 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
+func (t TeamDatabase) RemoveUsers(tid int) error {
+	sql := `Delete from team_users tu1 
+where tu1.team_id=$1`
+	queryResult, err := t.conn.Exec(context.Background(), sql, tid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("team not found")
+	}
+
+	return nil
+}
+
 func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
 	invRepo := repository.NewInviteRepository(t.conn)
 
@@ -25,6 +40,12 @@ func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
 		GuestID: uid2,
 		EventID: evtID,
 	})
+}
+
+func (t TeamDatabase) UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error {
+	invRepo := repository.NewInviteRepository(t.conn)
+
+	return invRepo.UpdateUserJoinedTeam(uid1, uid2, tid, evtID)
 }
 
 func (t TeamDatabase) Get(id int) (*models.Team, error) {
