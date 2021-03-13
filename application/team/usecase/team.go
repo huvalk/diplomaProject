@@ -151,6 +151,9 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		return nil, err
 	}
 	//teamjointeam
+	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
+	if err != nil {
+		return nil, err
+	}
 	return t.AddMember(newTeam.Id, newTeamIDS...)
-
 }

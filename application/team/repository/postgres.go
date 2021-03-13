@@ -48,6 +48,12 @@ func (t TeamDatabase) UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error {
 	return invRepo.UpdateUserJoinedTeam(uid1, uid2, tid, evtID)
 }
 
+func (t TeamDatabase) UpdateTeamMerged(tid1, tid2, tid3, evtID int) error {
+	invRepo := repository.NewInviteRepository(t.conn)
+
+	return invRepo.UpdateTeamMerged(tid1, tid2, tid3, evtID)
+}
+
 func (t TeamDatabase) Get(id int) (*models.Team, error) {
 	tm := models.Team{}
 	sql := `select * from team where id = $1`
