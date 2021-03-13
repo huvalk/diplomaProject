@@ -7,6 +7,7 @@ import (
 	"github.com/mailru/easyjson"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 type JobSkillsHandler struct {
@@ -37,7 +38,7 @@ func (js *JobSkillsHandler) GetJobs(ctx echo.Context) error {
 }
 
 func (js *JobSkillsHandler) GetSkillsByJob(ctx echo.Context) error {
-	jobName := ctx.Param("name")
+	jobName, _ := url.QueryUnescape(ctx.Param("name"))
 
 	sArr, err := js.useCase.GetSkillsByJob(jobName)
 	if err != nil {
