@@ -1,6 +1,8 @@
 	e.GET("/user/:id", handler.Profile)
-	//e.POST("/login", handler.Login)
+	e.GET("/user/:id/events", handler.GetUserEvents)
+	e.POST("/login", handler.Login)
 	e.POST("/event/:evtid/join", handler.JoinEvent)
+	e.POST("/event/:evtid/leave", handler.LeaveEvent)
 
 	e.GET("/team/:id", handler.GetTeam)
 	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
@@ -11,8 +13,12 @@
     e.GET("/event/:id", handler.GetEvent)
     e.POST("/event", handler.CreateEvent)
 
-    e.GET("/feed/:id", handler.GetFeed)
-    e.POST("/feed", handler.CreateFeed)
+	e.GET("/feed/:id", handler.GetFeed)
+	e.POST("/feed", handler.CreateFeed)
+	e.GET("/event/:id/filter", handler.FilterFeed)
 
     e.GET("/notification/:userid", handler.GetPendingNotification)
     e.GET("/notification/channel/:userid", handler.ConnectToChannel)
+
+    e.GET("/job", handler.GetJobs)
+    e.GET("/job/:name/skills", handler.GetSkillsByJob)

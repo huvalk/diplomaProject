@@ -7,7 +7,7 @@ type Repository interface {
 	UnInvite(invitation *models.Invitation) error
 	Deny(invitation *models.Invitation) error
 	AcceptInvite(userID1 int, userID2 int, eventID int) error
-	UpdateUserJoinedTeam(userID int, teamID int, eventID int) error
+	UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error
 	UpdateUserLeftTeam(userID int, teamID int, eventID int) error
 	UpdateUserChangedTeam(userID int, teamID int, eventID int) error
 	UserInviteUser(invitation *models.Invitation) error

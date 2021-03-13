@@ -20,6 +20,24 @@ func NewFeedHandler(e *echo.Echo, usecase feed.UseCase) error {
 
 	e.GET("/feed/:id", handler.GetFeed)
 	e.POST("/feed", handler.CreateFeed)
+	e.GET("/event/:id/filter", handler.FilterFeed)
+	return nil
+}
+
+func (fh *FeedHandler) FilterFeed(ctx echo.Context) error {
+	evtid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	fd, err := fh.useCase.FilterFeed(evtid, ctx.QueryParams())
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(fd, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 

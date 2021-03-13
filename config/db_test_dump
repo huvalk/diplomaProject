@@ -90,6 +90,40 @@ COPY public.invite (user_id, team_id, event_id, guest_user_id, guest_team_id, re
 
 
 --
+-- Data for Name: job; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.job (id, name) FROM stdin;
+1	Frontend
+2	Backend
+3	3D designer
+4	Product Manager
+5	UX/UI
+6	DevOps
+7	Другое
+\.
+
+
+--
+-- Data for Name: skills; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.skills (id, name, job_id) FROM stdin;
+3	TypeScript	1
+2	Angular	1
+1	React	1
+\.
+
+
+--
+-- Data for Name: job_skills_users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.job_skills_users (job_id, skill_id, user_id) FROM stdin;
+\.
+
+
+--
 -- Data for Name: notification; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -120,10 +154,24 @@ SELECT pg_catalog.setval('public.feed_id_seq', 1, false);
 
 
 --
+-- Name: job_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.job_id_seq', 7, true);
+
+
+--
 -- Name: notification_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public.notification_id_seq', 1, false);
+
+
+--
+-- Name: skills_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.skills_id_seq', 3, true);
 
 
 --
