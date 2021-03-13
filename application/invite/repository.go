@@ -10,6 +10,7 @@ type Repository interface {
 	UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error
 	UpdateUserLeftTeam(userID int, teamID int, eventID int) error
 	UpdateUserChangedTeam(userID int, teamID int, eventID int) error
+	UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int)
 	UserInviteUser(invitation *models.Invitation) error
 	TeamInviteUser(invitation *models.Invitation) error
 	UserInviteTeam(invitation *models.Invitation) error
