@@ -1666,7 +1666,73 @@ func (v *Event) UnmarshalJSON(data []byte) error {
 func (v *Event) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels19(l, v)
 }
-func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(in *jlexer.Lexer, out *AddToUser) {
+func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(in *jlexer.Lexer, out *AuthUser) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.Id = int(in.Int())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(out *jwriter.Writer, in AuthUser) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.Id))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v AuthUser) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v AuthUser) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *AuthUser) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *AuthUser) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(l, v)
+}
+func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(in *jlexer.Lexer, out *AddToUser) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1699,7 +1765,7 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(out *jwriter.Writer, in AddToUser) {
+func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(out *jwriter.Writer, in AddToUser) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1719,27 +1785,27 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(out *jwriter.Writer
 // MarshalJSON supports json.Marshaler interface
 func (v AddToUser) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(&w, v)
+	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AddToUser) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(w, v)
+	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AddToUser) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(&r, v)
+	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AddToUser) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(l, v)
+	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(l, v)
 }
-func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(in *jlexer.Lexer, out *AddToTeam) {
+func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels22(in *jlexer.Lexer, out *AddToTeam) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1772,7 +1838,7 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(out *jwriter.Writer, in AddToTeam) {
+func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels22(out *jwriter.Writer, in AddToTeam) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1792,23 +1858,23 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(out *jwriter.Writer
 // MarshalJSON supports json.Marshaler interface
 func (v AddToTeam) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(&w, v)
+	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels22(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AddToTeam) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels21(w, v)
+	easyjsonD2b7633eEncodeDiplomaProjectApplicationModels22(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AddToTeam) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(&r, v)
+	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels22(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AddToTeam) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels21(l, v)
+	easyjsonD2b7633eDecodeDiplomaProjectApplicationModels22(l, v)
 }

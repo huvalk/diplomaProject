@@ -3,7 +3,7 @@ package invite
 import "diplomaProject/application/models"
 
 type UseCase interface {
-	Invite(invitation *models.Invitation) (bool, error)
+	Invite(invitation *models.Invitation) ([]int, []int, error)
 	UnInvite(invitation *models.Invitation) error
 	Deny(invitation *models.Invitation) error
 	IsInvited(invitation *models.Invitation) (bool, error)

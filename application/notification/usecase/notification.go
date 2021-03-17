@@ -3,7 +3,6 @@ package usecase
 import (
 	"diplomaProject/application/models"
 	"diplomaProject/application/notification"
-	"diplomaProject/application/team"
 	"diplomaProject/pkg/channel"
 	"errors"
 	"github.com/gorilla/websocket"
@@ -16,17 +15,15 @@ const (
 
 type NotificationUseCase struct {
 	notifications notification.Repository
-	teams team.Repository
 	channel       channel.Channel
 }
 
-func NewNotificationUsecase(n notification.Repository, t team.Repository) notification.UseCase {
+func NewNotificationUsecase(n notification.Repository) notification.UseCase {
 	ch := channel.NewChannel()
 	go ch.Run()
 
 	return &NotificationUseCase{
 		channel:       ch,
-		teams: t,
 		notifications: n,
 	}
 }
@@ -36,38 +33,26 @@ func NewNotificationUsecase(n notification.Repository, t team.Repository) notifi
 //	go n.channel.Run()
 //}
 
-func (n *NotificationUseCase) SendInviteNotification(inv models.Invitation) (err error) {
+func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
 	message := "Оповещение о приглашении"
-	userTeam, err := n.teams.GetTeamByUser(inv.GuestID, inv.EventID)
 
-	var teammates models.UserArr
-	if userTeam != nil && err == nil {
-		teammates, err = n.teams.GetTeamMembers(userTeam.Id)
-
-		if err != nil {
-			return err
-		}
-	} else {
-		teammates = append(teammates, models.User{Id: inv.GuestID})
-	}
-
-	for _, user := range teammates {
+	for _, userID := range users {
 		newNot := &channel.Notification{
 			Type:    0,
 			Message: message,
-			UserID:  user.Id,
+			UserID:  userID,
 			Created: time.Time{},
 			Status: "good",
 			Watched: false,
 		}
 
 		newNot.Watched, err = n.channel.SendNotification(newNot)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 
 		err = n.notifications.SaveNotification(newNot)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 	}

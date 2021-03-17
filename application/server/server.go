@@ -1,6 +1,7 @@
 package server
 
 import (
+	httpAuth "diplomaProject/application/auth/delivery/http"
 	httpDebug "diplomaProject/application/debug/delivery/http"
 	http2 "diplomaProject/application/event/delivery/http"
 	repository2 "diplomaProject/application/event/repository"
@@ -11,12 +12,13 @@ import (
 	httpInvite "diplomaProject/application/invite/delivery/http"
 	repositoryInvite "diplomaProject/application/invite/repository"
 	usecaseInvite "diplomaProject/application/invite/usecase"
-	httpNotification "diplomaProject/application/notification/delivery/http"
-	repositoryNotification "diplomaProject/application/notification/repository"
-	usecaseNotification "diplomaProject/application/notification/usecase"
 	http5 "diplomaProject/application/jobSkills/delivery/http"
 	repository5 "diplomaProject/application/jobSkills/repository"
 	usecase5 "diplomaProject/application/jobSkills/usecase"
+	customMiddleware "diplomaProject/application/middleware"
+	httpNotification "diplomaProject/application/notification/delivery/http"
+	repositoryNotification "diplomaProject/application/notification/repository"
+	usecaseNotification "diplomaProject/application/notification/usecase"
 	http3 "diplomaProject/application/team/delivery/http"
 	repository3 "diplomaProject/application/team/repository"
 	usecase3 "diplomaProject/application/team/usecase"
@@ -36,6 +38,7 @@ type Server struct {
 
 func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	//middleware WIP
+	e.Use(customMiddleware.UserID)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
@@ -79,7 +82,7 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 
 	//notification
 	notificationRepo := repositoryNotification.NewNotificationRepository(db)
-	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo, teams)
+	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
 	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
 	if err != nil {
 		log.Println(err)
@@ -106,6 +109,13 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 
 	//debug
 	err = httpDebug.NewDebugHandler(e)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	//auth
+	err = httpAuth.NewAuthHandler(e)
 	if err != nil {
 		log.Println(err)
 		return nil

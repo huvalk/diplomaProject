@@ -54,6 +54,67 @@ func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) e
 	return err
 }
 
+func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, err error) {
+	isMutual, err := r.IsMutual(invitation)
+	if err != nil {
+		return false, err
+	}
+
+	if !isMutual {
+		return false, nil
+	}
+
+	updateSilent := `WITH owner_user_team(team_id) AS (
+						select team_id
+						from team_users
+						where team_users.user_id = $1
+						UNION
+						SELECT null
+						order by team_id
+						limit 1
+					), guest_user_team(team_id) AS (
+						select team_id
+						from team_users
+						where team_users.user_id = $2
+						UNION
+						SELECT null
+						order by team_id
+						limit 1
+					)
+					update invite
+					set silent = false
+					from guest_user_team, owner_user_team
+					where
+						(
+							(
+								invite.team_id = owner_user_team.team_id
+								or user_id = $1
+							)
+							and (
+								guest_user_id = $2
+								or guest_team_id = guest_user_team.team_id
+							)
+						)
+						or (
+							(
+								invite.team_id = guest_user_team.team_id
+								or user_id = $2
+							)
+							and (
+								guest_user_id = $1
+								or guest_team_id = owner_user_team.team_id
+							)
+						)
+					and event_id = $3
+					and silent = true
+					and rejected = false
+					and approved = false`
+
+
+	_, err = r.conn.Exec(context.Background(), updateSilent, invitation.OwnerID, invitation.GuestID, invitation.EventID)
+	return err == nil, err
+}
+
 func (r *InviteRepository) UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error {
 	nullTeamID := sql.NullInt64{
 		Int64: int64(teamID),
@@ -102,12 +163,51 @@ func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID
 }
 
 func (r *InviteRepository) Deny(inv *models.Invitation) error {
-	query := `update invite 
-			set rejected = true
-			where user_id = $1
-			and event_id = $2`
-
-	_, err := r.conn.Exec(context.Background(), query, inv.OwnerID, inv.EventID, inv.GuestID)
+	deny := `WITH owner_user_team(team_id) AS (
+						select team_id
+						from team_users
+						where team_users.user_id = $1
+						UNION
+						SELECT null
+						order by team_id
+						limit 1
+					), guest_user_team(team_id) AS (
+						select team_id
+						from team_users
+						where team_users.user_id = $2
+						UNION
+						SELECT null
+						order by team_id
+						limit 1
+					)
+					update invite
+					set rejected = true
+					from guest_user_team, owner_user_team
+					where
+						(
+							(
+								invite.team_id = owner_user_team.team_id
+								or user_id = $1
+							)
+							and (
+								guest_user_id = $2
+								or guest_team_id = guest_user_team.team_id
+							)
+						)
+						or (
+							(
+								invite.team_id = guest_user_team.team_id
+								or user_id = $2
+							)
+							and (
+								guest_user_id = $1
+								or guest_team_id = owner_user_team.team_id
+							)
+						)
+					and event_id = $3
+					and rejected = false
+					and approved = false`
+	_, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
 
 	return err
 }

@@ -5,42 +5,37 @@ import (
 	"diplomaProject/application/models"
 )
 
-func (r *InviteRepository) UserInviteUser(invitation *models.Invitation) error {
-	sql := `insert into invite 
-			(user_id, event_id, guest_user_id, silent) 
-			values ($1, $2, $3, $4)`
+func (r *InviteRepository) Invite(invitation *models.Invitation) error {
+	sql := `WITH owner_user_team(team_id) AS (
+				select team_id
+				from team_users
+				where team_users.user_id = $1
+				UNION
+				SELECT null
+				order by team_id
+				limit 1
+			), guest_user_team(team_id) AS (
+				select team_id
+				from team_users
+				where team_users.user_id = $2
+				UNION
+				SELECT null
+				order by team_id
+				limit 1
+			)
+			insert into invite
+			(user_id, team_id, event_id, guest_user_id, guest_team_id, silent)
+			select CASE WHEN owner_user_team.team_id is null THEN $1
+						ELSE null
+					END, 
+				   owner_user_team.team_id, $3, 
+				   CASE WHEN guest_user_team.team_id is null THEN $2
+						ELSE null
+					END, guest_user_team.team_id, 
+				   $4
+			from guest_user_team, owner_user_team;`
 
 	_, err := r.conn.Exec(context.Background(),
-		sql, invitation.OwnerID, invitation.EventID, invitation.GuestID, invitation.Silent)
-	return err
-}
-
-func (r *InviteRepository) UserInviteTeam(invitation *models.Invitation) error {
-	sql := `insert into invite
-			(user_id, event_id, guest_team_id, silent) 
-			values ($1, $2, $3, $4)`
-
-	_, err := r.conn.Exec(context.Background(),
-		sql, invitation.OwnerID, invitation.EventID, invitation.GuestID, invitation.Silent)
-	return err
-}
-
-func (r *InviteRepository) TeamInviteUser(invitation *models.Invitation) error {
-	sql := `insert into invite 
-			(team_id, event_id, guest_user_id, silent) 
-			values ($1, $2, $3, $4)`
-
-	_, err := r.conn.Exec(context.Background(),
-		sql, invitation.OwnerID, invitation.EventID, invitation.GuestID, invitation.Silent)
-	return err
-}
-
-func (r *InviteRepository) TeamInviteTeam(invitation *models.Invitation) error {
-	sql := `insert into invite
-			(team_id, event_id, guest_team_id, silent) 
-			values ($1, $2, $3, false)`
-
-	_, err := r.conn.Exec(context.Background(),
-		sql, invitation.OwnerID, invitation.EventID, invitation.GuestID, invitation.Silent)
+		sql, invitation.OwnerID, invitation.GuestID, invitation.EventID, invitation.Silent)
 	return err
 }

@@ -35,6 +35,17 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, er
 	return is, err
 }
 
+
+func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err error) {
+	reverseInv := &models.Invitation{
+		OwnerID: invitation.GuestID,
+		GuestID: invitation.OwnerID,
+		EventID: invitation.EventID,
+	}
+	return r.IsInvited(reverseInv)
+}
+
+// TODO поправить
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []int, err error) {
 	sql := `select distinct guest_user_id
 			from invite 
@@ -45,6 +56,7 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
 
+// TODO поправить
 func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []int, err error) {
 	sql := `select distinct guest_team_id
 			from invite 
@@ -55,48 +67,55 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
 
-func (r *InviteRepository) GetUserInvitationFromUser(invitation *models.Invitation) (arr []int, err error) {
-	sql := `select distinct user_id
-			from invite 
-			where guest_user_id = $1
+func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) (arr []int, err error) {
+	sql := `WITH guest_user_team(team_id) AS (
+				select team_id
+				from team_users
+				where team_users.user_id = $1
+				UNION
+				SELECT null
+				order by team_id
+				limit 1
+			)
+			select distinct user_id
+			from invite, guest_user_team
+			where (
+				invite.guest_team_id = guest_user_team.team_id
+				or (guest_user_team.team_id is null
+				and guest_user_id = $1)
+			)
 			and event_id = $2
 			and team_id is null
-			and guest_team_id is null
+			and rejected = false
+			and approved = false
 			and silent = false`
 
-	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
+	return r.getIdsByEventAndID(sql, invitation.GuestID, invitation.EventID)
 }
 
-func (r *InviteRepository) GetTeamInvitationFromUser(invitation *models.Invitation) (arr []int, err error) {
-	sql := `select distinct user_id
-			from invite 
-			where guest_team_id = $1
+func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) (arr []int, err error) {
+	sql := `WITH guest_user_team(team_id) AS (
+				select team_id
+				from team_users
+				where team_users.user_id = $1
+				UNION
+				SELECT null
+				order by team_id
+				limit 1
+			)
+			select distinct team_id
+			from invite, guest_user_team
+			where (
+				invite.guest_team_id = guest_user_team.team_id
+				or (guest_user_team.team_id is null
+				and guest_user_id = $1)
+			)
 			and event_id = $2
-			and team_id is null
+			and rejected = false
+			and approved = false
 			and silent = false`
 
-	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
-}
-
-func (r *InviteRepository) GetUserInvitationFromTeam(invitation *models.Invitation) (arr []int, err error) {
-	sql := `select distinct team_id
-			from invite 
-			where guest_user_id = $1
-			and event_id = $2
-			and guest_team_id is null
-			and silent = false`
-
-	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
-}
-
-func (r *InviteRepository) GetTeamInvitationFromTeam(invitation *models.Invitation) (arr []int, err error) {
-	sql := `select distinct team_id
-			from invite 
-			where guest_team_id = $1
-			and event_id = $2
-			and silent = false`
-
-	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
+	return r.getIdsByEventAndID(sql, invitation.GuestID, invitation.EventID)
 }
 
 func (r *InviteRepository) getIdsByEventAndID(sql string, ID int, eventID int) (arr []int, err error) {
