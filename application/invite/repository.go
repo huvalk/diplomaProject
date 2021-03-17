@@ -11,6 +11,7 @@ type Repository interface {
 	UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error
 	UpdateUserLeftTeam(userID int, teamID int, eventID int) error
 	UpdateUserChangedTeam(userID int, teamID int, eventID int) error
+	UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error
 	MakeMutual(invitation *models.Invitation) (is bool, err error)
 	GetInvitedUser(invitation *models.Invitation) ([]int, error)
 	GetInvitedTeam(invitation *models.Invitation) ([]int, error)

@@ -75,7 +75,9 @@ func (i *InviteUseCase) UnInvite(invitation *models.Invitation) error {
 
 func (i *InviteUseCase) Deny(invitation *models.Invitation) (invitersIDs []int, err error) {
 	err = i.invites.Deny(invitation)
-
+	if err != nil {
+		return nil, err
+	}
 
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	if err != nil {
