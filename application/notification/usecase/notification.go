@@ -33,31 +33,48 @@ func NewNotificationUsecase(n notification.Repository) notification.UseCase {
 //	go n.channel.Run()
 //}
 
-func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
-	message := "Оповещение о приглашении"
-
+func (n *NotificationUseCase) SendNotification(notification channel.Notification, users []int) (err error) {
 	for _, userID := range users {
-		newNot := &channel.Notification{
-			Type:    0,
-			Message: message,
-			UserID:  userID,
-			Created: time.Time{},
-			Status: "good",
-			Watched: false,
-		}
+		notification.UserID = userID
 
-		newNot.Watched, err = n.channel.SendNotification(newNot)
+		notification.Watched, err = n.channel.SendNotification(&notification)
 		if err != nil {
 			return err
 		}
 
-		err = n.notifications.SaveNotification(newNot)
+		err = n.notifications.SaveNotification(&notification)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
+	message := "У вас новое приглашение, проверьте"
+
+	newNot := channel.Notification{
+		Type:    0,
+		Message: message,
+		Created: time.Time{},
+		Status: "good",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
+func (n *NotificationUseCase) SendDenyNotification(users []int) error {
+	message := "Похоже Вам кто-то отказал, проверьте"
+
+	newNot := channel.Notification{
+		Type:    0,
+		Message: message,
+		Created: time.Time{},
+		Status: "bad",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
 }
 
 func (n *NotificationUseCase) GetPendingNotification(userID int) (models.NotificationArr, error) {

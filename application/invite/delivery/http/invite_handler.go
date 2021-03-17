@@ -120,8 +120,8 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	inv.OwnerID = int(userIDFloat)
-	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
+	inv.GuestID = int(userIDFloat)
+	inv.OwnerID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -132,10 +132,14 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err = eh.invite.Deny(inv)
+	inviters, err := eh.invite.Deny(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	err = eh.notification.SendDenyNotification(inviters)
+	if err != nil {
+		log.Println("Notification wasnt sent: ", err)
 	}
 
 	return nil

@@ -73,8 +73,25 @@ func (i *InviteUseCase) UnInvite(invitation *models.Invitation) error {
 	return i.invites.UnInvite(invitation)
 }
 
-func (i *InviteUseCase) Deny(invitation *models.Invitation) error {
-	return i.invites.Deny(invitation)
+func (i *InviteUseCase) Deny(invitation *models.Invitation) (invitersIDs []int, err error) {
+	err = i.invites.Deny(invitation)
+
+
+	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	var inviterIDs []int
+	if ownerTeam != nil {
+		for _, member := range ownerTeam.Members {
+			inviterIDs = append(inviterIDs, member.Id)
+		}
+	} else {
+		inviterIDs = append(inviterIDs, invitation.OwnerID)
+	}
+
+	return inviterIDs, nil
 }
 
 func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, error) {
