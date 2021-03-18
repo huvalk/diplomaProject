@@ -103,5 +103,5 @@ func (r *Instance) HandleMessage(rawMessage []byte) {
 		return
 	}
 
-	r.SendNotification(&message)
+	_, _ = r.SendNotification(&message)
 }
