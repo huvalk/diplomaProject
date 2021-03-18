@@ -3,9 +3,9 @@ package invite
 import "diplomaProject/application/models"
 
 type UseCase interface {
-	Invite(invitation *models.Invitation) (bool, error)
+	Invite(invitation *models.Invitation) ([]int, []int, error)
 	UnInvite(invitation *models.Invitation) error
-	Deny(invitation *models.Invitation) error
+	Deny(invitation *models.Invitation) ([]int, error)
 	IsInvited(invitation *models.Invitation) (bool, error)
 	GetInvitedUser(invitation *models.Invitation) (models.IDArr, error)
 	GetInvitedTeam(invitation *models.Invitation) (models.IDArr, error)

@@ -6,7 +6,8 @@ import (
 )
 
 type UseCase interface {
-	SendInviteNotification(inv models.Invitation) error
+	SendInviteNotification(users []int) error
+	SendDenyNotification(users []int) error
 	SendPendingNotification(userID int) error
 	GetPendingNotification(userID int) (models.NotificationArr, error)
 	EnterChannel(userID int, socket *websocket.Conn) error
