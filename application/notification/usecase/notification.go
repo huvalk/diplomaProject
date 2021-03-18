@@ -55,7 +55,7 @@ func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
 	message := "У вас новое приглашение, проверьте"
 
 	newNot := channel.Notification{
-		Type:    0,
+		Type:    "",
 		Message: message,
 		Created: time.Time{},
 		Status: "good",
@@ -68,7 +68,7 @@ func (n *NotificationUseCase) SendDenyNotification(users []int) error {
 	message := "Похоже Вам кто-то отказал, проверьте"
 
 	newNot := channel.Notification{
-		Type:    0,
+		Type:    "",
 		Message: message,
 		Created: time.Time{},
 		Status: "bad",

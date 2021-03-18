@@ -95,7 +95,7 @@ func (r *Instance) SendNotification(n *Notification) (send bool, err error) {
 }
 
 func (r *Instance) HandleMessage(rawMessage []byte) {
-	var message *map[string]json.RawMessage
+	var message Notification
 	err := json.Unmarshal(rawMessage, &message)
 
 	if err != nil {
@@ -103,5 +103,5 @@ func (r *Instance) HandleMessage(rawMessage []byte) {
 		return
 	}
 
-	golog.Warn("we could handle this message, but we didnt: %s", string(rawMessage))
+	r.SendNotification(&message)
 }

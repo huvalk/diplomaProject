@@ -557,7 +557,7 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels7(in *jlexer.Lexer, ou
 		case "userID":
 			out.UserID = int(in.Int())
 		case "type":
-			out.Type = int(in.Int())
+			out.Type = string(in.String())
 		case "message":
 			out.Message = string(in.String())
 		case "status":
@@ -584,7 +584,7 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels7(out *jwriter.Writer,
 	{
 		const prefix string = ",\"type\":"
 		out.RawString(prefix)
-		out.Int(int(in.Type))
+		out.String(string(in.Type))
 	}
 	{
 		const prefix string = ",\"message\":"
