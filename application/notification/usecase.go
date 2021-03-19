@@ -6,6 +6,8 @@ import (
 )
 
 type UseCase interface {
+	SendJoinTeamNotification(users []int) error
+	SendKickTeamNotification(users []int) error
 	SendInviteNotification(users []int) error
 	SendDenyNotification(users []int) error
 	SendPendingNotification(userID int) error
