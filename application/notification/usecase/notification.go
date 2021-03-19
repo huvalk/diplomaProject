@@ -51,11 +51,37 @@ func (n *NotificationUseCase) SendNotification(notification channel.Notification
 	return nil
 }
 
+func (n *NotificationUseCase) SendJoinTeamNotification(users []int) (err error) {
+	message := "Вы теперь в команде, проверьте"
+
+	newNot := channel.Notification{
+		Type:    "notification",
+		Message: message,
+		Created: time.Time{},
+		Status: "good",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
+func (n *NotificationUseCase) SendKickTeamNotification(users []int) (err error) {
+	message := "Вас кикнули из команды, проверьте"
+
+	newNot := channel.Notification{
+		Type:    "notification",
+		Message: message,
+		Created: time.Time{},
+		Status: "bad",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
 func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
 	message := "У вас новое приглашение, проверьте"
 
 	newNot := channel.Notification{
-		Type:    "",
+		Type:    "notification",
 		Message: message,
 		Created: time.Time{},
 		Status: "good",
@@ -68,7 +94,7 @@ func (n *NotificationUseCase) SendDenyNotification(users []int) error {
 	message := "Похоже Вам кто-то отказал, проверьте"
 
 	newNot := channel.Notification{
-		Type:    "",
+		Type:    "notification",
 		Message: message,
 		Created: time.Time{},
 		Status: "bad",
