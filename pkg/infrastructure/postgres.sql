@@ -1,6 +1,6 @@
 -- pg_ctl -D /usr/local/var/postgres start
 -- pg_ctl -D /usr/local/var/postgres stop
-create table users
+create table if not exists users
 (
     id        bigserial primary key,
     firstname varchar(80)        not null,
@@ -8,7 +8,7 @@ create table users
     email     varchar(80) unique not null
 );
 
-create table event
+create table if not exists  event
 (
     id          bigserial primary key,
     name        varchar(80) not null,
@@ -17,25 +17,25 @@ create table event
     date_start  timestamp,
     date_end    timestamp,
     state       varchar(80),
-    place       varchar(80)
--- participants_count integer
+    place       varchar(80),
+    participants_count integer not null default 0
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 
-create table event_users
+create table if not exists  event_users
 (
     event_id integer REFERENCES event (id),
     user_id  integer REFERENCES users (id),
     CONSTRAINT uniq_pair UNIQUE (event_id, user_id)
 );
 
-create table feed
+create table if not exists  feed
 (
     id    bigserial primary key,
     event integer REFERENCES event (id)
 );
 
-create table feed_users
+create table if not exists  feed_users
 (
     feed_id integer REFERENCES feed (id),
     user_id integer REFERENCES users (id),
@@ -43,21 +43,21 @@ create table feed_users
 
 );
 
-create table team
+create table if not exists  team
 (
     id    bigserial primary key,
     name  varchar(80) not null,
     event integer REFERENCES event (id)
 );
 
-create table team_users
+create table if not exists  team_users
 (
     team_id integer REFERENCES team (id),
     user_id integer REFERENCES users (id),
     CONSTRAINT uniq_pair3 UNIQUE (team_id, user_id)
 );
 
-create table notification
+create table if not exists  notification
 (
     id bigserial primary key,
     type varchar(100) not null default '',
@@ -68,7 +68,7 @@ create table notification
     status varchar(10) not null default 'normal'
 );
 
-create table invite
+create table if not exists  invite
 (
     user_id integer REFERENCES users (id),
     team_id integer REFERENCES team (id),
@@ -83,13 +83,13 @@ create table invite
     CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
 );
 
-create table job
+create table if not exists  job
 (
     id   bigserial primary key,
     name varchar(80) not null
 );
 
-create table skills
+create table if not exists  skills
 (
     id     bigserial primary key,
     name   varchar(80) not null,
@@ -98,13 +98,49 @@ create table skills
 );
 
 -- job_skills is overhead???
-create table job_skills_users
+create table if not exists  job_skills_users
 (
     job_id   integer REFERENCES job (id),
     skill_id integer REFERENCES skills (id),
     user_id  integer REFERENCES users (id)
 );
 
+create or replace function inc_event_participants() returns trigger as $inc_event_participants$
+begin
+    update event set participants_count = participants_count + 1
+    where new.event_id = event.id;
+    return null;
+end;
+$inc_event_participants$ language plpgsql;
+
+create or replace function dec_event_participants() returns trigger as $dec_event_participants$
+begin
+    update event set participants_count = participants_count - 1
+    where new.event_id = event.id
+    and event.participants_count > 0;
+    return null;
+end;
+$dec_event_participants$ language plpgsql;
+
+create or replace function find_users_team(integer) returns integer
+as 'select team_id
+    from team_users
+    where team_users.user_id = $1
+    union
+    select null
+    order by team_id
+    limit 1;'
+language sql
+immutable
+returns null on null input;
+
+create trigger added_event_user
+    after insert on event_users
+    for each row execute procedure inc_event_participants();
+
+create trigger deleted_event_user
+    after delete on event_users
+    for each row execute procedure dec_event_participants();
 
 
 

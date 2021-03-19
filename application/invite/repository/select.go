@@ -69,13 +69,7 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []
 
 func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) (arr []int, err error) {
 	sql := `WITH guest_user_team(team_id) AS (
-				select team_id
-				from team_users
-				where team_users.user_id = $1
-				UNION
-				SELECT null
-				order by team_id
-				limit 1
+				select find_users_team($1)
 			)
 			select distinct user_id
 			from invite, guest_user_team
@@ -95,13 +89,7 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 
 func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) (arr []int, err error) {
 	sql := `WITH guest_user_team(team_id) AS (
-				select team_id
-				from team_users
-				where team_users.user_id = $1
-				UNION
-				SELECT null
-				order by team_id
-				limit 1
+				select find_users_team($1)
 			)
 			select distinct team_id
 			from invite, guest_user_team
