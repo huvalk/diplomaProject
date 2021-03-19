@@ -7,6 +7,6 @@ services:
       - ./pkg/infrastructure/postgres.sql:/docker-entrypoint-initdb.d/init.sql
       - ../postgres-data:/var/lib/postgresql/data
     ports:
-      - 1111:1111
+      - 5432:1111
     env_file:
       - ../env.list
