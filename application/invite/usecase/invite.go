@@ -33,18 +33,27 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	}
 
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
-	if err != nil {
-		return nil, nil, err
-	}
+	// TODO ignore no rows error
+	//if err != nil {
+	//	return nil, nil, err
+	//}
 	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
-	if err != nil {
-		return nil, nil, err
-	}
+	// TODO ignore no rows error
+	//if err != nil {
+	//	return nil, nil, err
+	//}
+
+	// TODO Убрать в один запрос поиск членов команды
 
 	var inviterIDs []int
 	if invitation.Silent && notify {
 		if ownerTeam != nil {
-			for _, member := range ownerTeam.Members {
+			members, err := i.teams.GetTeamMembers(ownerTeam.Id)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			for _, member := range members {
 				//if member.Id == invitation.OwnerID {
 				//	continue
 				//}
@@ -58,7 +67,12 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	var inviteeIDs []int
 	if !invitation.Silent || notify {
 		if guestTeam != nil {
-			for _, member := range guestTeam.Members {
+			members, err := i.teams.GetTeamMembers(guestTeam.Id)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			for _, member := range members {
 				inviteeIDs = append(inviteeIDs, member.Id)
 			}
 		} else {

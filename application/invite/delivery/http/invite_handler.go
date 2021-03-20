@@ -43,13 +43,12 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 	}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	inv.OwnerID = int(userIDFloat)
+	inv.OwnerID = userIDFloat
 
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
@@ -83,13 +82,13 @@ func (eh *InviteHandler) UnInvite(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.OwnerID = int(userIDFloat)
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
@@ -114,13 +113,13 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
+	userIDFloat, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.GuestID = int(userIDFloat)
 	inv.OwnerID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
@@ -149,13 +148,13 @@ func (eh *InviteHandler) IsInvited(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.OwnerID = int(userIDFloat)
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
@@ -184,13 +183,13 @@ func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.OwnerID = int(userIDFloat)
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
@@ -214,13 +213,13 @@ func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.OwnerID = int(userIDFloat)
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
@@ -244,13 +243,13 @@ func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.GuestID = int(userIDFloat)
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
@@ -274,13 +273,13 @@ func (eh *InviteHandler) GetInvitationTeam(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
 	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("id").(float64)
-	if found {
+	userIDFloat, found := ctx.Get("userID").(int)
+	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	inv.OwnerID = userIDFloat
 
-	inv.GuestID = int(userIDFloat)
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
 		log.Println(err)
