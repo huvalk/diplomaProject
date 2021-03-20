@@ -88,7 +88,7 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 				and guest_user_id = $1)
 			)
 			and event_id = $2
-			and team_id is null
+			and invite.team_id is null
 			and rejected = false
 			and approved = false
 			and silent = false`
@@ -100,7 +100,7 @@ func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) 
 	sql := `WITH guest_user_team(team_id) AS (
 				select find_users_team($1)
 			)
-			select distinct team_id
+			select distinct invite.team_id
 			from invite, guest_user_team
 			where (
 				invite.guest_team_id = guest_user_team.team_id
