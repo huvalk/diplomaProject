@@ -17,7 +17,7 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 
 func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 	evt := models.EventDB{}
-	sql := `select id, name, description, founder, date_start, date_end, state, place, participants_count
+	sql := `select id, name, description, founder, date_start, date_end, state, place
 			from event where id = $1`
 
 	queryResult := e.conn.QueryRow(context.Background(), sql, id)
