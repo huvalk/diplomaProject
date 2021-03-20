@@ -34,14 +34,14 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	// TODO ignore no rows error
-	//if err != nil {
-	//	return nil, nil, err
-	//}
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, nil, err
+	}
 	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
-	// TODO ignore no rows error
-	//if err != nil {
-	//	return nil, nil, err
-	//}
+	//TODO ignore no rows error
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, nil, err
+	}
 
 	// TODO Убрать в один запрос поиск членов команды
 
