@@ -65,21 +65,9 @@ func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, e
 	}
 
 	updateSilent := `WITH owner_user_team(team_id) AS (
-						select team_id
-						from team_users
-						where team_users.user_id = $1
-						UNION
-						SELECT null
-						order by team_id
-						limit 1
+				select find_users_team($1)
 					), guest_user_team(team_id) AS (
-						select team_id
-						from team_users
-						where team_users.user_id = $2
-						UNION
-						SELECT null
-						order by team_id
-						limit 1
+				select find_users_team($2)
 					)
 					update invite
 					set silent = false

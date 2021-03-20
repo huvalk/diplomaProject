@@ -47,9 +47,14 @@ func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err
 
 // TODO поправить
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []int, err error) {
-	sql := `select distinct guest_user_id
-			from invite 
-			where user_id = $1
+	sql := `WITH owner_user_team(team_id) AS (
+				select find_users_team($1)
+			)
+			select distinct guest_user_id
+			from invite, owner_user_team
+			where ( user_id = $1
+				or invite.team_id = owner_user_team.team_id
+			)
 			and event_id = $2
 			and guest_team_id is null`
 
@@ -58,9 +63,14 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []
 
 // TODO поправить
 func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []int, err error) {
-	sql := `select distinct guest_team_id
-			from invite 
-			where user_id = $1
+	sql := `WITH owner_user_team(team_id) AS (
+				select find_users_team($1)
+			)
+			select distinct guest_team_id
+			from invite, owner_user_team
+			where ( user_id = $1
+				or invite.team_id = owner_user_team.team_id
+			)
 			and event_id = $2
 			and guest_team_id is not null`
 
