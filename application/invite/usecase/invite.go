@@ -9,15 +9,15 @@ import (
 
 type InviteUseCase struct {
 	invites invite.Repository
-	users user.Repository
-	teams team.Repository
+	users   user.Repository
+	teams   team.Repository
 }
 
 func NewInviteUseCase(inv invite.Repository, u user.Repository, t team.Repository) invite.UseCase {
 	return &InviteUseCase{
 		invites: inv,
-		users: u,
-		teams: t,
+		users:   u,
+		teams:   t,
 	}
 }
 

@@ -15,7 +15,7 @@ const (
 )
 
 type NotificationHandler struct {
-	useCase notification.UseCase
+	useCase  notification.UseCase
 	upgrader *websocket.Upgrader
 }
 

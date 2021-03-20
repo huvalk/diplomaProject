@@ -10,8 +10,7 @@ type DebugHandler struct {
 }
 
 func NewDebugHandler(e *echo.Echo) error {
-	handler := DebugHandler{
-	}
+	handler := DebugHandler{}
 
 	e.GET("/panic", handler.Panic)
 	e.GET("/ping", handler.Ping)

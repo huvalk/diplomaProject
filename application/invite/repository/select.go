@@ -35,7 +35,6 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, er
 	return is, err
 }
 
-
 func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err error) {
 	reverseInv := &models.Invitation{
 		OwnerID: invitation.GuestID,
@@ -128,11 +127,10 @@ func (r *InviteRepository) getIdsByEventAndID(sql string, ID int, eventID int) (
 
 		err = rows.Scan(&id)
 		if err != nil {
-			return nil , err
+			return nil, err
 		}
 
 		arr = append(arr, id)
 	}
 	return arr, err
 }
-

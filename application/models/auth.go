@@ -1,5 +1,5 @@
 package models
 
 type AuthUser struct {
-	Id          int       `json:"id"`
+	Id int `json:"id"`
 }

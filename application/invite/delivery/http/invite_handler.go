@@ -18,7 +18,7 @@ type InviteHandler struct {
 
 func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) error {
 	handler := InviteHandler{
-		invite: iu,
+		invite:       iu,
 		notification: nu,
 	}
 
@@ -32,8 +32,6 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 	e.GET("/event/:eventID/invitation/teams", handler.GetInvitationTeam)
 	return nil
 }
-
-
 
 func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
