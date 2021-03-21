@@ -68,7 +68,7 @@ where eu1.user_id = $1`
 	}
 	for queryResult.Next() {
 		err = queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder, &evt.DateStart, &evt.DateEnd,
-			&evt.Place, &evt.Place)
+			&evt.Place, &evt.Place, &evt.ParticipantsCount)
 		if err != nil {
 			return nil, err
 		}

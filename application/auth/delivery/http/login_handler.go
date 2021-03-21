@@ -14,8 +14,7 @@ type AuthHandler struct {
 }
 
 func NewAuthHandler(e *echo.Echo) error {
-	handler := AuthHandler{
-	}
+	handler := AuthHandler{}
 
 	e.POST("/login", handler.Login)
 	return nil
@@ -39,12 +38,12 @@ func (eh *AuthHandler) Login(ctx echo.Context) error {
 	}
 
 	ctx.SetCookie(&http.Cookie{
-		Name:       "token",
-		Value:      t,
-		Expires:    time.Time{},
-		MaxAge:     1000000,
-		Secure:     false,
-		HttpOnly:   false,
+		Name:     "token",
+		Value:    t,
+		Expires:  time.Time{},
+		MaxAge:   1000000,
+		Secure:   false,
+		HttpOnly: false,
 	})
 	return nil
 }

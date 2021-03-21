@@ -51,7 +51,7 @@ func (r *NotificationRepository) GetPendingNotification(userID int) (arr []chann
 
 		err = rows.Scan(&n.ID, &n.Type, &n.UserID, &n.Message, &n.Created, &n.Watched, &n.Status)
 		if err != nil {
-			return nil , err
+			return nil, err
 		}
 
 		arr = append(arr, n)

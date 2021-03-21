@@ -35,7 +35,6 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, er
 	return is, err
 }
 
-
 func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err error) {
 	reverseInv := &models.Invitation{
 		OwnerID: invitation.GuestID,
@@ -89,7 +88,7 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 				and guest_user_id = $1)
 			)
 			and event_id = $2
-			and team_id is null
+			and invite.team_id is null
 			and rejected = false
 			and approved = false
 			and silent = false`
@@ -101,7 +100,7 @@ func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) 
 	sql := `WITH guest_user_team(team_id) AS (
 				select find_users_team($1)
 			)
-			select distinct team_id
+			select distinct invite.team_id
 			from invite, guest_user_team
 			where (
 				invite.guest_team_id = guest_user_team.team_id
@@ -128,11 +127,10 @@ func (r *InviteRepository) getIdsByEventAndID(sql string, ID int, eventID int) (
 
 		err = rows.Scan(&id)
 		if err != nil {
-			return nil , err
+			return nil, err
 		}
 
 		arr = append(arr, id)
 	}
 	return arr, err
 }
-

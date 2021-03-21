@@ -58,7 +58,7 @@ func (n *NotificationUseCase) SendJoinTeamNotification(users []int) (err error) 
 		Type:    "notification",
 		Message: message,
 		Created: time.Time{},
-		Status: "good",
+		Status:  "good",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)
@@ -71,7 +71,7 @@ func (n *NotificationUseCase) SendKickTeamNotification(users []int) (err error) 
 		Type:    "notification",
 		Message: message,
 		Created: time.Time{},
-		Status: "bad",
+		Status:  "bad",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)
@@ -84,7 +84,7 @@ func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
 		Type:    "notification",
 		Message: message,
 		Created: time.Time{},
-		Status: "good",
+		Status:  "good",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)
@@ -97,7 +97,7 @@ func (n *NotificationUseCase) SendDenyNotification(users []int) error {
 		Type:    "notification",
 		Message: message,
 		Created: time.Time{},
-		Status: "bad",
+		Status:  "bad",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)

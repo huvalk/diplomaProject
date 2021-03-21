@@ -3,14 +3,15 @@ package models
 import "time"
 
 type EventDB struct {
-	Id          int       `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Founder     int       `json:"founder"`
-	DateStart   time.Time `json:"dateStart"`
-	DateEnd     time.Time `json:"dateEnd"`
-	State       string    `json:"state"`
-	Place       string    `json:"place"`
+	Id                int       `json:"id"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description"`
+	Founder           int       `json:"founder"`
+	DateStart         time.Time `json:"dateStart"`
+	DateEnd           time.Time `json:"dateEnd"`
+	State             string    `json:"state"`
+	Place             string    `json:"place"`
+	ParticipantsCount int       `json:"participantsCount"`
 }
 
 type Event struct {
@@ -38,4 +39,5 @@ func (e *Event) Convert(evt EventDB) {
 	e.DateEnd = evt.DateEnd
 	e.State = evt.State
 	e.Place = evt.Place
+	e.ParticipantsCount = evt.ParticipantsCount
 }

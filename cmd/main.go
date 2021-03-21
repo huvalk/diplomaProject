@@ -8,7 +8,6 @@ import (
 	"log"
 )
 
-
 func main() {
 	e := echo.New()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

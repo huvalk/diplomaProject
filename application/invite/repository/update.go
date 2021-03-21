@@ -29,7 +29,7 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 }
 
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
-	query := 	`update invite
+	query := `update invite
 				set approved = true
 				where ( 
 					user_id = $1
@@ -98,7 +98,6 @@ func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, e
 					and rejected = false
 					and approved = false`
 
-
 	_, err = r.conn.Exec(context.Background(), updateSilent, invitation.OwnerID, invitation.GuestID, invitation.EventID)
 	return err == nil, err
 }
@@ -151,7 +150,7 @@ func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID
 }
 
 func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error {
-	query := 	`update invite
+	query := `update invite
 				set team_id = $1,
 				guest_team_id = $1,
 				approved = true
@@ -179,9 +178,8 @@ func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, te
 	return r.changeTeamToTeam(teamFromID1, teamToID, eventID)
 }
 
-
 func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventID int) error {
-	query := 	`update invite
+	query := `update invite
 				set team_id = $1
 				where team_id = $2
 				and event_id = $3`
@@ -190,7 +188,7 @@ func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventI
 		return err
 	}
 
-	query = 	`update invite
+	query = `update invite
 				set guest_team_id = $1
 				where guest_team_id = $2
 				and event_id = $3`
