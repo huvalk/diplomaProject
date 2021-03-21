@@ -14,32 +14,33 @@ func VkOAuthURL(clientID string, redirectURL string, state string) string {
 		"&scope=%s&state=%s", clientID, redirectURL, scopeTemp, state)
 }
 
-func RetrieveUserToken(code string, clientID string, redirectURL string, clientSecret string) (string, error) {
+func RetrieveUserToken(code string, clientID string, redirectURL string, clientSecret string) (*TokenStruct, error) {
 	url := fmt.Sprintf("https://oauth.vk.com/access_token?grant_type=authorization_code&code=%s&"+
 		"redirect_uri=%s&client_id=%s&client_secret=%s", code, redirectURL, clientID, clientSecret)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return "", errors.New("failed to create request to vk oauth")
+		return nil, errors.New("failed to create request to vk oauth")
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", errors.New("failed to make request to vk oauth")
+		return nil, errors.New("failed to make request to vk oauth")
 	}
 
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.New("failed to read response from vk oauth")
+		return nil, errors.New("failed to read response from vk oauth")
 	}
 
-	token := TokenStruct{}
-	err = json.Unmarshal(bytes, &token)
+	token := &TokenStruct{}
+	err = json.Unmarshal(bytes, token)
 
-	return token.AccessToken, err
+	return token, err
 }
 
 func RetrieveProfileInfo(token string) (*VKUser, error) {
-	url := fmt.Sprintf("https://api.vk.com/method/%s?v=5.124&access_token=%s", "users.get", token)
+	url := fmt.Sprintf("https://api.vk.com/method/%s?v=5.130&access_token=%s&fields=photo_400_orig",
+		"users.get", token)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, errors.New("failed to create request to vk oauth")

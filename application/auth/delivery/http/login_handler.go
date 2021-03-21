@@ -39,10 +39,29 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("no code provided"))
 	}
 
-	err := eh.useCase.UpdateUserInfo(code, stateTemp)
+	userID, err := eh.useCase.UpdateUserInfo(code, stateTemp)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["userID"] = userID
+
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return err
+	}
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    t,
+		Expires:  time.Time{},
+		MaxAge:   1000000,
+		Secure:   false,
+		HttpOnly: false,
+	})
 
 	return nil
 }
