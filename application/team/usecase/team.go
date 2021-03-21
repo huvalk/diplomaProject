@@ -48,6 +48,14 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 	return tm, nil
 }
 
+func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
+	err := t.teams.RemoveMember(tid, uid)
+	if err != nil {
+		return nil, err
+	}
+	return t.Get(tid)
+}
+
 func (t *Team) GetTeamByUser(uid, evtID int) (*models.Team, error) {
 	tm, err := t.teams.GetTeamByUser(uid, evtID)
 	if err != nil {
@@ -142,11 +150,11 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	for i := range t2.Members {
 		newTeamIDS = append(newTeamIDS, t2.Members[i].Id)
 	}
-	err = t.teams.RemoveUsers(t1.Id)
+	err = t.teams.RemoveAllUsers(t1.Id)
 	if err != nil {
 		return nil, err
 	}
-	err = t.teams.RemoveUsers(t2.Id)
+	err = t.teams.RemoveAllUsers(t2.Id)
 	if err != nil {
 		return nil, err
 	}

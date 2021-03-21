@@ -19,22 +19,40 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 	handler := EventHandler{useCase: usecase}
 
 	e.GET("/event/:id", handler.GetEvent)
+	e.GET("/event/:id/users", handler.GetEventUsers)
 	e.POST("/event", handler.CreateEvent)
 	return nil
 }
 
 func (eh *EventHandler) GetEvent(ctx echo.Context) error {
-	uid, err := strconv.Atoi(ctx.Param("id"))
+	evtID, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	evt, err := eh.useCase.Get(uid)
+	evt, err := eh.useCase.Get(evtID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(evt, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (eh *EventHandler) GetEventUsers(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	usrs, err := eh.useCase.GetEventUsers(evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(usrs, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

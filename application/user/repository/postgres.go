@@ -95,7 +95,7 @@ func (ud *UserDatabase) GetByID(uid int) (*models.User, error) {
 	u := models.User{}
 	sql := `select * from users where id = $1`
 	queryResult := ud.conn.QueryRow(context.Background(), sql, uid)
-	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (ud *UserDatabase) GetByName(name string) (*models.User, error) {
 	u := models.User{}
 	sql := `select * from users where name = $1`
 	queryResult := ud.conn.QueryRow(context.Background(), sql, name)
-	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace)
 	if err != nil {
 		return nil, err
 	}

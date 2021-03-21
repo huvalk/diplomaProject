@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"diplomaProject/application/invite"
 	"diplomaProject/application/invite/repository"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
@@ -13,11 +14,15 @@ type TeamDatabase struct {
 	conn *pgxpool.Pool
 }
 
+var invRepo invite.Repository
+
 func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
+	invRepo = repository.NewInviteRepository(db)
+
 	return &TeamDatabase{conn: db}
 }
 
-func (t TeamDatabase) RemoveUsers(tid int) error {
+func (t TeamDatabase) RemoveAllUsers(tid int) error {
 	sql := `Delete from team_users tu1 
 where tu1.team_id=$1`
 	queryResult, err := t.conn.Exec(context.Background(), sql, tid)
@@ -32,9 +37,22 @@ where tu1.team_id=$1`
 	return nil
 }
 
-func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
-	invRepo := repository.NewInviteRepository(t.conn)
+func (t TeamDatabase) RemoveMember(tid, uid int) error {
+	sql := `Delete from team_users tu1 
+where tu1.team_id=$1 AND tu1.user_id=$2`
+	queryResult, err := t.conn.Exec(context.Background(), sql, tid, uid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("team not found")
+	}
 
+	return nil
+}
+
+func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
 	return invRepo.IsInvited(&models.Invitation{
 		OwnerID: uid1,
 		GuestID: uid2,
@@ -43,14 +61,10 @@ func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
 }
 
 func (t TeamDatabase) UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error {
-	invRepo := repository.NewInviteRepository(t.conn)
-
 	return invRepo.UpdateUserJoinedTeam(uid1, uid2, tid, evtID)
 }
 
 func (t TeamDatabase) UpdateTeamMerged(tid1, tid2, tid3, evtID int) error {
-	invRepo := repository.NewInviteRepository(t.conn)
-
 	return invRepo.UpdateTeamMerged(tid1, tid2, tid3, evtID)
 }
 

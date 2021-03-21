@@ -26,7 +26,7 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels(in *jlexer.Lexer, out
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(UserArr, 0, 1)
+				*out = make(UserArr, 0, 0)
 			} else {
 				*out = UserArr{}
 			}
@@ -110,6 +110,12 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels1(in *jlexer.Lexer, ou
 			out.LastName = string(in.String())
 		case "email":
 			out.Email = string(in.String())
+		case "workPlace":
+			out.WorkPlace = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "bio":
+			out.Bio = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -143,6 +149,21 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels1(out *jwriter.Writer,
 		const prefix string = ",\"email\":"
 		out.RawString(prefix)
 		out.String(string(in.Email))
+	}
+	{
+		const prefix string = ",\"workPlace\":"
+		out.RawString(prefix)
+		out.String(string(in.WorkPlace))
+	}
+	{
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"bio\":"
+		out.RawString(prefix)
+		out.String(string(in.Bio))
 	}
 	out.RawByte('}')
 }
@@ -1089,6 +1110,12 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels14(in *jlexer.Lexer, o
 			out.LastName = string(in.String())
 		case "email":
 			out.Email = string(in.String())
+		case "workPlace":
+			out.WorkPlace = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "bio":
+			out.Bio = string(in.String())
 		case "team":
 			(out.Tm).UnmarshalEasyJSON(in)
 		case "jobName":
@@ -1149,6 +1176,21 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels14(out *jwriter.Writer
 		const prefix string = ",\"email\":"
 		out.RawString(prefix)
 		out.String(string(in.Email))
+	}
+	{
+		const prefix string = ",\"workPlace\":"
+		out.RawString(prefix)
+		out.String(string(in.WorkPlace))
+	}
+	{
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"bio\":"
+		out.RawString(prefix)
+		out.String(string(in.Bio))
 	}
 	{
 		const prefix string = ",\"team\":"
