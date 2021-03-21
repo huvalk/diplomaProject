@@ -15,6 +15,10 @@ func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
 }
 
+func (e *Event) GetEventUsers(evtID int) (*models.UserArr, error) {
+	return e.events.GetEventUsers(evtID)
+}
+
 func (e *Event) Get(id int) (*models.Event, error) {
 	newEvent, err := e.events.Get(id)
 	if err != nil {
