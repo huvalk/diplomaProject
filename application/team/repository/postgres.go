@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"diplomaProject/application/invite"
 	"diplomaProject/application/invite/repository"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
@@ -13,7 +14,11 @@ type TeamDatabase struct {
 	conn *pgxpool.Pool
 }
 
+var invRepo invite.Repository
+
 func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
+	invRepo = repository.NewInviteRepository(db)
+
 	return &TeamDatabase{conn: db}
 }
 
@@ -48,8 +53,6 @@ where tu1.team_id=$1 AND tu1.user_id=$2`
 }
 
 func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
-	invRepo := repository.NewInviteRepository(t.conn)
-
 	return invRepo.IsInvited(&models.Invitation{
 		OwnerID: uid1,
 		GuestID: uid2,
@@ -58,14 +61,10 @@ func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
 }
 
 func (t TeamDatabase) UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error {
-	invRepo := repository.NewInviteRepository(t.conn)
-
 	return invRepo.UpdateUserJoinedTeam(uid1, uid2, tid, evtID)
 }
 
 func (t TeamDatabase) UpdateTeamMerged(tid1, tid2, tid3, evtID int) error {
-	invRepo := repository.NewInviteRepository(t.conn)
-
 	return invRepo.UpdateTeamMerged(tid1, tid2, tid3, evtID)
 }
 
