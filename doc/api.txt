@@ -8,10 +8,12 @@
 	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
 	e.POST("/event/:evtid/team", handler.CreateTeam)
 	e.POST("/team/:id/add", handler.AddMember)
+	e.POST("/team/:id/leave", handler.Leave)
 	e.POST("/event/:evtid/team/join", handler.Union)
 
-    e.GET("/event/:id", handler.GetEvent)
-    e.POST("/event", handler.CreateEvent)
+	e.GET("/event/:id", handler.GetEvent)
+	e.GET("/event/:id/users", handler.GetEventUsers)
+	e.POST("/event", handler.CreateEvent)
 
 	e.GET("/feed/:id", handler.GetFeed)
 	e.POST("/feed", handler.CreateFeed)
