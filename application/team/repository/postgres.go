@@ -17,10 +17,25 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
-func (t TeamDatabase) RemoveUsers(tid int) error {
+func (t TeamDatabase) RemoveAllUsers(tid int) error {
 	sql := `Delete from team_users tu1 
 where tu1.team_id=$1`
 	queryResult, err := t.conn.Exec(context.Background(), sql, tid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("team not found")
+	}
+
+	return nil
+}
+
+func (t TeamDatabase) RemoveMember(tid, uid int) error {
+	sql := `Delete from team_users tu1 
+where tu1.team_id=$1 AND tu1.user_id=$2`
+	queryResult, err := t.conn.Exec(context.Background(), sql, tid, uid)
 	if err != nil {
 		return err
 	}
