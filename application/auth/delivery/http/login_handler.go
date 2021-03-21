@@ -86,10 +86,11 @@ func (eh *AuthHandler) Login(ctx echo.Context) error {
 	ctx.SetCookie(&http.Cookie{
 		Name:     "token",
 		Value:    t,
-		Expires:  time.Time{},
-		MaxAge:   1000000,
+		Expires:  time.Now().Add(time.Hour * 1000000),
 		Secure:   false,
-		HttpOnly: false,
+		HttpOnly: true,
+		Path:     "/",
+		SameSite: http.SameSiteStrictMode,
 	})
 	return nil
 }
