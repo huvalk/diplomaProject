@@ -20,6 +20,10 @@ func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCa
 	return &User{users: u, feeds: f, teams: t}
 }
 
+func (u *User) Update(usr *models.User) (*models.User, error) {
+	return u.users.Update(usr)
+}
+
 func (u *User) GetForFeed(uid int) (*models.FeedUser, error) {
 	usr, err := u.Get(uid)
 	if err != nil {
