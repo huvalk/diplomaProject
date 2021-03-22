@@ -16,6 +16,20 @@ func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
 }
 
+func (ud *UserDatabase) SetImage(uid int, link string) error {
+	sql := `update users set avatar=$1 where id=$2`
+
+	queryResult, err := ud.conn.Exec(context.Background(), sql, link, uid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("already join event")
+	}
+	return nil
+}
+
 func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 	//	update users set workplace = 'wp' , description = 'dr'  where id=4 returning id;
 	sql := `update users set `

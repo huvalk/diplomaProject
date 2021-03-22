@@ -24,6 +24,7 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 	e.GET("/user/:id/events", handler.GetUserEvents)
 	e.POST("/login", handler.Login)
 	e.PUT("/user/:id", handler.Update)
+	e.POST("/user/:id/image", handler.SetImage)
 	e.POST("/event/:evtid/join", handler.JoinEvent)
 	e.POST("/event/:evtid/leave", handler.LeaveEvent)
 	return nil
@@ -44,6 +45,22 @@ func (uh *UserHandler) GetUserEvents(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil
+}
+
+func (uh *UserHandler) SetImage(ctx echo.Context) error {
+	uid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	form, _ := ctx.MultipartForm()
+
+	err = uh.useCase.SetImage(uid, form)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	return echo.NewHTTPError(http.StatusOK, "OK")
 }
 
 func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
