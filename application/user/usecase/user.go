@@ -24,7 +24,6 @@ func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCa
 
 func (u *User) SetImage(uid int, avatar *multipart.Form) error {
 	link, err := sss.UploadPic(avatar, "")
-	println(link, " AA ", err)
 	if err != nil {
 		return err
 	}
