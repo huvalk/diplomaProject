@@ -110,7 +110,8 @@ func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) 
 			and event_id = $2
 			and rejected = false
 			and approved = false
-			and silent = false`
+			and silent = false
+			and invite.team_id is not null`
 
 	return r.getIdsByEventAndID(sql, invitation.GuestID, invitation.EventID)
 }
