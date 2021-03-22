@@ -34,6 +34,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    if: contains(github.ref, 'dev')
     needs: [test, lint]
     steps:
       - uses: actions/checkout@v1

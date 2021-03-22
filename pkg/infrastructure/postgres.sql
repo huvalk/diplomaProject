@@ -14,8 +14,8 @@ create table users
 create table event
 (
     id                 bigserial primary key,
-    name               varchar(80) not null,
-    description        varchar(80) not null,
+    name               varchar(80) not null default '',
+    description        varchar(80) not null default '',
     founder            integer REFERENCES users (id),
     date_start         timestamp,
     date_end           timestamp,
@@ -49,7 +49,7 @@ create table feed_users
 create table team
 (
     id    bigserial primary key,
-    name  varchar(80) not null,
+    name  varchar(80) not null default '',
     event integer REFERENCES event (id)
 );
 
@@ -66,7 +66,7 @@ create table notification
     type    varchar(100) not null default '',
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',
-    created timestamp    not null,
+    created timestamp    not null default current_timestamp,
     watched bool         not null default false,
     status  varchar(10)  not null default 'normal'
 );
@@ -89,13 +89,13 @@ create table invite
 create table job
 (
     id   bigserial primary key,
-    name varchar(80) not null
+    name varchar(80) not null default ''
 );
 
 create table skills
 (
     id     bigserial primary key,
-    name   varchar(80) not null,
+    name   varchar(80) not null default '',
     job_id integer REFERENCES job (id)
 
 );
