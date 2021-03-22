@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type JobSkillsHandler struct {
@@ -20,6 +21,8 @@ func NewJobSkillsHandler(e *echo.Echo, usecase jobskills.UseCase) error {
 
 	e.GET("/job", handler.GetJobs)
 	e.GET("/job/:name/skills", handler.GetSkillsByJob)
+	e.POST("user/:id/skills", handler.AddSkill)
+	e.DELETE("user/:id/skills", handler.RemoveSkill)
 
 	return nil
 }
@@ -49,4 +52,52 @@ func (js *JobSkillsHandler) GetSkillsByJob(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil
+}
+
+func (js *JobSkillsHandler) AddSkill(ctx echo.Context) error {
+	uID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	add := &models.AddSkillIDArr{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = js.useCase.AddSkill(uID, add)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	//if _, err = easyjson.MarshalToWriter(tm, ctx.Response().Writer); err != nil {
+	//	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	//}
+	return echo.NewHTTPError(200, "OK")
+}
+
+func (js *JobSkillsHandler) RemoveSkill(ctx echo.Context) error {
+	uID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	add := &models.AddSkillID{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = js.useCase.RemoveSkill(uID, add.JobID, add.SkillID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	//if _, err = easyjson.MarshalToWriter(tm, ctx.Response().Writer); err != nil {
+	//	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	//}
+	return echo.NewHTTPError(200, "OK")
 }

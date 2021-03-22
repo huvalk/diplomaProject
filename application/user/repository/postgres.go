@@ -16,6 +16,37 @@ func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
 }
 
+func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
+	//	update users set workplace = 'wp' , description = 'dr'  where id=4 returning id;
+	sql := `update users set `
+	if usr.WorkPlace != "" {
+		sql += "workplace = '" + usr.WorkPlace + "', "
+	}
+	if usr.Description != "" {
+		sql += "description = '" + usr.Description + "', "
+	}
+	if usr.Bio != "" {
+		sql += "bio = '" + usr.Bio + "', "
+	}
+	if usr.Email != "" {
+		sql += "email = '" + usr.Email + "', "
+	}
+	if usr.FirstName != "" {
+		sql += "firstname = '" + usr.FirstName + "', "
+	}
+	if usr.LastName != "" {
+		sql += "lastname = '" + usr.LastName + "', "
+	}
+	sql = sql[:len(sql)-2] + ` where id=$1 returning id`
+
+	id := 0
+	err := ud.conn.QueryRow(context.Background(), sql, usr.Id).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+	return ud.GetByID(id)
+}
+
 func (ud *UserDatabase) GetUserParams(uid int) (models.Job, []models.Skills, error) {
 	var skillsArr []models.Skills
 	skill := models.Skills{}
