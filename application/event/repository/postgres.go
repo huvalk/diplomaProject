@@ -26,7 +26,7 @@ order by u1.lastname`
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace)
+		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Avatar)
 		if err != nil {
 			return nil, err
 		}

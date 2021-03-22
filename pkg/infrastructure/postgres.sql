@@ -3,12 +3,13 @@
 create table users
 (
     id          bigserial primary key,
-    firstname   varchar(80)        not null,
-    lastName    varchar(80)        not null,
+    firstname   varchar(80)        not null default '',
+    lastName    varchar(80)        not null default '',
     email       varchar(80) unique not null,
-    bio         varchar(80)        not null,
-    description varchar(80)        not null,
-    workPlace   varchar(80)        not null
+    bio         varchar(80)        not null default '',
+    description varchar(80)        not null default '',
+    workPlace   varchar(80)        not null default '',
+    avatar      varchar(80)        not null default ''
 );
 
 create table event

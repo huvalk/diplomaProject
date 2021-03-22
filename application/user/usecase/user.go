@@ -6,8 +6,10 @@ import (
 	"diplomaProject/application/team"
 	"diplomaProject/application/user"
 	"diplomaProject/pkg/crypto"
+	"diplomaProject/pkg/sss"
 	"errors"
 	"github.com/google/uuid"
+	"mime/multipart"
 )
 
 type User struct {
@@ -18,6 +20,14 @@ type User struct {
 
 func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCase {
 	return &User{users: u, feeds: f, teams: t}
+}
+
+func (u *User) SetImage(uid int, avatar *multipart.Form) error {
+	link, err := sss.UploadPic(avatar, "")
+	if err != nil {
+		return err
+	}
+	return u.users.SetImage(uid, link)
 }
 
 func (u *User) Update(usr *models.User) (*models.User, error) {

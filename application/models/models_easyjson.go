@@ -116,6 +116,8 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels1(in *jlexer.Lexer, ou
 			out.Description = string(in.String())
 		case "bio":
 			out.Bio = string(in.String())
+		case "avatar":
+			out.Avatar = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -164,6 +166,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels1(out *jwriter.Writer,
 		const prefix string = ",\"bio\":"
 		out.RawString(prefix)
 		out.String(string(in.Bio))
+	}
+	{
+		const prefix string = ",\"avatar\":"
+		out.RawString(prefix)
+		out.String(string(in.Avatar))
 	}
 	out.RawByte('}')
 }
@@ -1116,6 +1123,8 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels14(in *jlexer.Lexer, o
 			out.Description = string(in.String())
 		case "bio":
 			out.Bio = string(in.String())
+		case "avatar":
+			out.Avatar = string(in.String())
 		case "team":
 			(out.Tm).UnmarshalEasyJSON(in)
 		case "jobName":
@@ -1191,6 +1200,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels14(out *jwriter.Writer
 		const prefix string = ",\"bio\":"
 		out.RawString(prefix)
 		out.String(string(in.Bio))
+	}
+	{
+		const prefix string = ",\"avatar\":"
+		out.RawString(prefix)
+		out.String(string(in.Avatar))
 	}
 	{
 		const prefix string = ",\"team\":"
@@ -2012,12 +2026,12 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels24(in *jlexer.Lexer, o
 			continue
 		}
 		switch key {
-		case "skillID":
-			out.SkillID = int(in.Int())
-		case "skillName":
-			out.SkillName = string(in.String())
 		case "jobID":
 			out.JobID = int(in.Int())
+		case "skillName":
+			out.SkillName = string(in.String())
+		case "skillID":
+			out.SkillID = int(in.Int())
 		default:
 			in.SkipRecursive()
 		}
@@ -2033,9 +2047,9 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels24(out *jwriter.Writer
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"skillID\":"
+		const prefix string = ",\"jobID\":"
 		out.RawString(prefix[1:])
-		out.Int(int(in.SkillID))
+		out.Int(int(in.JobID))
 	}
 	{
 		const prefix string = ",\"skillName\":"
@@ -2043,9 +2057,9 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels24(out *jwriter.Writer
 		out.String(string(in.SkillName))
 	}
 	{
-		const prefix string = ",\"jobID\":"
+		const prefix string = ",\"skillID\":"
 		out.RawString(prefix)
-		out.Int(int(in.JobID))
+		out.Int(int(in.SkillID))
 	}
 	out.RawByte('}')
 }
