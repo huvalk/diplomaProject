@@ -55,12 +55,15 @@ func (uh *UserHandler) SetImage(ctx echo.Context) error {
 	}
 	form, _ := ctx.MultipartForm()
 
-	err = uh.useCase.SetImage(uid, form)
+	link, err := uh.useCase.SetImage(uid, form)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	return echo.NewHTTPError(http.StatusOK, "OK")
+	if _, err = easyjson.MarshalToWriter(models.Avatar{Avatar: link}, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
 }
 
 func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
