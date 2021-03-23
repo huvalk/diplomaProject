@@ -54,16 +54,6 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
-	//user handler
-	//sessions := session.NewSessionDatabase(rd)
-	users := repository.NewUserDatabase(db)
-	user := usecase.NewUser(users, feeds)
-	err = http.NewUserHandler(e, user)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
 	//event handler
 	events := repository2.NewEventDatabase(db)
 	event := usecase2.NewEvent(events, feed)
@@ -77,6 +67,16 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	teams := repository3.NewTeamDatabase(db)
 	team := usecase3.NewTeam(teams, events)
 	err = http3.NewTeamHandler(e, team)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	//user handler
+	//sessions := session.NewSessionDatabase(rd)
+	users := repository.NewUserDatabase(db)
+	user := usecase.NewUser(users, feeds, teams)
+	err = http.NewUserHandler(e, user)
 	if err != nil {
 		log.Println(err)
 		return nil

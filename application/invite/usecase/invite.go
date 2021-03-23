@@ -152,7 +152,11 @@ func (i *InviteUseCase) GetInvitationTeam(invitation *models.Invitation) (arr mo
 
 	for _, id := range userIds {
 		t, err := i.teams.Get(id)
+		if err != nil {
+			return nil, err
+		}
 
+		t.Members, err = i.teams.GetTeamMembers(t.Id)
 		if err != nil {
 			return nil, err
 		}

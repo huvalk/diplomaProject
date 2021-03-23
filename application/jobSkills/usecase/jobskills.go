@@ -13,20 +13,56 @@ func NewJobSkills(js jobskills.Repository) jobskills.UseCase {
 	return &JobSkills{jobSkills: js}
 }
 
-func (j JobSkills) AddJob(uid int, newJob *models.Job) error {
-	panic("implement me")
-}
+//func (j JobSkills) CheckJob(uid,jID int) (*models.Job, error) {
+//	//jb, err := j.jobSkills.GetJobByName(jobName)
+//	//if err != nil {
+//	//	return j.jobSkills.CreateJob(jobName)
+//	//}
+//	//return jb, nil
+//	return j.jobSkills.GetJobByID(jID)
+//}
 
 func (j JobSkills) RemoveJob(uid, jid int) error {
-	panic("implement me")
+	return j.jobSkills.RemoveJob(uid, jid)
 }
 
-func (j JobSkills) AddSkill(uid int, newSkill *models.Skills) error {
-	panic("implement me")
+func (j JobSkills) AddSkill(uid int, params *models.AddSkillIDArr) error {
+	//old logic
+	//sks, err := j.GetSkillsByJob(jobName)
+	//if err != nil {
+	//	return err
+	//}
+	//for i := range *sks {
+	//	if (*sks)[i].Name == skillName {
+	//		return errors.New("already has that skill")
+	//	}
+	//}
+	var skillsID []int
+	for i := range *params {
+		jb, err := j.jobSkills.GetJobByID((*params)[i].JobID)
+		if err != nil {
+			return err
+		}
+		err = j.jobSkills.RemoveAllSkills(uid, jb.Id)
+		if err != nil {
+			return err
+		}
+		skillsID = append(skillsID, (*params)[i].SkillID)
+		err = j.jobSkills.AddManySkills(uid, jb.Id, skillsID)
+		if err != nil {
+			return err
+		}
+	}
+
+	//newSkill, err := j.jobSkills.CreateSkill(skillName, jb.Id)
+	//if err != nil {
+	//	return err
+	//}
+	return nil
 }
 
-func (j JobSkills) RemoveSkill(uid, skid int) error {
-	panic("implement me")
+func (j JobSkills) RemoveSkill(uid, jbID, skID int) error {
+	return j.jobSkills.RemoveSkill(uid, jbID, skID)
 }
 
 func (j JobSkills) GetAllJobs() (*[]models.Job, error) {

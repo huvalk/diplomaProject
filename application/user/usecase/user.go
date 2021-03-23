@@ -3,19 +3,39 @@ package usecase
 import (
 	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
+	"diplomaProject/application/team"
 	"diplomaProject/application/user"
 	"diplomaProject/pkg/crypto"
+	"diplomaProject/pkg/sss"
 	"errors"
 	"github.com/google/uuid"
+	"mime/multipart"
 )
 
 type User struct {
 	users user.Repository
 	feeds feed.Repository
+	teams team.Repository
 }
 
-func NewUser(u user.Repository, f feed.Repository) user.UseCase {
-	return &User{users: u, feeds: f}
+func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCase {
+	return &User{users: u, feeds: f, teams: t}
+}
+
+func (u *User) SetImage(uid int, avatar *multipart.Form) (string, error) {
+	link, err := sss.UploadPic(avatar, "")
+	if err != nil {
+		return "", err
+	}
+	err = u.users.SetImage(uid, link)
+	if err != nil {
+		return "", err
+	}
+	return link, nil
+}
+
+func (u *User) Update(usr *models.User) (*models.User, error) {
+	return u.users.Update(usr)
 }
 
 func (u *User) GetForFeed(uid int) (*models.FeedUser, error) {
@@ -51,7 +71,15 @@ func (u *User) LeaveEvent(uid, evtID int) error {
 	if err != nil {
 		return err
 	}
-	return u.feeds.RemoveUser(uid, evtID)
+	err = u.feeds.RemoveUser(uid, evtID)
+	if err != nil {
+		return err
+	}
+	tm, err := u.teams.GetTeamByUser(uid, evtID)
+	if err != nil {
+		return err
+	}
+	return u.teams.RemoveMember(tm.Id, uid)
 }
 
 func (u *User) GetUserEvents(uid int) (*models.EventArr, error) {

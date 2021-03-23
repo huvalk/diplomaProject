@@ -23,6 +23,8 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 	e.GET("/user/:id", handler.Profile)
 	e.GET("/user/:id/events", handler.GetUserEvents)
 	e.POST("/login", handler.Login)
+	e.PUT("/user/:id", handler.Update)
+	e.POST("/user/:id/image", handler.SetImage)
 	e.POST("/event/:evtid/join", handler.JoinEvent)
 	e.POST("/event/:evtid/leave", handler.LeaveEvent)
 	return nil
@@ -40,6 +42,25 @@ func (uh *UserHandler) GetUserEvents(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(evtArr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (uh *UserHandler) SetImage(ctx echo.Context) error {
+	uid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	form, _ := ctx.MultipartForm()
+
+	link, err := uh.useCase.SetImage(uid, form)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(models.Avatar{Avatar: link}, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil
@@ -98,6 +119,28 @@ func (uh *UserHandler) Login(ctx echo.Context) error {
 	uh.setCsrfToken(ctx, token)
 
 	return ctx.String(200, "OK")
+}
+
+func (uh *UserHandler) Update(ctx echo.Context) error {
+	uid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	usr := &models.User{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	usr.Id = uid
+	usr, err = uh.useCase.Update(usr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(usr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
 }
 
 func (uh *UserHandler) Profile(ctx echo.Context) error {

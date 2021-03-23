@@ -2,10 +2,14 @@ package models
 
 //db model
 type User struct {
-	Id        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
+	Id          int    `json:"id"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Email       string `json:"email"`
+	WorkPlace   string `json:"workPlace"`
+	Description string `json:"description"`
+	Bio         string `json:"bio"`
+	Avatar      string `json:"avatar"`
 }
 
 //type OauthConfig struct {
@@ -18,13 +22,17 @@ type User struct {
 type UserArr []User
 
 type FeedUser struct {
-	Id        int      `json:"id"`
-	FirstName string   `json:"firstName"`
-	LastName  string   `json:"lastName"`
-	Email     string   `json:"email"`
-	Tm        Team     `json:"team"`
-	JobName   string   `json:"jobName"`
-	Skills    []Skills `json:"skills"`
+	Id          int      `json:"id"`
+	FirstName   string   `json:"firstName"`
+	LastName    string   `json:"lastName"`
+	Email       string   `json:"email"`
+	WorkPlace   string   `json:"workPlace"`
+	Description string   `json:"description"`
+	Bio         string   `json:"bio"`
+	Avatar      string   `json:"avatar"`
+	Tm          Team     `json:"team"`
+	JobName     string   `json:"jobName"`
+	Skills      []Skills `json:"skills"`
 }
 
 //easyjson:json
@@ -35,4 +43,12 @@ func (fu *FeedUser) Convert(usr User) {
 	fu.FirstName = usr.FirstName
 	fu.LastName = usr.LastName
 	fu.Email = usr.Email
+	fu.Description = usr.Description
+	fu.WorkPlace = usr.WorkPlace
+	fu.Bio = usr.Bio
+	fu.Avatar = usr.Avatar
+}
+
+type Avatar struct {
+	Avatar string `json:"avatar"`
 }
