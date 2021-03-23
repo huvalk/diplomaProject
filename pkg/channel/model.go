@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//easyjson:json
 type Notification struct {
 	ID      int       `json:"ID,omitempty"`
 	Type    string    `json:"type,omitempty"`
@@ -15,6 +16,7 @@ type Notification struct {
 	Watched bool      `json:"watched,omitempty"`
 }
 
+//easyjson:skip
 type ConnectedUser struct {
 	ID     int
 	Socket *websocket.Conn

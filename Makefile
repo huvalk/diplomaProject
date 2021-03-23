@@ -18,6 +18,7 @@ build-local:
 
 generate-model:
 	cd application/models; easyjson -pkg -all
+	cd pkg/channel; easyjson -pkg
 
 test-cover:
 	go test ./... -coverprofile cover.out.tmp | grep -v "no test files"

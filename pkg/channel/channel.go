@@ -100,7 +100,15 @@ func (r *Instance) HandleMessage(rawMessage []byte) {
 
 	if err != nil {
 		golog.Errorf("error while parsing message: %s, \n err: %s", string(rawMessage), err.Error())
-		return
+		message = Notification{
+			ID:      1,
+			Type:    "notification",
+			Status:  "bad",
+			Message: err.Error(),
+			UserID:  1,
+			Created: time.Now(),
+			Watched: false,
+		}
 	}
 
 	_, _ = r.SendNotification(&message)

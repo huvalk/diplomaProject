@@ -246,7 +246,7 @@ func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.GuestID = userIDFloat
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -276,7 +276,7 @@ func (eh *InviteHandler) GetInvitationTeam(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.GuestID = userIDFloat
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
