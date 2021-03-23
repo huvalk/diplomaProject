@@ -95,14 +95,20 @@ func (r *Instance) SendNotification(n *Notification) (send bool, err error) {
 }
 
 func (r *Instance) HandleMessage(rawMessage []byte) {
-	message := Notification{
-		ID:      1,
-		Type:    "notification",
-		Status:  "good",
-		Message: "Ping",
-		UserID:  1,
-		Created: time.Now(),
-		Watched: false,
+	var message Notification
+	err := json.Unmarshal(rawMessage, &message)
+
+	if err != nil {
+		golog.Errorf("error while parsing message: %s, \n err: %s", string(rawMessage), err.Error())
+		message = Notification{
+			ID:      1,
+			Type:    "notification",
+			Status:  "bad",
+			Message: err.Error(),
+			UserID:  1,
+			Created: time.Now(),
+			Watched: false,
+		}
 	}
 
 	_, _ = r.SendNotification(&message)
