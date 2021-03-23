@@ -8,7 +8,8 @@ create table users
     email       varchar(80) unique not null,
     bio         varchar(80)        not null,
     description varchar(80)        not null,
-    workPlace   varchar(80)        not null
+    workPlace   varchar(80)        not null,
+    avatar      varchar(80)        not null
 );
 
 create table event
