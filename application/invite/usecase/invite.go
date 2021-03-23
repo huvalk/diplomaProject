@@ -157,6 +157,9 @@ func (i *InviteUseCase) GetInvitationTeam(invitation *models.Invitation) (arr mo
 		}
 
 		t.Members, err = i.teams.GetTeamMembers(t.Id)
+		if err != nil {
+			return nil, err
+		}
 
 		arr = append(arr, *t)
 	}
