@@ -48,3 +48,7 @@ func (fu *FeedUser) Convert(usr User) {
 	fu.Bio = usr.Bio
 	fu.Avatar = usr.Avatar
 }
+
+type Avatar struct {
+	Avatar string `json:"avatar"`
+}

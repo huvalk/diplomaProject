@@ -22,12 +22,16 @@ func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCa
 	return &User{users: u, feeds: f, teams: t}
 }
 
-func (u *User) SetImage(uid int, avatar *multipart.Form) error {
+func (u *User) SetImage(uid int, avatar *multipart.Form) (string, error) {
 	link, err := sss.UploadPic(avatar, "")
 	if err != nil {
-		return err
+		return "", err
 	}
-	return u.users.SetImage(uid, link)
+	err = u.users.SetImage(uid, link)
+	if err != nil {
+		return "", err
+	}
+	return link, nil
 }
 
 func (u *User) Update(usr *models.User) (*models.User, error) {
