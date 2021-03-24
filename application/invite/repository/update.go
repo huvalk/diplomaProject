@@ -29,25 +29,30 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 }
 
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
-	query := `update invite
-				set approved = true
-				where ( 
-					user_id = $1
-					or team_id = (
-						select distinct(team_id) 
-						from team_users
-						where user_id = $1
-					)
+	query := `WITH owner_user_team(team_id) AS (
+					select find_users_team($1)
+				), guest_user_team(team_id) AS (
+					select find_users_team($3)
 				)
-				and event_id = $2
+				update invite
+				set approved = true
+				from guest_user_team, owner_user_team
+				where event_id = $2
+				and (( 
+					user_id = $1
+					or invite.team_id = owner_user_team.team_id
+				)
 				and ( 
 					guest_user_id = $3
-					or guest_team_id = (
-						select distinct(team_id) 
-						from team_users
-						where user_id = $3
-					)
-				)`
+					or guest_team_id = guest_user_team.team_id
+				) or ( 
+					user_id = $3
+					or invite.team_id = guest_user_team.team_id
+				)
+				and ( 
+					guest_user_id = $1
+					or guest_team_id = owner_user_team.team_id
+				))`
 
 	_, err := r.conn.Exec(context.Background(), query, userID1, eventID, userID2)
 
@@ -108,12 +113,12 @@ func (r *InviteRepository) UpdateUserJoinedTeam(userID1 int, userID2 int, teamID
 		Valid: true,
 	}
 
-	err := r.setUserTeam(userID1, nullTeamID, eventID)
+	err := r.setGuestUserTeam(userID1, nullTeamID, eventID)
 	if err != nil {
 		return err
 	}
 
-	err = r.setGuestUserTeam(userID1, nullTeamID, eventID)
+	err = r.setUserTeam(userID2, nullTeamID, eventID)
 	if err != nil {
 		return err
 	}
