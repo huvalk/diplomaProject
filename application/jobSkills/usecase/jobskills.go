@@ -27,38 +27,12 @@ func (j JobSkills) RemoveJob(uid, jid int) error {
 }
 
 func (j JobSkills) AddSkill(uid int, params *models.AddSkillIDArr) error {
-	//old logic
-	//sks, err := j.GetSkillsByJob(jobName)
-	//if err != nil {
-	//	return err
-	//}
-	//for i := range *sks {
-	//	if (*sks)[i].Name == skillName {
-	//		return errors.New("already has that skill")
-	//	}
-	//}
-	var skillsID []int
-	for i := range *params {
-		jb, err := j.jobSkills.GetJobByID((*params)[i].JobID)
-		if err != nil {
-			return err
-		}
-		err = j.jobSkills.RemoveAllSkills(uid, jb.Id)
-		if err != nil {
-			return err
-		}
-		skillsID = append(skillsID, (*params)[i].SkillID)
-		err = j.jobSkills.AddManySkills(uid, jb.Id, skillsID)
-		if err != nil {
-			return err
-		}
+	err := j.jobSkills.RemoveAllSkills(uid)
+	if err != nil {
+		return err
 	}
 
-	//newSkill, err := j.jobSkills.CreateSkill(skillName, jb.Id)
-	//if err != nil {
-	//	return err
-	//}
-	return nil
+	return j.jobSkills.AddManySkills(uid, params)
 }
 
 func (j JobSkills) RemoveSkill(uid, jbID, skID int) error {

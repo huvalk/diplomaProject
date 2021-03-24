@@ -22,17 +22,17 @@ type User struct {
 type UserArr []User
 
 type FeedUser struct {
-	Id          int      `json:"id"`
-	FirstName   string   `json:"firstName"`
-	LastName    string   `json:"lastName"`
-	Email       string   `json:"email"`
-	WorkPlace   string   `json:"workPlace"`
-	Description string   `json:"description"`
-	Bio         string   `json:"bio"`
-	Avatar      string   `json:"avatar"`
-	Tm          Team     `json:"team"`
-	JobName     string   `json:"jobName"`
-	Skills      []Skills `json:"skills"`
+	Id          int    `json:"id"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Email       string `json:"email"`
+	WorkPlace   string `json:"workPlace"`
+	Description string `json:"description"`
+	Bio         string `json:"bio"`
+	Avatar      string `json:"avatar"`
+	Tm          Team   `json:"team"`
+	//JobName     string   `json:"jobName"`
+	Skills []Skills `json:"skills"`
 }
 
 //easyjson:json

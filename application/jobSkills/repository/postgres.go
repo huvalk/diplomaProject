@@ -17,28 +17,27 @@ func NewJobSkillsDatabase(db *pgxpool.Pool) jobskills.Repository {
 	return &JobSkillsDatabase{conn: db}
 }
 
-func (j JobSkillsDatabase) AddManySkills(uid, jbID int, skillsID []int) error {
+func (j JobSkillsDatabase) AddManySkills(uid int, params *models.AddSkillIDArr) error {
 	sql := `INSERT INTO job_skills_users VALUES`
-	for i := range skillsID {
-		sql += `($1,` + fmt.Sprintf("%v,$2),", skillsID[i])
+	for i := range *params {
+		sql += fmt.Sprintf("(%v,%v,$1),", (*params)[i].JobID, (*params)[i].SkillID)
 	}
 	println(sql[:len(sql)-1] + `;`)
-	queryResult, err := j.conn.Exec(context.Background(), sql[:len(sql)-1]+`;`, jbID, uid)
+	queryResult, err := j.conn.Exec(context.Background(), sql[:len(sql)-1]+`;`, uid)
 	if err != nil {
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected != int64(len(skillsID)) {
+	if affected != int64(len(*params)) {
 		return errors.New("already has that job/skill")
 	}
 	return nil
 }
 
-func (j JobSkillsDatabase) RemoveAllSkills(uid, jbID int) error {
+func (j JobSkillsDatabase) RemoveAllSkills(uid int) error {
 	sql := `DELETE from job_skills_users jsu1 
-where jsu1.user_id=$1
-AND jsu1.job_id=$2`
-	_, err := j.conn.Exec(context.Background(), sql, uid, jbID)
+where jsu1.user_id=$1`
+	_, err := j.conn.Exec(context.Background(), sql, uid)
 	if err != nil {
 		return err
 	}

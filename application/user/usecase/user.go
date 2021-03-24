@@ -45,11 +45,11 @@ func (u *User) GetForFeed(uid int) (*models.FeedUser, error) {
 	}
 	fdUsr := &models.FeedUser{}
 	fdUsr.Convert(*usr)
-	job, skills, err := u.users.GetUserParams(uid)
+	_, skills, err := u.users.GetUserParams(uid)
 	if err != nil {
 		return nil, err
 	}
-	fdUsr.JobName = job.Name
+	//fdUsr.JobName = job.Name
 	fdUsr.Skills = skills
 	return fdUsr, err
 }

@@ -1127,8 +1127,6 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels14(in *jlexer.Lexer, o
 			out.Avatar = string(in.String())
 		case "team":
 			(out.Tm).UnmarshalEasyJSON(in)
-		case "jobName":
-			out.JobName = string(in.String())
 		case "skills":
 			if in.IsNull() {
 				in.Skip()
@@ -1210,11 +1208,6 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels14(out *jwriter.Writer
 		const prefix string = ",\"team\":"
 		out.RawString(prefix)
 		(in.Tm).MarshalEasyJSON(out)
-	}
-	{
-		const prefix string = ",\"jobName\":"
-		out.RawString(prefix)
-		out.String(string(in.JobName))
 	}
 	{
 		const prefix string = ",\"skills\":"
