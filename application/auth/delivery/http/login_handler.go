@@ -1,7 +1,9 @@
 package httpAuth
 
 import (
+	"diplomaProject/application/auth"
 	"diplomaProject/application/models"
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
@@ -11,12 +13,56 @@ import (
 )
 
 type AuthHandler struct {
+	useCase       auth.UseCase
 }
 
-func NewAuthHandler(e *echo.Echo) error {
-	handler := AuthHandler{}
+func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
+	handler := AuthHandler{
+		useCase: au,
+	}
 
-	e.POST("/login", handler.Login)
+	e.GET("/redirect", handler.RedirectLogin)
+	e.GET("/auth", handler.Auth)
+	return nil
+}
+
+func (eh *AuthHandler) RedirectLogin(ctx echo.Context) error {
+	url := eh.useCase.MakeAuthUrl()
+
+	return ctx.Redirect(http.StatusTemporaryRedirect, url)
+}
+
+func (eh *AuthHandler) Auth(ctx echo.Context) error {
+	stateTemp := ctx.QueryParam("state")
+	code := ctx.QueryParam("code")
+	if code == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("no code provided"))
+	}
+
+	userID, err := eh.useCase.UpdateUserInfo(code, stateTemp)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["userID"] = userID
+
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return err
+	}
+
+	ctx.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    t,
+		Expires:  time.Time{},
+		MaxAge:   1000000,
+		Secure:   false,
+		HttpOnly: false,
+	})
+
 	return nil
 }
 
@@ -40,10 +86,11 @@ func (eh *AuthHandler) Login(ctx echo.Context) error {
 	ctx.SetCookie(&http.Cookie{
 		Name:     "token",
 		Value:    t,
-		Expires:  time.Time{},
-		MaxAge:   1000000,
+		Expires:  time.Now().Add(time.Hour * 1000000),
 		Secure:   false,
-		HttpOnly: false,
+		HttpOnly: true,
+		Path:     "/",
+		SameSite: http.SameSiteStrictMode,
 	})
 	return nil
 }

@@ -2,6 +2,8 @@ package server
 
 import (
 	httpAuth "diplomaProject/application/auth/delivery/http"
+	repositoryAuth "diplomaProject/application/auth/repository"
+	usecaseAuth "diplomaProject/application/auth/usecase"
 	httpDebug "diplomaProject/application/debug/delivery/http"
 	http2 "diplomaProject/application/event/delivery/http"
 	repository2 "diplomaProject/application/event/repository"
@@ -115,7 +117,9 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	}
 
 	//auth
-	err = httpAuth.NewAuthHandler(e)
+	authRepo := repositoryAuth.NewAuthRepository(db)
+	authUsecase := usecaseAuth.NewUsecase(authRepo)
+	err = httpAuth.NewAuthHandler(e, authUsecase)
 	if err != nil {
 		log.Println(err)
 		return nil
