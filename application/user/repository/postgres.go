@@ -32,7 +32,7 @@ func (ud *UserDatabase) SetImage(uid int, link string) error {
 
 func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 	//	update users set workplace = 'wp' , description = 'dr'  where id=4 returning id;
-	sql := `update users set `
+	sql := `update users set  `
 	if usr.WorkPlace != "" {
 		sql += "workplace = '" + usr.WorkPlace + "', "
 	}
@@ -58,7 +58,7 @@ func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 		sql += "gh_url = '" + usr.Git + "', "
 	}
 	if usr.Tg != "" {
-		sql += "tg_url = '" + usr.Tg + "' "
+		sql += "tg_url = '" + usr.Tg + "', "
 	}
 	sql = sql[:len(sql)-2] + ` where id=$1 returning id`
 
