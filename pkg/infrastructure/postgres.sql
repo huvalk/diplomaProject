@@ -8,7 +8,9 @@ create table users
     email       varchar(80) unique not null,
     bio         varchar(80)        not null default '',
     description varchar(80)        not null default '',
-    workPlace   varchar(80)        not null default '',
+    vk_url      varchar(80)        not null default '',
+    tg_url      varchar(80)        not null default '',
+    gh_url      varchar(80)        not null default '',
     avatar      varchar(80)        not null default ''
 );
 
