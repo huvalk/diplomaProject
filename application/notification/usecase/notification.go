@@ -70,7 +70,7 @@ func (n *NotificationUseCase) SendKickTeamNotification(users []int) (err error) 
 	newNot := channel.Notification{
 		Type:    "notification",
 		Message: message,
-		Created: time.Time{},
+		Created: time.Now(),
 		Status:  "bad",
 		Watched: false,
 	}
@@ -83,7 +83,7 @@ func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
 	newNot := channel.Notification{
 		Type:    "notification",
 		Message: message,
-		Created: time.Time{},
+		Created: time.Now(),
 		Status:  "good",
 		Watched: false,
 	}
@@ -96,7 +96,7 @@ func (n *NotificationUseCase) SendDenyNotification(users []int) error {
 	newNot := channel.Notification{
 		Type:    "notification",
 		Message: message,
-		Created: time.Time{},
+		Created: time.Now(),
 		Status:  "bad",
 		Watched: false,
 	}
@@ -153,6 +153,8 @@ func (n *NotificationUseCase) EnterChannel(userID int, socket *websocket.Conn) e
 		n.channel.Leave(user)
 	}()
 	go user.Write()
+	// TODO проверять ошибки
+	_ = n.SendPendingNotification(userID)
 	user.Read()
 
 	return nil

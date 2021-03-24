@@ -24,7 +24,7 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 
 	e.POST("/event/:eventID/user/:userID/invite", handler.Invite)
 	e.POST("/event/:eventID/user/:userID/uninvite", handler.UnInvite)
-	e.POST("/event/:eventID/user/:userID/deny", handler.Deny)
+	e.POST("/event/:eventID/user/:userID/decline", handler.Deny)
 	e.GET("/event/:eventID/invited/user/:userID", handler.IsInvited)
 	e.GET("/event/:eventID/invited/users", handler.GetInvitedUser)
 	e.GET("/event/:eventID/invited/teams", handler.GetInvitedTeam)
@@ -116,7 +116,7 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.GuestID = userIDFloat
 
 	inv.OwnerID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {

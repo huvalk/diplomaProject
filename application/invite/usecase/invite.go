@@ -94,13 +94,18 @@ func (i *InviteUseCase) Deny(invitation *models.Invitation) (invitersIDs []int, 
 	}
 
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
-	if err != nil {
+	if err != nil && err.Error() != "no rows in result set" {
 		return nil, err
 	}
 
 	var inviterIDs []int
 	if ownerTeam != nil {
-		for _, member := range ownerTeam.Members {
+		members, err := i.teams.GetTeamMembers(ownerTeam.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, member := range members {
 			inviterIDs = append(inviterIDs, member.Id)
 		}
 	} else {
