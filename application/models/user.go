@@ -34,6 +34,9 @@ type FeedUser struct {
 	Bio         string `json:"bio"`
 	Avatar      string `json:"avatar"`
 	Tm          Team   `json:"team"`
+	Vk      string `json:"vk"`
+	Tg      string `json:"tg"`
+	Git      string `json:"gh"`
 	//JobName     string   `json:"jobName"`
 	Skills []Skills `json:"skills"`
 }
@@ -49,6 +52,9 @@ func (fu *FeedUser) Convert(usr User) {
 	fu.Description = usr.Description
 	fu.WorkPlace = usr.WorkPlace
 	fu.Bio = usr.Bio
+	fu.Vk = usr.Vk
+	fu.Git = usr.Git
+	fu.Tg = usr.Tg
 	fu.Avatar = usr.Avatar
 }
 

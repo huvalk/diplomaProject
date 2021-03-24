@@ -58,7 +58,7 @@ func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 		sql += "gh_url = '" + usr.Git + "', "
 	}
 	if usr.Tg != "" {
-		sql += "tg_url = '" + usr.Tg + "', "
+		sql += "tg_url = '" + usr.Tg + "' "
 	}
 	sql = sql[:len(sql)-2] + ` where id=$1 returning id`
 

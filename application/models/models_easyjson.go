@@ -118,6 +118,12 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels1(in *jlexer.Lexer, ou
 			out.Bio = string(in.String())
 		case "avatar":
 			out.Avatar = string(in.String())
+		case "vk":
+			out.Vk = string(in.String())
+		case "tg":
+			out.Tg = string(in.String())
+		case "gh":
+			out.Git = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -171,6 +177,21 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels1(out *jwriter.Writer,
 		const prefix string = ",\"avatar\":"
 		out.RawString(prefix)
 		out.String(string(in.Avatar))
+	}
+	{
+		const prefix string = ",\"vk\":"
+		out.RawString(prefix)
+		out.String(string(in.Vk))
+	}
+	{
+		const prefix string = ",\"tg\":"
+		out.RawString(prefix)
+		out.String(string(in.Tg))
+	}
+	{
+		const prefix string = ",\"gh\":"
+		out.RawString(prefix)
+		out.String(string(in.Git))
 	}
 	out.RawByte('}')
 }
@@ -1127,6 +1148,12 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels14(in *jlexer.Lexer, o
 			out.Avatar = string(in.String())
 		case "team":
 			(out.Tm).UnmarshalEasyJSON(in)
+		case "vk":
+			out.Vk = string(in.String())
+		case "tg":
+			out.Tg = string(in.String())
+		case "gh":
+			out.Git = string(in.String())
 		case "skills":
 			if in.IsNull() {
 				in.Skip()
@@ -1208,6 +1235,21 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels14(out *jwriter.Writer
 		const prefix string = ",\"team\":"
 		out.RawString(prefix)
 		(in.Tm).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"vk\":"
+		out.RawString(prefix)
+		out.String(string(in.Vk))
+	}
+	{
+		const prefix string = ",\"tg\":"
+		out.RawString(prefix)
+		out.String(string(in.Tg))
+	}
+	{
+		const prefix string = ",\"gh\":"
+		out.RawString(prefix)
+		out.String(string(in.Git))
 	}
 	{
 		const prefix string = ",\"skills\":"
