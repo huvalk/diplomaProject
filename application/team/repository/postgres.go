@@ -30,8 +30,8 @@ where tu1.team_id=$1`
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected != 1 {
-		return errors.New("team not found")
+	if affected == 0 {
+		return errors.New("user wasn't in team")
 	}
 
 	return nil
@@ -45,7 +45,7 @@ where tu1.team_id=$1 AND tu1.user_id=$2`
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected != 1 {
+	if affected == 0 {
 		return errors.New("team not found")
 	}
 
