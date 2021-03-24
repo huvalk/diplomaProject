@@ -10,6 +10,9 @@ type User struct {
 	Description string `json:"description"`
 	Bio         string `json:"bio"`
 	Avatar      string `json:"avatar"`
+	Vk      string `json:"vk"`
+	Tg      string `json:"tg"`
+	Git      string `json:"gh"`
 }
 
 //type OauthConfig struct {

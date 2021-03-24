@@ -35,7 +35,7 @@ func (r *NotificationRepository) MarkAsWatched(notificationID int) error {
 
 func (r *NotificationRepository) GetPendingNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sql := `select (id, type, user_id, message, created, watched, status)
+	sql := `select id, type, user_id, message, created, watched, status
 			from notification 
 			where user_id = $1
 			and watched = FALSE`

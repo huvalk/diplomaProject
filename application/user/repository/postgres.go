@@ -51,6 +51,15 @@ func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 	if usr.LastName != "" {
 		sql += "lastname = '" + usr.LastName + "', "
 	}
+	if usr.Vk != "" {
+		sql += "vk_url = '" + usr.Vk + "', "
+	}
+	if usr.Git != "" {
+		sql += "gh_url = '" + usr.Git + "', "
+	}
+	if usr.Tg != "" {
+		sql += "tg_url = '" + usr.Tg + "', "
+	}
 	sql = sql[:len(sql)-2] + ` where id=$1 returning id`
 
 	id := 0
@@ -140,7 +149,8 @@ func (ud *UserDatabase) GetByID(uid int) (*models.User, error) {
 	u := models.User{}
 	sql := `select * from users where id = $1`
 	queryResult := ud.conn.QueryRow(context.Background(), sql, uid)
-	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Avatar)
+	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Vk,
+		&u.Tg, &u.Git, &u.Avatar)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +161,8 @@ func (ud *UserDatabase) GetByName(name string) (*models.User, error) {
 	u := models.User{}
 	sql := `select * from users where name = $1`
 	queryResult := ud.conn.QueryRow(context.Background(), sql, name)
-	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Avatar)
+	err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Vk,
+		&u.Tg, &u.Git, &u.Avatar)
 	if err != nil {
 		return nil, err
 	}
