@@ -180,7 +180,7 @@ func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, te
 		return err
 	}
 
-	return r.changeTeamToTeam(teamFromID1, teamToID, eventID)
+	return r.changeTeamToTeam(teamFromID2, teamToID, eventID)
 }
 
 func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventID int) error {
