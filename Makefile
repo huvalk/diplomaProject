@@ -10,8 +10,19 @@ start-local:
 start-db:
 	docker-compose -f docker-compose.database.yml up
 
-test-import-db:
-	psql -h localhost -p 5432 -U postgres -d hhton -f config/db_test_dump
+clear-db-local:
+	psql -h localhost -p 8081 -U postgres -d hhton -c 'truncate users, team, invite, event, feed, skills, job, notification cascade'
+
+clear-db-dev:
+	psql -h team-up.online -p 8081 -U postgres -d hhton -c 'truncate users, team, invite, event, feed, skills, job, notification cascade'
+
+refresh-db-local:
+	make clear-db-local
+	psql -h localhost -p 8081 -U postgres -d hhton -f config/hhton_public.sql
+
+refresh-db-dev:
+	make clear-db-dev
+	sudo psql -h team-up.online -p 8081 -U postgres -d hhton -f config/db_test_dump
 
 build-local:
 	docker build -t huvalk/app:local -f docker/app.Dockerfile .

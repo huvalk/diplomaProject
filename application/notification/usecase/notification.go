@@ -125,7 +125,7 @@ func (n *NotificationUseCase) SendPendingNotification(userID int) error {
 			return err
 		}
 		if wasSent {
-			err = n.notifications.MarkAsWatched(not.UserID)
+			err = n.notifications.MarkAsWatched(not.ID)
 
 			if err != nil {
 				return err
