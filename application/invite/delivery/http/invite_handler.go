@@ -41,13 +41,12 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.OwnerID = userID
 
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
@@ -80,13 +79,12 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 func (eh *InviteHandler) UnInvite(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.OwnerID = userID
 
 	inv.GuestID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
@@ -111,13 +109,12 @@ func (eh *InviteHandler) UnInvite(ctx echo.Context) (err error) {
 func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.GuestID = userIDFloat
+	inv.GuestID = userID
 
 	inv.OwnerID, err = strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
@@ -146,13 +143,12 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 func (eh *InviteHandler) IsInvited(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.OwnerID = userID
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -181,13 +177,12 @@ func (eh *InviteHandler) IsInvited(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.OwnerID = userID
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -211,13 +206,12 @@ func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.OwnerID = userIDFloat
+	inv.OwnerID = userID
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -241,13 +235,12 @@ func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.GuestID = userIDFloat
+	inv.GuestID = userID
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {
@@ -271,13 +264,12 @@ func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 func (eh *InviteHandler) GetInvitationTeam(ctx echo.Context) (err error) {
 	inv := &models.Invitation{}
 
-	// TODO Разобраться с float
-	userIDFloat, found := ctx.Get("userID").(int)
+	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	inv.GuestID = userIDFloat
+	inv.GuestID = userID
 
 	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
 	if err != nil {

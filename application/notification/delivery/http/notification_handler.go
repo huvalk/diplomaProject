@@ -1,7 +1,9 @@
 package http
 
 import (
+	"diplomaProject/application/middleware"
 	"diplomaProject/application/notification"
+	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
@@ -31,8 +33,8 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 		},
 	}
 
-	e.GET("/notification/:userID", handler.GetPendingNotification)
-	e.GET("/notification/channel/:userID", handler.ConnectToChannel)
+	e.GET("/notification/:userID", handler.GetPendingNotification, middleware.UserID)
+	e.GET("/notification/channel/:userID", handler.ConnectToChannel, middleware.UserID)
 	return nil
 }
 
@@ -41,6 +43,14 @@ func (eh *NotificationHandler) GetPendingNotification(ctx echo.Context) error {
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	currentUser, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
+	}
+	if currentUser != userID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
 	}
 
 	notifications, err := eh.useCase.GetPendingNotification(userID)
@@ -60,6 +70,14 @@ func (eh *NotificationHandler) ConnectToChannel(ctx echo.Context) error {
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	currentUser, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
+	}
+	if currentUser != userID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
 	}
 
 	ws, err := eh.upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
