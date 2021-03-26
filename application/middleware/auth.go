@@ -1,30 +1,26 @@
 package middleware
 
 import (
+	"diplomaProject/pkg/constants"
+	"diplomaProject/pkg/globalVars"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"net/http"
-	"os"
 	"strconv"
-)
-
-var (
-	ENV        string = os.Getenv("ENV")
-	JWT_SECRET        = os.Getenv("JWT_SECRET")
 )
 
 func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		var userID int
 
-		if ENV == "dev" || ENV == "deploy" {
-			cookie, err := c.Cookie("token")
+		if globalVars.ENV == "dev" || globalVars.ENV == "deploy" {
+			cookie, err := c.Cookie(constants.CookieName)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 			}
 			token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-				return []byte(JWT_SECRET), nil
+				return []byte(globalVars.JWT_SECRET), nil
 			})
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
@@ -36,12 +32,12 @@ func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			//TODO переделать
-			userIDFloat, ok := tokenMap["userID"].(float64)
+			userIDFloat, ok := tokenMap[constants.UserIdKey].(float64)
 			if !ok {
 				return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID in jwt token isnt float"))
 			}
-			tokenMap["userID"] = int(userIDFloat)
-			userID, ok = tokenMap["userID"].(int)
+			tokenMap[constants.UserIdKey] = int(userIDFloat)
+			userID, ok = tokenMap[constants.UserIdKey].(int)
 			if !ok {
 				return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID in jwt token isnt float"))
 			}
@@ -57,7 +53,7 @@ func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 		}
 
-		c.Set("userID", userID)
+		c.Set(constants.UserIdKey, userID)
 
 		return next(c)
 	}

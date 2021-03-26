@@ -3,11 +3,11 @@ package usecase
 import (
 	"diplomaProject/application/auth"
 	"diplomaProject/application/models"
+	"diplomaProject/pkg/globalVars"
 	"diplomaProject/pkg/oauth"
 	"errors"
 	"fmt"
 	"github.com/SevereCloud/vksdk/v2/api"
-	"os"
 )
 
 type UseCase struct {
@@ -21,23 +21,20 @@ type UseCase struct {
 
 func NewUsecase(a auth.Repository) auth.UseCase {
 	return &UseCase{
-		auths:        a,
-		ClientID:     os.Getenv("CLIENT_ID"),
-		RedirectURL:  os.Getenv("BACKEND_URI"),
-		State:        os.Getenv("STATE"),
-		ClientSecret: os.Getenv("CLIENT_SECRET"),
+		auths: a,
 	}
 }
 
 func (u *UseCase) MakeAuthUrl() string {
-	return oauth.VkOAuthURL(u.ClientID, u.RedirectURL+"auth", u.State)
+	return oauth.VkOAuthURL(globalVars.CLIENT_ID, globalVars.BACKEND_URI+"auth", globalVars.STATE)
 }
 
 func (u *UseCase) UpdateUserInfo(code string, state string) (int, error) {
 	if state == "" || state != u.State {
 		return 0, errors.New("state doesnt match")
 	}
-	token, err := oauth.RetrieveUserToken(code, u.ClientID, u.RedirectURL+"auth", u.ClientSecret)
+	token, err := oauth.RetrieveUserToken(code, globalVars.CLIENT_ID, globalVars.BACKEND_URI+"auth",
+		globalVars.CLIENT_SECRET)
 	if err != nil {
 		return 0, err
 	}

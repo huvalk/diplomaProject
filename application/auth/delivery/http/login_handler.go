@@ -4,25 +4,24 @@ import (
 	"diplomaProject/application/auth"
 	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
+	"diplomaProject/pkg/constants"
+	"diplomaProject/pkg/globalVars"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
 type AuthHandler struct {
 	useCase       auth.UseCase
-	finishAuthUrl string
 }
 
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 	handler := AuthHandler{
-		useCase:       au,
-		finishAuthUrl: os.Getenv("FRONTEND_URI"),
+		useCase: au,
 	}
 
 	e.GET("/redirect", handler.RedirectLogin)
@@ -52,24 +51,23 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["userID"] = userID
+	claims[constants.UserIdKey] = userID
 
-	//secret := middleware.JWT_SECRET
-	t, err := token.SignedString([]byte(middleware.JWT_SECRET))
+	t, err := token.SignedString([]byte(globalVars.JWT_SECRET))
 	if err != nil {
 		return err
 	}
 
 	ctx.SetCookie(&http.Cookie{
-		Name:     "token",
-		Value:    t,
-		Expires:  time.Time{},
-		MaxAge:   1000000,
+		Name:    constants.CookieName,
+		Value:   t,
+		Expires: time.Now().Add(constants.CookieDuration),
+		//SameSite: http.SameSiteStrictMode,
 		Secure:   false,
 		HttpOnly: true,
 	})
 
-	return ctx.Redirect(http.StatusTemporaryRedirect, eh.finishAuthUrl)
+	return ctx.Redirect(http.StatusTemporaryRedirect, globalVars.FRONTEND_URI)
 }
 
 func (eh *AuthHandler) Check(ctx echo.Context) error {

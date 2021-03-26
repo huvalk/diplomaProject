@@ -2,6 +2,7 @@ package sss
 
 import (
 	"bytes"
+	"diplomaProject/pkg/globalVars"
 	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,15 +11,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"io"
 	"mime/multipart"
-	"os"
 	"strings"
 	"time"
 )
 
 var sess = session.Must(session.NewSession(&aws.Config{
 	Region: aws.String("eu-north-1"),
-	Credentials: credentials.NewStaticCredentials(os.Getenv("TEAMUP_BUCKET_ID"),
-		os.Getenv("TEAMUP_BUCKET_SECRET"), ""),
+	Credentials: credentials.NewStaticCredentials(globalVars.TEAMUP_BUCKET_ID,
+		globalVars.TEAMUP_BUCKET_SECRET, ""),
 }))
 
 var svc = s3.New(sess)
@@ -48,7 +48,7 @@ func UploadPic(form *multipart.Form, suffix string) (link string, err error) {
 		t.Minute(), t.Second(), suffix) + "-pic." + ext
 
 	_, err = svc.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(os.Getenv("TEAMUP_BUCKET_NAME")),
+		Bucket: aws.String(globalVars.TEAMUP_BUCKET_NAME),
 		Key:    aws.String(link),
 		Body:   strings.NewReader(buf.String()),
 		ACL:    aws.String("public-read"), // make public

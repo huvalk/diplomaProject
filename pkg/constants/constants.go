@@ -1,10 +1,12 @@
 package constants
 
-import "time"
+import (
+	"time"
+)
 
 const (
-	CookieName     = "session_id"
-	UserIdKey      = "user_id"
+	CookieName     = "sessionID"
+	UserIdKey      = "userID"
 	CookieDuration = 10 * time.Hour
 )
 
