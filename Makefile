@@ -22,7 +22,7 @@ refresh-db-local:
 
 refresh-db-dev:
 	make clear-db-dev
-	sudo psql -h team-up.online -p 8081 -U postgres -d hhton -f config/db_test_dump
+	sudo psql -h team-up.online -p 8081 -U postgres -d hhton -f config/hhton_public.sql
 
 build-local:
 	docker build -t huvalk/app:local -f docker/app.Dockerfile .
