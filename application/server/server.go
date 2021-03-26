@@ -42,8 +42,8 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000", "http://localhost:8080", "https://team-up.online"},
-		AllowMethods: []string{"GET", "HEAD", "PUT", "POST", "DELETE"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:8080", "https://team-up.online"},
+		AllowMethods:     []string{"GET", "HEAD", "PUT", "POST", "DELETE"},
 		AllowCredentials: true,
 	}))
 

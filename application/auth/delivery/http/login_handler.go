@@ -21,7 +21,7 @@ type AuthHandler struct {
 
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 	handler := AuthHandler{
-		useCase: au,
+		useCase:       au,
 		finishAuthUrl: os.Getenv("FRONTEND_URI"),
 	}
 

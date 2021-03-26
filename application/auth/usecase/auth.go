@@ -11,11 +11,11 @@ import (
 )
 
 type UseCase struct {
-	auths        auth.Repository
-	ClientID     string
-	RedirectURL  string
-	State        string
-	ClientSecret string
+	auths         auth.Repository
+	ClientID      string
+	RedirectURL   string
+	State         string
+	ClientSecret  string
 	ServiceSecret string
 }
 
@@ -30,14 +30,14 @@ func NewUsecase(a auth.Repository) auth.UseCase {
 }
 
 func (u *UseCase) MakeAuthUrl() string {
-	return oauth.VkOAuthURL(u.ClientID, u.RedirectURL + "auth", u.State)
+	return oauth.VkOAuthURL(u.ClientID, u.RedirectURL+"auth", u.State)
 }
 
 func (u *UseCase) UpdateUserInfo(code string, state string) (int, error) {
 	if state == "" || state != u.State {
 		return 0, errors.New("state doesnt match")
 	}
-	token, err := oauth.RetrieveUserToken(code, u.ClientID, u.RedirectURL + "auth", u.ClientSecret)
+	token, err := oauth.RetrieveUserToken(code, u.ClientID, u.RedirectURL+"auth", u.ClientSecret)
 	if err != nil {
 		return 0, err
 	}
@@ -54,9 +54,9 @@ func (u *UseCase) UpdateUserInfo(code string, state string) (int, error) {
 		Id:        userResponse.ID,
 		FirstName: userResponse.FirstName,
 		LastName:  userResponse.LastName,
-		Avatar: userResponse.PhotoMaxOrig,
+		Avatar:    userResponse.PhotoMaxOrig,
 		Email:     token.Email,
-		Vk:     userResponse.ScreenName,
+		Vk:        userResponse.ScreenName,
 	}
 	if user.Vk == "" {
 		user.Vk = fmt.Sprintf("id%d", user.Id)

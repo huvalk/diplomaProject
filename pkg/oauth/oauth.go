@@ -10,7 +10,7 @@ import (
 
 func VkOAuthURL(clientID string, redirectURL string, state string) string {
 	scopeTemp := "account+email+photos+offline"
-	return fmt.Sprintf("https://oauth.vk.com/authorize?response_type=code&client_id=%s&redirect_uri=%s" +
+	return fmt.Sprintf("https://oauth.vk.com/authorize?response_type=code&client_id=%s&redirect_uri=%s"+
 		"&scope=%s&state=%s&display=page", clientID, redirectURL, scopeTemp, state)
 }
 

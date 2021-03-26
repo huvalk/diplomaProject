@@ -9,7 +9,6 @@ import (
 	"strconv"
 )
 
-
 var (
 	ENV        string = os.Getenv("ENV")
 	JWT_SECRET        = os.Getenv("JWT_SECRET")

@@ -20,9 +20,9 @@ func (r Repository) UpdateUserInfo(user *models.User) error {
 			VALUES ($1, $2, $3, $4, $5, $6)
 			ON CONFLICT 
 			DO NOTHING`
-				//UPDATE SET firstname = EXCLUDED.firstname,
-				//lastname = EXCLUDED.lastname,
-				//email = EXCLUDED.email
+	//UPDATE SET firstname = EXCLUDED.firstname,
+	//lastname = EXCLUDED.lastname,
+	//email = EXCLUDED.email
 
 	_, err := r.conn.Exec(context.Background(),
 		sql, user.Id, user.FirstName, user.LastName, user.Avatar, user.Email, user.Vk)

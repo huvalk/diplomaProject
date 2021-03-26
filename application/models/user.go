@@ -10,9 +10,9 @@ type User struct {
 	Description string `json:"description"`
 	Bio         string `json:"bio"`
 	Avatar      string `json:"avatar"`
-	Vk      string `json:"vk"`
-	Tg      string `json:"tg"`
-	Git      string `json:"gh"`
+	Vk          string `json:"vk"`
+	Tg          string `json:"tg"`
+	Git         string `json:"gh"`
 }
 
 //type OauthConfig struct {
@@ -34,9 +34,9 @@ type FeedUser struct {
 	Bio         string `json:"bio"`
 	Avatar      string `json:"avatar"`
 	Tm          Team   `json:"team"`
-	Vk      string `json:"vk"`
-	Tg      string `json:"tg"`
-	Git      string `json:"gh"`
+	Vk          string `json:"vk"`
+	Tg          string `json:"tg"`
+	Git         string `json:"gh"`
 	//JobName     string   `json:"jobName"`
 	Skills []Skills `json:"skills"`
 }
