@@ -2,6 +2,7 @@ package httpAuth
 
 import (
 	"diplomaProject/application/auth"
+	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
@@ -26,7 +27,7 @@ func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 
 	e.GET("/redirect", handler.RedirectLogin)
 	e.GET("/auth", handler.Auth)
-	e.GET("/check", handler.Check)
+	e.GET("/check", handler.Check, middleware.UserID		)
 	return nil
 }
 
@@ -53,7 +54,8 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["userID"] = userID
 
-	t, err := token.SignedString([]byte("secret"))
+	//secret := middleware.JWT_SECRET
+	t, err := token.SignedString([]byte(middleware.JWT_SECRET))
 	if err != nil {
 		return err
 	}

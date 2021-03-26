@@ -17,7 +17,6 @@ import (
 	http5 "diplomaProject/application/jobSkills/delivery/http"
 	repository5 "diplomaProject/application/jobSkills/repository"
 	usecase5 "diplomaProject/application/jobSkills/usecase"
-	customMiddleware "diplomaProject/application/middleware"
 	httpNotification "diplomaProject/application/notification/delivery/http"
 	repositoryNotification "diplomaProject/application/notification/repository"
 	usecaseNotification "diplomaProject/application/notification/usecase"
@@ -40,7 +39,6 @@ type Server struct {
 
 func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	//middleware WIP
-	e.Use(customMiddleware.UserID)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{

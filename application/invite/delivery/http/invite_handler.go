@@ -2,6 +2,7 @@ package http
 
 import (
 	"diplomaProject/application/invite"
+	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
 	"diplomaProject/application/notification"
 	"github.com/labstack/echo"
@@ -22,14 +23,14 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 		notification: nu,
 	}
 
-	e.POST("/event/:eventID/user/:userID/invite", handler.Invite)
-	e.POST("/event/:eventID/user/:userID/uninvite", handler.UnInvite)
-	e.POST("/event/:eventID/user/:userID/decline", handler.Deny)
-	e.GET("/event/:eventID/invited/user/:userID", handler.IsInvited)
-	e.GET("/event/:eventID/invited/users", handler.GetInvitedUser)
-	e.GET("/event/:eventID/invited/teams", handler.GetInvitedTeam)
-	e.GET("/event/:eventID/invitation/users", handler.GetInvitationUser)
-	e.GET("/event/:eventID/invitation/teams", handler.GetInvitationTeam)
+	e.POST("/event/:eventID/user/:userID/invite", handler.Invite, middleware.UserID)
+	e.POST("/event/:eventID/user/:userID/uninvite", handler.UnInvite, middleware.UserID)
+	e.POST("/event/:eventID/user/:userID/decline", handler.Deny, middleware.UserID)
+	e.GET("/event/:eventID/invited/user/:userID", handler.IsInvited, middleware.UserID)
+	e.GET("/event/:eventID/invited/users", handler.GetInvitedUser, middleware.UserID)
+	e.GET("/event/:eventID/invited/teams", handler.GetInvitedTeam, middleware.UserID)
+	e.GET("/event/:eventID/invitation/users", handler.GetInvitationUser, middleware.UserID)
+	e.GET("/event/:eventID/invitation/teams", handler.GetInvitationTeam, middleware.UserID)
 	return nil
 }
 
