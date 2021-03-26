@@ -39,3 +39,6 @@ test-cover:
 
 lint:
 	golangci-lint run ./...
+
+upload-nginx-conf:
+	scp config/team-up.online.conf root@hahao.ru:/etc/nginx/conf.d/
