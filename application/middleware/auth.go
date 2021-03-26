@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/labstack/echo"
+	"net/http"
 	"os"
 	"strconv"
 )
@@ -17,7 +18,7 @@ func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 		if ENV != "local" {
 			cookie, err := c.Cookie("token")
 			if err != nil {
-				return err
+				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 			} else {
 				cookieValue = cookie.Value
 			}
@@ -30,7 +31,7 @@ func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 
 		userID, err := strconv.Atoi(cookieValue)
 		if err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 		}
 
 		c.Set("userID", userID)

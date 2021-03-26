@@ -26,6 +26,7 @@ func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 
 	e.GET("/redirect", handler.RedirectLogin)
 	e.GET("/auth", handler.Auth)
+	e.GET("/check", handler.Check)
 	return nil
 }
 
@@ -69,31 +70,19 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 	return ctx.Redirect(http.StatusTemporaryRedirect, eh.finishAuthUrl)
 }
 
-func (eh *AuthHandler) Login(ctx echo.Context) error {
-	user := &models.AuthUser{}
-	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, user); err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+func (eh *AuthHandler) Check(ctx echo.Context) error {
+	var user models.AuthUser
+	var found bool
+
+	user.Id, found = ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["id"] = user.Id
-
-	t, err := token.SignedString([]byte("secret"))
-	if err != nil {
-		return err
+	if _, err := easyjson.MarshalToWriter(user, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	ctx.SetCookie(&http.Cookie{
-		Name:     "token",
-		Value:    t,
-		Expires:  time.Now().Add(time.Hour * 1000000),
-		Secure:   false,
-		HttpOnly: true,
-		Path:     "/",
-		SameSite: http.SameSiteStrictMode,
-	})
 	return nil
 }
