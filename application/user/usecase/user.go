@@ -10,16 +10,19 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"mime/multipart"
+	"regexp"
 )
 
 type User struct {
-	users user.Repository
-	feeds feed.Repository
-	teams team.Repository
+	users     user.Repository
+	feeds     feed.Repository
+	teams     team.Repository
+	tagRegexp *regexp.Regexp
 }
 
 func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCase {
-	return &User{users: u, feeds: f, teams: t}
+	r, _ := regexp.Compile(`([a-zA-Z\\d])+$`)
+	return &User{users: u, feeds: f, teams: t, tagRegexp: r}
 }
 
 func (u *User) SetImage(uid int, avatar *multipart.Form) (string, error) {
@@ -36,6 +39,15 @@ func (u *User) SetImage(uid int, avatar *multipart.Form) (string, error) {
 
 func (u *User) Update(usr *models.User) (*models.User, error) {
 	return u.users.Update(usr)
+}
+
+func (u *User) SearchUserByTag(eid int, tag string) (models.UserArr, error) {
+	tagExtracted := u.tagRegexp.FindStringSubmatch(tag)
+	if len(tagExtracted) < 1 || len(tagExtracted[0]) > 40 || len(tagExtracted[0]) == 0 {
+		return nil, errors.New("no valid tag")
+	}
+
+	return u.users.SearchUserByTag(eid, tagExtracted[0])
 }
 
 func (u *User) GetForFeed(uid int) (*models.FeedUser, error) {

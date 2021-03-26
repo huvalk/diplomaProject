@@ -16,7 +16,7 @@ import (
 )
 
 type AuthHandler struct {
-	useCase       auth.UseCase
+	useCase auth.UseCase
 }
 
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {

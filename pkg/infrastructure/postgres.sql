@@ -1,5 +1,7 @@
 -- pg_ctl -D /usr/local/var/postgres start
 -- pg_ctl -D /usr/local/var/postgres stop
+create extension pg_trgm;
+
 create table users
 (
     id          bigserial primary key,
@@ -14,6 +16,10 @@ create table users
     gh_url      varchar(80)        not null default '',
     avatar      varchar(380)        not null default ''
 );
+
+create index idx_gin on users using gin (vk_url gin_trgm_ops);
+create index idx_gin on users using gin (gh_url gin_trgm_ops);
+create index idx_gin on users using gin (tg_url gin_trgm_ops);
 
 create table event
 (

@@ -24,6 +24,7 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 
 	e.GET("/user/:id", handler.Profile)
 	e.GET("/user/:id/events", handler.GetUserEvents)
+	e.GET("/event/:eventID/user/search", handler.FindUserByTag)
 	// Логин реализован в auth
 	//e.POST("/login", handler.Login)
 	e.PUT("/user/:id", handler.Update, middleware.UserID)
@@ -45,6 +46,28 @@ func (uh *UserHandler) GetUserEvents(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(evtArr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (uh *UserHandler) FindUserByTag(ctx echo.Context) error {
+	eid, err := strconv.Atoi(ctx.Param("eventID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	tag := ctx.QueryParam("tag")
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	users, err := uh.useCase.SearchUserByTag(eid, tag)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(users, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

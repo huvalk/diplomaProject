@@ -55,7 +55,7 @@ func (u *UseCase) UpdateUserInfo(code string, state string) (int, error) {
 		Email:     token.Email,
 		Vk:        userResponse.ScreenName,
 	}
-	if user.Vk == "" {
+	if len(user.Vk) == 0 || len(user.Vk) > 50 {
 		user.Vk = fmt.Sprintf("id%d", user.Id)
 	}
 
