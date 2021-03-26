@@ -54,7 +54,7 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 			}
 
 			for _, member := range members {
-				//if member.Id == invitation.OwnerID {
+				//if member.ID == invitation.OwnerID {
 				//	continue
 				//}
 				inviterIDs = append(inviterIDs, member.Id)

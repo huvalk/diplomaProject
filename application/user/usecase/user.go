@@ -107,5 +107,5 @@ func (u *User) Login(username string, password string) (sessionId string, csrfTo
 	sessionId = uuid.New().String()
 	csrfToken = crypto.CreateToken(sessionId)
 	return
-	//err = uc.sessions.Add(sessionId, usr.Id)
+	//err = uc.sessions.Add(sessionId, usr.ID)
 }

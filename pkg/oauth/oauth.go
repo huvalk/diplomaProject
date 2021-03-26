@@ -9,9 +9,9 @@ import (
 )
 
 func VkOAuthURL(clientID string, redirectURL string, state string) string {
-	scopeTemp := "account+email+photos"
+	scopeTemp := "account+email+photos+offline"
 	return fmt.Sprintf("https://oauth.vk.com/authorize?response_type=code&client_id=%s&redirect_uri=%s" +
-		"&scope=%s&state=%s", clientID, redirectURL, scopeTemp, state)
+		"&scope=%s&state=%s&display=page", clientID, redirectURL, scopeTemp, state)
 }
 
 func RetrieveUserToken(code string, clientID string, redirectURL string, clientSecret string) (*TokenStruct, error) {

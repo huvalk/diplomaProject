@@ -9,16 +9,19 @@ import (
 	"github.com/mailru/easyjson"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
 type AuthHandler struct {
 	useCase       auth.UseCase
+	finishAuthUrl string
 }
 
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 	handler := AuthHandler{
 		useCase: au,
+		finishAuthUrl: os.Getenv("FRONTEND_URI"),
 	}
 
 	e.GET("/redirect", handler.RedirectLogin)
@@ -60,10 +63,10 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 		Expires:  time.Time{},
 		MaxAge:   1000000,
 		Secure:   false,
-		HttpOnly: false,
+		HttpOnly: true,
 	})
 
-	return nil
+	return ctx.Redirect(http.StatusTemporaryRedirect, eh.finishAuthUrl)
 }
 
 func (eh *AuthHandler) Login(ctx echo.Context) error {

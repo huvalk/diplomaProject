@@ -12,7 +12,7 @@ create table users
     vk_url      varchar(80)        not null default '',
     tg_url      varchar(80)        not null default '',
     gh_url      varchar(80)        not null default '',
-    avatar      varchar(80)        not null default ''
+    avatar      varchar(380)        not null default ''
 );
 
 create table event

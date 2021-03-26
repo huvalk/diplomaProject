@@ -2,20 +2,35 @@ package middleware
 
 import (
 	"github.com/labstack/echo"
+	"os"
 	"strconv"
 )
 
+
+var ENV = os.Getenv("ENV")
+
+// nolint
 func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int
-		cookie, err := c.Cookie("token")
-		if err != nil {
-			userID = 1
-		} else {
-			userID, err = strconv.Atoi(cookie.Value)
+		var cookieValue string
+
+		if ENV != "local" {
+			cookie, err := c.Cookie("token")
 			if err != nil {
-				userID = 1
+				return err
+			} else {
+				cookieValue = cookie.Value
 			}
+		} else {
+			cookieValue := c.QueryParam("cur_user")
+			if cookieValue == "" {
+				cookieValue = "1"
+			}
+		}
+
+		userID, err := strconv.Atoi(cookieValue)
+		if err != nil {
+			return err
 		}
 
 		c.Set("userID", userID)
