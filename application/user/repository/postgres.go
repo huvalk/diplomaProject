@@ -70,6 +70,35 @@ func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 	return ud.GetByID(id)
 }
 
+func (ud *UserDatabase) SearchUserByTag(eid int, tag string) (models.UserArr, error) {
+	var users models.UserArr
+	sql := `select u.* from users u
+			join event_users eu on u.id = eu.user_id
+			where (vk_url like concat($1::text, '%')
+				or gh_url like concat($1::text, '%')
+				or tg_url like concat($1::text, '%'))
+   			and event_id = $2
+			limit 10`
+
+	queryResult, err := ud.conn.Query(context.Background(), sql, tag, eid)
+	if err != nil {
+		return nil, err
+	}
+	defer queryResult.Close()
+
+	for queryResult.Next() {
+		var u models.User
+		err := queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Vk,
+			&u.Tg, &u.Git, &u.Avatar)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
 func (ud *UserDatabase) GetUserParams(uid int) (models.Job, []models.Skills, error) {
 	var skillsArr []models.Skills
 	skill := models.Skills{}

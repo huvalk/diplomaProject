@@ -8,6 +8,7 @@ import (
 type UseCase interface {
 	Get(uid int) (*models.User, error)
 	Update(usr *models.User) (*models.User, error)
+	SearchUserByTag(eid int, tag string) (models.UserArr, error)
 	SetImage(uid int, avatar *multipart.Form) (string, error)
 	GetForFeed(uid int) (*models.FeedUser, error)
 	Login(username string, password string) (string, string, error)
