@@ -2,7 +2,9 @@ package http
 
 import (
 	"diplomaProject/application/jobSkills"
+	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
+	"errors"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
 	"log"
@@ -21,14 +23,13 @@ func NewJobSkillsHandler(e *echo.Echo, usecase jobskills.UseCase) error {
 
 	e.GET("/job", handler.GetJobs)
 	e.GET("/job/:name/skills", handler.GetSkillsByJob)
-	e.POST("user/:id/skills", handler.AddSkill)
-	e.DELETE("user/:id/skills", handler.RemoveSkill)
+	e.POST("user/:id/skills", handler.AddSkill, middleware.UserID)
+	e.DELETE("user/:id/skills", handler.RemoveSkill, middleware.UserID)
 
 	return nil
 }
 
 func (js *JobSkillsHandler) GetJobs(ctx echo.Context) error {
-
 	jArr, err := js.useCase.GetAllJobs()
 	if err != nil {
 		log.Println(err)
@@ -60,6 +61,14 @@ func (js *JobSkillsHandler) AddSkill(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != uID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
 
 	add := &models.AddSkillIDArr{}
 	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
@@ -83,6 +92,14 @@ func (js *JobSkillsHandler) RemoveSkill(ctx echo.Context) error {
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != uID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
 	}
 
 	add := &models.AddSkillID{}

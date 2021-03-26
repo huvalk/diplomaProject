@@ -5,6 +5,7 @@ import (
 	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
 	"diplomaProject/application/notification"
+	"errors"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
 	"log"
@@ -44,7 +45,7 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.OwnerID = userID
 
@@ -82,7 +83,7 @@ func (eh *InviteHandler) UnInvite(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.OwnerID = userID
 
@@ -112,7 +113,7 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.GuestID = userID
 
@@ -146,7 +147,7 @@ func (eh *InviteHandler) IsInvited(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.OwnerID = userID
 
@@ -180,7 +181,7 @@ func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.OwnerID = userID
 
@@ -209,7 +210,7 @@ func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.OwnerID = userID
 
@@ -238,7 +239,7 @@ func (eh *InviteHandler) GetInvitationUser(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.GuestID = userID
 
@@ -267,7 +268,7 @@ func (eh *InviteHandler) GetInvitationTeam(ctx echo.Context) (err error) {
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 	inv.GuestID = userID
 

@@ -27,7 +27,7 @@ func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 
 	e.GET("/redirect", handler.RedirectLogin)
 	e.GET("/auth", handler.Auth)
-	e.GET("/check", handler.Check, middleware.UserID		)
+	e.GET("/check", handler.Check, middleware.UserID)
 	return nil
 }
 
@@ -79,7 +79,7 @@ func (eh *AuthHandler) Check(ctx echo.Context) error {
 	user.Id, found = ctx.Get("userID").(int)
 	if !found {
 		log.Println("userID not found")
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
 
 	if _, err := easyjson.MarshalToWriter(user, ctx.Response().Writer); err != nil {

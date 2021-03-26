@@ -1,8 +1,10 @@
 package http
 
 import (
+	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
+	"errors"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
 	"log"
@@ -22,8 +24,8 @@ func NewTeamHandler(e *echo.Echo, usecase team.UseCase) error {
 	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
 	e.POST("/event/:evtid/team", handler.CreateTeam)
 	e.POST("/team/:id/add", handler.AddMember)
-	e.POST("/team/:id/leave", handler.Leave)
-	e.POST("/event/:evtid/team/join", handler.Union)
+	e.POST("/team/:id/leave", handler.Leave, middleware.UserID)
+	e.POST("/event/:evtid/team/join", handler.Union, middleware.UserID)
 	return nil
 }
 
@@ -104,6 +106,14 @@ func (th *TeamHandler) Leave(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != add.UID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
 
 	tm, err := th.useCase.RemoveMember(tID, add.UID)
 	if err != nil {
@@ -128,6 +138,7 @@ func (th *TeamHandler) AddMember(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	// TODO не знаю, как проверить оригинального пользователя
 
 	tm, err := th.useCase.AddMember(tID, add.UID)
 	if err != nil {
@@ -152,6 +163,15 @@ func (th *TeamHandler) Union(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != add.UID1 && userID != add.UID2 {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
+
 	tm, err := th.useCase.Union(add.UID1, add.UID2, evtID)
 	if err != nil {
 		log.Println(err)

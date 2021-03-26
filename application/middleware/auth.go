@@ -15,12 +15,11 @@ var (
 	JWT_SECRET        = os.Getenv("JWT_SECRET")
 )
 
-// nolint
 func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		var userID int
 
-		if ENV != "local" {
+		if ENV == "dev" || ENV == "deploy" {
 			cookie, err := c.Cookie("token")
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())

@@ -1,9 +1,11 @@
 package http
 
 import (
+	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
 	"diplomaProject/application/user"
 	"diplomaProject/pkg/constants"
+	"errors"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
 	"log"
@@ -22,11 +24,12 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 
 	e.GET("/user/:id", handler.Profile)
 	e.GET("/user/:id/events", handler.GetUserEvents)
-	e.POST("/login", handler.Login)
-	e.PUT("/user/:id", handler.Update)
-	e.POST("/user/:id/image", handler.SetImage)
-	e.POST("/event/:evtid/join", handler.JoinEvent)
-	e.POST("/event/:evtid/leave", handler.LeaveEvent)
+	// Логин реализован в auth
+	//e.POST("/login", handler.Login)
+	e.PUT("/user/:id", handler.Update, middleware.UserID)
+	e.POST("/user/:id/image", handler.SetImage, middleware.UserID)
+	e.POST("/event/:evtid/join", handler.JoinEvent, middleware.UserID)
+	e.POST("/event/:evtid/leave", handler.LeaveEvent, middleware.UserID)
 	return nil
 }
 
@@ -53,6 +56,15 @@ func (uh *UserHandler) SetImage(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != uid {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
+
 	form, _ := ctx.MultipartForm()
 
 	link, err := uh.useCase.SetImage(uid, form)
@@ -77,6 +89,15 @@ func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != add.UID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
+
 	err = uh.useCase.JoinEvent(add.UID, evtID)
 	if err != nil {
 		log.Println(err)
@@ -96,6 +117,15 @@ func (uh *UserHandler) LeaveEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != add.UID {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
+
 	err = uh.useCase.LeaveEvent(add.UID, evtID)
 	if err != nil {
 		log.Println(err)
@@ -127,6 +157,15 @@ func (uh *UserHandler) Update(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != uid {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
+
 	usr := &models.User{}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
 		log.Println(err)
@@ -149,6 +188,15 @@ func (uh *UserHandler) Profile(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	if userID != uid {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	}
+
 	usr, err := uh.useCase.GetForFeed(uid)
 	if err != nil {
 		log.Println(err)
