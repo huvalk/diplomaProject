@@ -12,16 +12,12 @@ import (
 
 type UseCase struct {
 	auths         auth.Repository
-	ClientID      string
-	RedirectURL   string
-	State         string
-	ClientSecret  string
-	ServiceSecret string
 }
 
 func NewUsecase(a auth.Repository) auth.UseCase {
 	return &UseCase{
 		auths: a,
+
 	}
 }
 
@@ -30,7 +26,7 @@ func (u *UseCase) MakeAuthUrl() string {
 }
 
 func (u *UseCase) UpdateUserInfo(code string, state string) (int, error) {
-	if state == "" || state != u.State {
+	if state == "" || state != globalVars.STATE {
 		return 0, errors.New("state doesnt match")
 	}
 	token, err := oauth.RetrieveUserToken(code, globalVars.CLIENT_ID, globalVars.BACKEND_URI+"auth",
