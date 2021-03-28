@@ -31,6 +31,39 @@ where id = $2`
 		return errors.New("no prize")
 	}
 
+	return e.UpdateWinUsers(prizeID, tId)
+}
+
+func (e EventDatabase) UpdateWinUsers(prizeID, tId int) error {
+	var us []int
+	u := 0
+	sql := `select user_id from team_users where team_id=$1`
+	queryResult, err := e.conn.Query(context.Background(), sql, tId)
+	if err != nil {
+		return err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&u)
+		if err != nil {
+			return err
+		}
+		us = append(us, u)
+	}
+	queryResult.Close()
+
+	sql = `insert into prize_users values `
+	for i := range us {
+		sql += fmt.Sprintf("(%v,%v),", prizeID, us[i])
+	}
+	fmt.Println(sql[:len(sql)-1], us)
+	_, err = e.conn.Exec(context.Background(), sql[:len(sql)-1])
+	if err != nil {
+		return err
+	}
+	//affected := qR.RowsAffected()
+	//if affected != 1 {
+	//	return errors.New("already finished")
+	//}
 	return nil
 }
 

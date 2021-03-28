@@ -21,7 +21,7 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 	handler := EventHandler{useCase: usecase}
 
 	e.GET("/event/:id", handler.GetEvent)
-	e.GET("/event/:id/finish", handler.FinishEvent, middleware.UserID)
+	e.POST("/event/:id/finish", handler.FinishEvent, middleware.UserID)
 	e.GET("/event/:id/users", handler.GetEventUsers)
 	e.POST("/event", handler.CreateEvent, middleware.UserID)
 	e.POST("/event/:id/win", handler.SelectWinner, middleware.UserID)

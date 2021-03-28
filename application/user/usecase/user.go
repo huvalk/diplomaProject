@@ -61,8 +61,12 @@ func (u *User) GetForFeed(uid int) (*models.FeedUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	//fdUsr.JobName = job.Name
 	fdUsr.Skills = skills
+	hs, err := u.users.GetUserHistory(uid)
+	if err != nil {
+		return nil, err
+	}
+	fdUsr.History = hs
 	return fdUsr, err
 }
 

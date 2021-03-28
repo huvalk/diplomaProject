@@ -77,7 +77,7 @@ create table team_users
 (
     team_id integer REFERENCES team (id),
     user_id integer REFERENCES users (id),
-    CONSTRAINT uniq_pair3 UNIQUE (team_id, user_id)
+    CONSTRAINT uniq_pair4 UNIQUE (team_id, user_id)
 );
 
 create table prize_users

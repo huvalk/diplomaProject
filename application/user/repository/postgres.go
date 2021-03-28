@@ -16,6 +16,28 @@ func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
 }
 
+func (ud *UserDatabase) GetUserHistory(uid int) (models.HistoryEventArr, error) {
+	historyArr := models.HistoryEventArr{}
+	hEvt := models.HistoryEvent{}
+	sql := `select e1.id,e1.name,p1.place from prize_users pu1
+join prize p1 on pu1.prize_id=p1.id
+join event e1 on p1.event_id=e1.id
+where pu1.user_id =$1`
+	queryResult, err := ud.conn.Query(context.Background(), sql, uid)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&hEvt.Id, &hEvt.Name, &hEvt.UserPlace)
+		if err != nil {
+			return nil, err
+		}
+		historyArr = append(historyArr, hEvt)
+	}
+	queryResult.Close()
+	return historyArr, nil
+}
+
 func (ud *UserDatabase) SetImage(uid int, link string) error {
 	sql := `update users set avatar=$1 where id=$2`
 

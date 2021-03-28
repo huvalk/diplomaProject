@@ -12,4 +12,5 @@ type Repository interface {
 	LeaveEvent(uid, evtID int) error
 	GetUserEvents(uid int) (*models.EventArr, error)
 	GetUserParams(uid int) (models.Job, []models.Skills, error)
+	GetUserHistory(uid int) (models.HistoryEventArr, error)
 }

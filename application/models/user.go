@@ -25,20 +25,20 @@ type User struct {
 type UserArr []User
 
 type FeedUser struct {
-	Id          int    `json:"id"`
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	Email       string `json:"email"`
-	WorkPlace   string `json:"workPlace"`
-	Description string `json:"description"`
-	Bio         string `json:"bio"`
-	Avatar      string `json:"avatar"`
-	Tm          Team   `json:"team"`
-	Vk          string `json:"vk"`
-	Tg          string `json:"tg"`
-	Git         string `json:"gh"`
-	//JobName     string   `json:"jobName"`
-	Skills []Skills `json:"skills"`
+	Id          int             `json:"id"`
+	FirstName   string          `json:"firstName"`
+	LastName    string          `json:"lastName"`
+	Email       string          `json:"email"`
+	WorkPlace   string          `json:"workPlace"`
+	Description string          `json:"description"`
+	Bio         string          `json:"bio"`
+	Avatar      string          `json:"avatar"`
+	Tm          Team            `json:"team"`
+	Vk          string          `json:"vk"`
+	Tg          string          `json:"tg"`
+	Git         string          `json:"gh"`
+	Skills      []Skills        `json:"skills"`
+	History     HistoryEventArr `json:"history"`
 }
 
 //easyjson:json
@@ -61,3 +61,12 @@ func (fu *FeedUser) Convert(usr User) {
 type Avatar struct {
 	Avatar string `json:"avatar"`
 }
+
+type HistoryEvent struct {
+	Id        int    `json:"id"`
+	Name      string `json:"name"`
+	UserPlace int    `json:"userPlace"`
+}
+
+//easyjson:json
+type HistoryEventArr []HistoryEvent
