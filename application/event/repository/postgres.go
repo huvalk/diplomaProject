@@ -4,6 +4,9 @@ import (
 	"context"
 	"diplomaProject/application/event"
 	"diplomaProject/application/models"
+	"diplomaProject/pkg/constants"
+	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -13,6 +16,83 @@ type EventDatabase struct {
 
 func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
+}
+
+func (e EventDatabase) SelectWinner(prizeID, tId int) error {
+	sql := `update prize set winnerteamids = array_append(winnerteamids,$1) , 
+amount = amount -1
+where id = $2`
+	queryResult, err := e.conn.Exec(context.Background(), sql, tId, prizeID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no prize")
+	}
+
+	return nil
+}
+
+func (e EventDatabase) GetEventPrize(evtID int) (*models.PrizeArr, error) {
+	var prArr models.PrizeArr
+	pr := models.Prize{}
+	sql := `select * from prize
+where event_id=$1`
+
+	queryResult, err := e.conn.Query(context.Background(), sql, evtID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&pr.Id, &pr.EventID, &pr.Name,
+			&pr.Place, &pr.Amount, &pr.WinnerTeamIDs)
+		if err != nil {
+			return nil, err
+		}
+		if len(pr.WinnerTeamIDs) < 1 {
+			pr.WinnerTeamIDs = []int{}
+		}
+		prArr = append(prArr, pr)
+	}
+	queryResult.Close()
+
+	return &prArr, nil
+}
+
+func (e EventDatabase) Finish(id int) error {
+	sql := `update event set state = '` + constants.EventStatusClosed + `' where id = $1`
+	queryResult, err := e.conn.Exec(context.Background(), sql, id)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("already finished")
+	}
+
+	return nil
+}
+
+func (e EventDatabase) AddPrize(evtID int, prizeArr models.PrizeArr) error {
+	sql := `INSERT INTO prize VALUES`
+	for i := range prizeArr {
+		prizeArr[i].EventID = evtID
+		prizeArr[i].WinnerTeamIDs = []int{}
+		sql += fmt.Sprintf("(default,$1,'%v',%v,%v,null),",
+			prizeArr[i].Name, prizeArr[i].Place, prizeArr[i].Amount)
+	}
+	println(sql[:len(sql)-1])
+	queryResult, err := e.conn.Exec(context.Background(), sql[:len(sql)-1], evtID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != int64(len(prizeArr)) {
+		return errors.New("prize wasn't created")
+	}
+
+	return nil
 }
 
 func (e EventDatabase) GetEventUsers(evtID int) (*models.UserArr, error) {

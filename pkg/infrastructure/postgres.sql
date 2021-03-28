@@ -63,20 +63,21 @@ create table team
     event integer REFERENCES event (id)
 );
 
+create table prize
+(
+    id            bigserial primary key,
+    event_id      integer REFERENCES event (id),
+    name          varchar(80) not null default '',
+    place         int         not null,
+    amount        int         not null,
+    winnerTeamIDs integer[]
+);
+
 create table team_users
 (
     team_id integer REFERENCES team (id),
     user_id integer REFERENCES users (id),
     CONSTRAINT uniq_pair3 UNIQUE (team_id, user_id)
-);
-
-create table prize
-(
-    id            bigserial primary key,
-    name          varchar(80) not null default '',
-    place         varchar(80) not null default '',
-    amount        int         not null,
-    winnerTeamIDs integer[]
 );
 
 create table prize_users
