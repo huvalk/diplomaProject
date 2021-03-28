@@ -72,11 +72,11 @@ create table team_users
 
 create table prize
 (
-    id           bigserial primary key,
-    name         varchar(80) not null default '',
-    place        varchar(80) not null default '',
-    amount       int         not null default '',
-    winnerTeamID integer REFERENCES team (id)
+    id            bigserial primary key,
+    name          varchar(80) not null default '',
+    place         varchar(80) not null default '',
+    amount        int         not null default '',
+    winnerTeamIDs integer[]
 );
 
 create table prize_users

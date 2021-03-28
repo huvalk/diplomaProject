@@ -527,7 +527,7 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels6(in *jlexer.Lexer, ou
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(PrizeArr, 0, 1)
+				*out = make(PrizeArr, 0, 0)
 			} else {
 				*out = PrizeArr{}
 			}
@@ -609,8 +609,31 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels7(in *jlexer.Lexer, ou
 			out.Name = string(in.String())
 		case "place":
 			out.Place = string(in.String())
-		case "winnerTeamID":
-			out.WinnerTeamID = int(in.Int())
+		case "Amount":
+			out.Amount = int(in.Int())
+		case "winnerTeamIDs":
+			if in.IsNull() {
+				in.Skip()
+				out.WinnerTeamIDs = nil
+			} else {
+				in.Delim('[')
+				if out.WinnerTeamIDs == nil {
+					if !in.IsDelim(']') {
+						out.WinnerTeamIDs = make([]int, 0, 8)
+					} else {
+						out.WinnerTeamIDs = []int{}
+					}
+				} else {
+					out.WinnerTeamIDs = (out.WinnerTeamIDs)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v13 int
+					v13 = int(in.Int())
+					out.WinnerTeamIDs = append(out.WinnerTeamIDs, v13)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -641,9 +664,25 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels7(out *jwriter.Writer,
 		out.String(string(in.Place))
 	}
 	{
-		const prefix string = ",\"winnerTeamID\":"
+		const prefix string = ",\"Amount\":"
 		out.RawString(prefix)
-		out.Int(int(in.WinnerTeamID))
+		out.Int(int(in.Amount))
+	}
+	{
+		const prefix string = ",\"winnerTeamIDs\":"
+		out.RawString(prefix)
+		if in.WinnerTeamIDs == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v14, v15 := range in.WinnerTeamIDs {
+				if v14 > 0 {
+					out.RawByte(',')
+				}
+				out.Int(int(v15))
+			}
+			out.RawByte(']')
+		}
 	}
 	out.RawByte('}')
 }
@@ -688,9 +727,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels8(in *jlexer.Lexer, ou
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v13 Notification
-			(v13).UnmarshalEasyJSON(in)
-			*out = append(*out, v13)
+			var v16 Notification
+			(v16).UnmarshalEasyJSON(in)
+			*out = append(*out, v16)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -704,11 +743,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels8(out *jwriter.Writer,
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v14, v15 := range in {
-			if v14 > 0 {
+		for v17, v18 := range in {
+			if v17 > 0 {
 				out.RawByte(',')
 			}
-			(v15).MarshalEasyJSON(out)
+			(v18).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
@@ -841,9 +880,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels10(in *jlexer.Lexer, o
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v16 Job
-			(v16).UnmarshalEasyJSON(in)
-			*out = append(*out, v16)
+			var v19 Job
+			(v19).UnmarshalEasyJSON(in)
+			*out = append(*out, v19)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -857,11 +896,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels10(out *jwriter.Writer
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v17, v18 := range in {
-			if v17 > 0 {
+		for v20, v21 := range in {
+			if v20 > 0 {
 				out.RawByte(',')
 			}
-			(v18).MarshalEasyJSON(out)
+			(v21).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
@@ -1149,9 +1188,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels14(in *jlexer.Lexer, o
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v19 int
-			v19 = int(in.Int())
-			*out = append(*out, v19)
+			var v22 int
+			v22 = int(in.Int())
+			*out = append(*out, v22)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -1165,11 +1204,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels14(out *jwriter.Writer
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v20, v21 := range in {
-			if v20 > 0 {
+		for v23, v24 := range in {
+			if v23 > 0 {
 				out.RawByte(',')
 			}
-			out.Int(int(v21))
+			out.Int(int(v24))
 		}
 		out.RawByte(']')
 	}
@@ -1215,9 +1254,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels15(in *jlexer.Lexer, o
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v22 FeedUser
-			(v22).UnmarshalEasyJSON(in)
-			*out = append(*out, v22)
+			var v25 FeedUser
+			(v25).UnmarshalEasyJSON(in)
+			*out = append(*out, v25)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -1231,11 +1270,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels15(out *jwriter.Writer
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v23, v24 := range in {
-			if v23 > 0 {
+		for v26, v27 := range in {
+			if v26 > 0 {
 				out.RawByte(',')
 			}
-			(v24).MarshalEasyJSON(out)
+			(v27).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
@@ -1323,9 +1362,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels16(in *jlexer.Lexer, o
 					out.Skills = (out.Skills)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v25 Skills
-					(v25).UnmarshalEasyJSON(in)
-					out.Skills = append(out.Skills, v25)
+					var v28 Skills
+					(v28).UnmarshalEasyJSON(in)
+					out.Skills = append(out.Skills, v28)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1411,11 +1450,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels16(out *jwriter.Writer
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v26, v27 := range in.Skills {
-				if v26 > 0 {
+			for v29, v30 := range in.Skills {
+				if v29 > 0 {
 					out.RawByte(',')
 				}
-				(v27).MarshalEasyJSON(out)
+				(v30).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
@@ -1463,9 +1502,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels17(in *jlexer.Lexer, o
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v28 Feed
-			(v28).UnmarshalEasyJSON(in)
-			*out = append(*out, v28)
+			var v31 Feed
+			(v31).UnmarshalEasyJSON(in)
+			*out = append(*out, v31)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -1479,11 +1518,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels17(out *jwriter.Writer
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v29, v30 := range in {
-			if v29 > 0 {
+		for v32, v33 := range in {
+			if v32 > 0 {
 				out.RawByte(',')
 			}
-			(v30).MarshalEasyJSON(out)
+			(v33).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
@@ -1735,9 +1774,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels20(in *jlexer.Lexer, o
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v31 Event
-			(v31).UnmarshalEasyJSON(in)
-			*out = append(*out, v31)
+			var v34 Event
+			(v34).UnmarshalEasyJSON(in)
+			*out = append(*out, v34)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -1751,11 +1790,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels20(out *jwriter.Writer
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v32, v33 := range in {
-			if v32 > 0 {
+		for v35, v36 := range in {
+			if v35 > 0 {
 				out.RawByte(',')
 			}
-			(v33).MarshalEasyJSON(out)
+			(v36).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
@@ -2219,9 +2258,9 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels26(in *jlexer.Lexer, o
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v34 AddSkillID
-			(v34).UnmarshalEasyJSON(in)
-			*out = append(*out, v34)
+			var v37 AddSkillID
+			(v37).UnmarshalEasyJSON(in)
+			*out = append(*out, v37)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -2235,11 +2274,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels26(out *jwriter.Writer
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v35, v36 := range in {
-			if v35 > 0 {
+		for v38, v39 := range in {
+			if v38 > 0 {
 				out.RawByte(',')
 			}
-			(v36).MarshalEasyJSON(out)
+			(v39).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
