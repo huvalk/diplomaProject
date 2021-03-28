@@ -71,10 +71,11 @@ func (eh *EventHandler) CreateEvent(ctx echo.Context) error {
 		log.Println("userID not found")
 		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
-	if userID != newEvt.Founder {
-		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match founder"))
-	}
-
+	//if userID != newEvt.Founder {
+	//	fmt.Println("(( ", userID, newEvt.Founder)
+	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match founder"))
+	//}
+	newEvt.Founder = userID
 	newEvt, err := eh.useCase.Create(newEvt)
 	if err != nil {
 		log.Println(err)

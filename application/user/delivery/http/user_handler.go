@@ -58,10 +58,10 @@ func (uh *UserHandler) FindUserByTag(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	tag := ctx.QueryParam("tag")
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	//if err != nil {
+	//	log.Println(err)
+	//	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	//}
 	users, err := uh.useCase.SearchUserByTag(eid, tag)
 	if err != nil {
 		log.Println(err)
@@ -210,14 +210,6 @@ func (uh *UserHandler) Profile(ctx echo.Context) error {
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	userID, found := ctx.Get("userID").(int)
-	if !found {
-		log.Println("userID not found")
-		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
-	}
-	if userID != uid {
-		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
 	}
 
 	usr, err := uh.useCase.GetForFeed(uid)

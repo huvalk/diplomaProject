@@ -51,10 +51,11 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 }
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
-	sql := `INSERT INTO event VALUES(default,$1,$2,$3,$4,$5,$6)  RETURNING id`
+	sql := `INSERT INTO event VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8)  RETURNING id`
 	id := 0
 	err := e.conn.QueryRow(context.Background(), sql, newEvent.Name, newEvent.Description,
-		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd, newEvent.Place).Scan(&id)
+		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd,
+		newEvent.State, newEvent.Place, newEvent.ParticipantsCount).Scan(&id)
 	if err != nil {
 		return nil, err
 	}

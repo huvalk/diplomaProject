@@ -31,7 +31,8 @@ func (e *Event) Get(id int) (*models.Event, error) {
 		return nil, err
 	}
 	evt.Feed = *fd
-
+	evt.PrizeList = models.PrizeArr{}
+	evt.ParticipantsCount = len(fd.Users)
 	return evt, nil
 }
 

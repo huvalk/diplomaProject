@@ -49,10 +49,6 @@ func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
-		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-		}
-
 		c.Set(constants.UserIdKey, userID)
 
 		return next(c)

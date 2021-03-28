@@ -25,6 +25,7 @@ type Event struct {
 	Place             string    `json:"place"`
 	Feed              Feed      `json:"feed"`
 	ParticipantsCount int       `json:"participantsCount"`
+	PrizeList         PrizeArr  `json:"prizeList"`
 }
 
 //easyjson:json
@@ -41,3 +42,14 @@ func (e *Event) Convert(evt EventDB) {
 	e.Place = evt.Place
 	e.ParticipantsCount = evt.ParticipantsCount
 }
+
+type Prize struct {
+	Id            int    `json:"id"`
+	Name          string `json:"name"`
+	Place         string `json:"place"`
+	Amount        int    `json:"Amount"`
+	WinnerTeamIDs []int  `json:"winnerTeamIDs"`
+}
+
+//easyjson:json
+type PrizeArr []Prize

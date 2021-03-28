@@ -14,7 +14,7 @@ create table users
     vk_url      varchar(80)        not null default '',
     tg_url      varchar(80)        not null default '',
     gh_url      varchar(80)        not null default '',
-    avatar      varchar(380)        not null default ''
+    avatar      varchar(380)       not null default ''
 );
 
 create index idx_gin on users using gin (vk_url gin_trgm_ops);
@@ -68,6 +68,22 @@ create table team_users
     team_id integer REFERENCES team (id),
     user_id integer REFERENCES users (id),
     CONSTRAINT uniq_pair3 UNIQUE (team_id, user_id)
+);
+
+create table prize
+(
+    id           bigserial primary key,
+    name         varchar(80) not null default '',
+    place        varchar(80) not null default '',
+    amount       int         not null default '',
+    winnerTeamID integer REFERENCES team (id)
+);
+
+create table prize_users
+(
+    prize_id integer REFERENCES prize (id),
+    user_id  integer REFERENCES users (id),
+    CONSTRAINT uniq_pair3 UNIQUE (prize_id, user_id)
 );
 
 create table notification
