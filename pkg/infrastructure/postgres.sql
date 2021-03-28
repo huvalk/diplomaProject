@@ -75,7 +75,7 @@ create table prize
     id            bigserial primary key,
     name          varchar(80) not null default '',
     place         varchar(80) not null default '',
-    amount        int         not null default '',
+    amount        int         not null,
     winnerTeamIDs integer[]
 );
 
