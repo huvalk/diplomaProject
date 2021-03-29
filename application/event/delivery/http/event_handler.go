@@ -24,6 +24,7 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 	e.POST("/event/:id/finish", handler.FinishEvent, middleware.UserID)
 	e.GET("/event/:id/users", handler.GetEventUsers)
 	e.POST("/event", handler.CreateEvent, middleware.UserID)
+	e.POST("/event/:id", handler.UpdateEvent, middleware.UserID)
 	e.POST("/event/:id/win", handler.SelectWinner, middleware.UserID)
 	return nil
 }
@@ -135,4 +136,34 @@ func (eh *EventHandler) SelectWinner(ctx echo.Context) error {
 	//	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	//}
 	return ctx.String(200, "OK")
+}
+
+func (eh *EventHandler) UpdateEvent(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	newEvt := &models.Event{}
+	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, newEvt); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	newEvt.Id = evtID
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+
+	newEvt, err = eh.useCase.Update(userID, newEvt)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(newEvt, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
 }

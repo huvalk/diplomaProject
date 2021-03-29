@@ -18,6 +18,54 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
+func (e EventDatabase) UpdateEvent(evt *models.Event) error {
+	sql := `update event set  `
+	if evt.Name != "" {
+		sql += "name = '" + evt.Name + "', "
+	}
+	if evt.Description != "" {
+		sql += "description = '" + evt.Description + "', "
+	}
+	if evt.Place != "" {
+		sql += "place = '" + evt.Place + "', "
+	}
+	sql = sql[:len(sql)-2] + ` where id=$1`
+
+	queryResult, err := e.conn.Exec(context.Background(), sql, evt.Id)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no event")
+	}
+	return nil
+}
+
+func (e EventDatabase) UpdatePrize(pr *models.Prize) error {
+	sql := `update prize set  `
+	if pr.Name != "" {
+		sql += "name = '" + pr.Name + "', "
+	}
+	if pr.Place != 0 {
+		sql += fmt.Sprintf("place = '%v', ", pr.Place)
+	}
+	if pr.Amount != 0 {
+		sql += fmt.Sprintf("amount = '%v', ", pr.Amount)
+	}
+	sql = sql[:len(sql)-2] + ` where id=$1`
+	fmt.Println(sql)
+	queryResult, err := e.conn.Exec(context.Background(), sql, pr.Id)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no prize")
+	}
+	return nil
+}
+
 func (e EventDatabase) SelectWinner(prizeID, tId int) error {
 	sql := `update prize set winnerteamids = array_append(winnerteamids,$1) , 
 amount = amount -1

@@ -5,7 +5,7 @@ type Prize struct {
 	EventID       int    `json:"eventID"`
 	Name          string `json:"name"`
 	Place         int    `json:"place"`
-	Amount        int    `json:"Amount"`
+	Amount        int    `json:"amount"`
 	WinnerTeamIDs []int  `json:"winnerTeamIDs"`
 }
 

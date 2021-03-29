@@ -17,6 +17,23 @@ func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
 }
 
+func (e *Event) Update(uID int, evt *models.Event) (*models.Event, error) {
+	if evt.Founder != uID {
+		return nil, errors.New("not founder")
+	}
+	err := e.events.UpdateEvent(evt)
+	if err != nil {
+		return nil, err
+	}
+	for i := range evt.PrizeList {
+		err = e.events.UpdatePrize(&evt.PrizeList[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return e.Get(evt.Id)
+}
+
 func (e *Event) SelectWinner(uID, evtID, PrizeID, tId int) error {
 	ev, err := e.Get(evtID)
 	if err != nil {
