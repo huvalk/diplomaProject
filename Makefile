@@ -1,3 +1,20 @@
+define DROP_ALL_TABLES
+drop table event_users cascade;
+drop table feed_users cascade;
+drop table feed cascade;
+drop table team_users cascade;
+drop table prize_users cascade;
+drop table prize cascade;
+drop table notification cascade;
+drop table invite cascade;
+drop table team cascade;
+drop table event cascade;
+drop table job_skills_users cascade;
+drop table users cascade;
+drop table skills cascade;
+drop table job cascade;
+endef
+
 build-app:
 	go build -o app cmd/main.go
 
@@ -9,6 +26,15 @@ start-local:
 
 start-db:
 	docker-compose -f docker-compose.database.yml up
+
+export DROP_ALL_TABLES
+new-db-schema-local:
+	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
+	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/hhton_public.sql
+
+new-db-schema-dev:
+	psql -h team-up.online -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
+	psql -h team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/hhton_public.sql
 
 clear-db-local:
 	psql -h localhost -p 8081 -U postgres -d hhton -c 'truncate users, team, invite, event, feed, skills, job, notification cascade'

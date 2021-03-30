@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/SevereCloud/vksdk/v2/api"
+	url2 "net/url"
 )
 
 type UseCase struct {
@@ -21,15 +22,16 @@ func NewUsecase(a auth.Repository) auth.UseCase {
 	}
 }
 
-func (u *UseCase) MakeAuthUrl() string {
-	return oauth.VkOAuthURL(globalVars.CLIENT_ID, globalVars.BACKEND_URI+"auth", globalVars.STATE)
+func (u *UseCase) MakeAuthUrl(backTo string) string {
+	return oauth.VkOAuthURL(globalVars.CLIENT_ID, globalVars.BACKEND_URI+"auth?backTo="+backTo, globalVars.STATE)
 }
 
-func (u *UseCase) UpdateUserInfo(code string, state string) (int, error) {
+func (u *UseCase) UpdateUserInfo(code string, state string, backTo string) (int, error) {
 	if state == "" || state != globalVars.STATE {
 		return 0, errors.New("state doesnt match")
 	}
-	token, err := oauth.RetrieveUserToken(code, globalVars.CLIENT_ID, globalVars.BACKEND_URI+"auth",
+	token, err := oauth.RetrieveUserToken(code, globalVars.CLIENT_ID,
+		globalVars.BACKEND_URI+"auth?backTo="+url2.QueryEscape(backTo),
 		globalVars.CLIENT_SECRET)
 	if err != nil {
 		return 0, err

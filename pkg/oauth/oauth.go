@@ -34,6 +34,9 @@ func RetrieveUserToken(code string, clientID string, redirectURL string, clientS
 
 	token := &TokenStruct{}
 	err = json.Unmarshal(bytes, token)
+	if token.AccessToken == "" {
+		return nil, errors.New(string(bytes))
+	}
 
 	return token, err
 }
