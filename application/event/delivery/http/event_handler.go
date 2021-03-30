@@ -26,6 +26,8 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 	e.POST("/event", handler.CreateEvent, middleware.UserID)
 	e.POST("/event/:id", handler.UpdateEvent, middleware.UserID)
 	e.POST("/event/:id/win", handler.SelectWinner, middleware.UserID)
+	e.POST("/event/:id/logo", handler.SetLogo, middleware.UserID)
+	e.POST("/event/:id/background", handler.SetBackground, middleware.UserID)
 	return nil
 }
 
@@ -163,6 +165,56 @@ func (eh *EventHandler) UpdateEvent(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(newEvt, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (eh *EventHandler) SetLogo(ctx echo.Context) error {
+	eid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+
+	form, _ := ctx.MultipartForm()
+
+	link, err := eh.useCase.SetLogo(userID, eid, form)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(models.Avatar{Avatar: link}, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (eh *EventHandler) SetBackground(ctx echo.Context) error {
+	eid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+
+	form, _ := ctx.MultipartForm()
+
+	link, err := eh.useCase.SetBackground(userID, eid, form)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(models.Avatar{Avatar: link}, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

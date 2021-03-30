@@ -228,12 +228,15 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 }
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
-	sql := `INSERT INTO event VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)  RETURNING id`
+	sql := `INSERT INTO event 
+			(name, description, founder, date_start, date_end, state, place
+				participants_count, site, team_size)
+			VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10)  RETURNING id`
 	id := 0
 	err := e.conn.QueryRow(context.Background(), sql, newEvent.Name, newEvent.Description,
 		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd,
 		newEvent.State, newEvent.Place, newEvent.ParticipantsCount,
-		newEvent.Logo, newEvent.Background, newEvent.Site, newEvent.TeamSize).Scan(&id)
+		newEvent.Site, newEvent.TeamSize).Scan(&id)
 	if err != nil {
 		return nil, err
 	}
@@ -247,4 +250,32 @@ func (e EventDatabase) CheckUser(evtID, uid int) bool {
 	err := queryResult.Scan(&evtID, &uid)
 
 	return err != nil
+}
+
+func (e *EventDatabase) SetLogo(uid, eid int, link string) error {
+	sql := `update event set logo=$1 where id=$2 and founder=$3`
+
+	queryResult, err := e.conn.Exec(context.Background(), sql, link, eid, uid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no such event")
+	}
+	return nil
+}
+
+func (e *EventDatabase) SetBackground(uid, eid int, link string) error {
+	sql := `update event set background=$1 where id=$2 and founder=$3`
+
+	queryResult, err := e.conn.Exec(context.Background(), sql, link, eid, uid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no such event")
+	}
+	return nil
 }

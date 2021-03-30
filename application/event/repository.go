@@ -1,6 +1,8 @@
 package event
 
-import "diplomaProject/application/models"
+import (
+	"diplomaProject/application/models"
+)
 
 type Repository interface {
 	Get(id int) (*models.EventDB, error)
@@ -13,4 +15,6 @@ type Repository interface {
 	GetEventPrize(evtID int) (*models.PrizeArr, error)
 	AddPrize(evtID int, prizeArr models.PrizeArr) error
 	SelectWinner(prizeID, tId int) error
+	SetLogo(uid, eid int, link string) error
+	SetBackground(uid, eid int, link string) error
 }

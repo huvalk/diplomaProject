@@ -1,6 +1,9 @@
 package event
 
-import "diplomaProject/application/models"
+import (
+	"diplomaProject/application/models"
+	"mime/multipart"
+)
 
 type UseCase interface {
 	Get(id int) (*models.Event, error)
@@ -9,4 +12,6 @@ type UseCase interface {
 	GetEventUsers(evtID int) (*models.UserArr, error)
 	Create(newEvent *models.Event) (*models.Event, error)
 	SelectWinner(uID, evtID, prizeID, tId int) error
+	SetLogo(uid, eid int, avatar *multipart.Form) (string, error)
+	SetBackground(uid, eid int, avatar *multipart.Form) (string, error)
 }
