@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 )
 
 type EventDatabase struct {
@@ -29,6 +30,15 @@ func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 	if evt.Place != "" {
 		sql += "place = '" + evt.Place + "', "
 	}
+	if evt.Site != "" {
+		sql += "site = '" + evt.Site + "', "
+	}
+	if evt.TeamSize != 0 {
+		sql += fmt.Sprintf("team_size = '%v', ", evt.TeamSize)
+	}
+	if len(sql) <= 18 {
+		return nil
+	}
 	sql = sql[:len(sql)-2] + ` where id=$1`
 
 	queryResult, err := e.conn.Exec(context.Background(), sql, evt.Id)
@@ -36,9 +46,10 @@ func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected != 1 {
-		return errors.New("no event")
-	}
+	log.Println(affected)
+	//if affected != 1 {
+	//	return errors.New("no event")
+	//}
 	return nil
 }
 
@@ -53,16 +64,20 @@ func (e EventDatabase) UpdatePrize(pr *models.Prize) error {
 	if pr.Amount != 0 {
 		sql += fmt.Sprintf("amount = '%v', ", pr.Amount)
 	}
+	if len(sql) <= 18 {
+		return nil
+	}
 	sql = sql[:len(sql)-2] + ` where id=$1`
-	fmt.Println(sql)
+
 	queryResult, err := e.conn.Exec(context.Background(), sql, pr.Id)
 	if err != nil {
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected != 1 {
-		return errors.New("no prize")
-	}
+	log.Println(affected)
+	//if affected != 1 {
+	//	return errors.New("no prize")
+	//}
 	return nil
 }
 
@@ -204,7 +219,8 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 
 	queryResult := e.conn.QueryRow(context.Background(), sql, id)
 	err := queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
-		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount)
+		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount,
+		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize)
 	if err != nil {
 		return nil, err
 	}
@@ -212,11 +228,12 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 }
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
-	sql := `INSERT INTO event VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8)  RETURNING id`
+	sql := `INSERT INTO event VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)  RETURNING id`
 	id := 0
 	err := e.conn.QueryRow(context.Background(), sql, newEvent.Name, newEvent.Description,
 		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd,
-		newEvent.State, newEvent.Place, newEvent.ParticipantsCount).Scan(&id)
+		newEvent.State, newEvent.Place, newEvent.ParticipantsCount,
+		newEvent.Logo, newEvent.Background, newEvent.Site, newEvent.TeamSize).Scan(&id)
 	if err != nil {
 		return nil, err
 	}

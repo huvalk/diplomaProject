@@ -1912,6 +1912,14 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels22(in *jlexer.Lexer, o
 			out.Place = string(in.String())
 		case "participantsCount":
 			out.ParticipantsCount = int(in.Int())
+		case "logo":
+			out.Logo = string(in.String())
+		case "background":
+			out.Background = string(in.String())
+		case "site":
+			out.Site = string(in.String())
+		case "teamSize":
+			out.TeamSize = int(in.Int())
 		default:
 			in.SkipRecursive()
 		}
@@ -1970,6 +1978,26 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels22(out *jwriter.Writer
 		const prefix string = ",\"participantsCount\":"
 		out.RawString(prefix)
 		out.Int(int(in.ParticipantsCount))
+	}
+	{
+		const prefix string = ",\"logo\":"
+		out.RawString(prefix)
+		out.String(string(in.Logo))
+	}
+	{
+		const prefix string = ",\"background\":"
+		out.RawString(prefix)
+		out.String(string(in.Background))
+	}
+	{
+		const prefix string = ",\"site\":"
+		out.RawString(prefix)
+		out.String(string(in.Site))
+	}
+	{
+		const prefix string = ",\"teamSize\":"
+		out.RawString(prefix)
+		out.Int(int(in.TeamSize))
 	}
 	out.RawByte('}')
 }
@@ -2102,10 +2130,18 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels24(in *jlexer.Lexer, o
 			out.State = string(in.String())
 		case "place":
 			out.Place = string(in.String())
-		case "feed":
-			(out.Feed).UnmarshalEasyJSON(in)
 		case "participantsCount":
 			out.ParticipantsCount = int(in.Int())
+		case "logo":
+			out.Logo = string(in.String())
+		case "background":
+			out.Background = string(in.String())
+		case "site":
+			out.Site = string(in.String())
+		case "teamSize":
+			out.TeamSize = int(in.Int())
+		case "feed":
+			(out.Feed).UnmarshalEasyJSON(in)
 		case "prizeList":
 			(out.PrizeList).UnmarshalEasyJSON(in)
 		default:
@@ -2163,14 +2199,34 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels24(out *jwriter.Writer
 		out.String(string(in.Place))
 	}
 	{
-		const prefix string = ",\"feed\":"
-		out.RawString(prefix)
-		(in.Feed).MarshalEasyJSON(out)
-	}
-	{
 		const prefix string = ",\"participantsCount\":"
 		out.RawString(prefix)
 		out.Int(int(in.ParticipantsCount))
+	}
+	{
+		const prefix string = ",\"logo\":"
+		out.RawString(prefix)
+		out.String(string(in.Logo))
+	}
+	{
+		const prefix string = ",\"background\":"
+		out.RawString(prefix)
+		out.String(string(in.Background))
+	}
+	{
+		const prefix string = ",\"site\":"
+		out.RawString(prefix)
+		out.String(string(in.Site))
+	}
+	{
+		const prefix string = ",\"teamSize\":"
+		out.RawString(prefix)
+		out.Int(int(in.TeamSize))
+	}
+	{
+		const prefix string = ",\"feed\":"
+		out.RawString(prefix)
+		(in.Feed).MarshalEasyJSON(out)
 	}
 	{
 		const prefix string = ",\"prizeList\":"

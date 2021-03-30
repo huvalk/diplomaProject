@@ -31,7 +31,11 @@ create table event
     date_end           timestamp,
     state              varchar(80),
     place              varchar(80),
-    participants_count integer     not null default 0
+    participants_count integer     not null default 0,
+    logo               varchar(80),
+    background         varchar(80),
+    site               varchar(80),
+    team_size          integer
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 

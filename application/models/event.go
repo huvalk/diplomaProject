@@ -12,6 +12,10 @@ type EventDB struct {
 	State             string    `json:"state"`
 	Place             string    `json:"place"`
 	ParticipantsCount int       `json:"participantsCount"`
+	Logo              string    `json:"logo"`
+	Background        string    `json:"background"`
+	Site              string    `json:"site"`
+	TeamSize          int       `json:"teamSize"`
 }
 
 type Event struct {
@@ -23,8 +27,12 @@ type Event struct {
 	DateEnd           time.Time `json:"dateEnd"`
 	State             string    `json:"state"`
 	Place             string    `json:"place"`
-	Feed              Feed      `json:"feed"`
 	ParticipantsCount int       `json:"participantsCount"`
+	Logo              string    `json:"logo"`
+	Background        string    `json:"background"`
+	Site              string    `json:"site"`
+	TeamSize          int       `json:"teamSize"`
+	Feed              Feed      `json:"feed"`
 	PrizeList         PrizeArr  `json:"prizeList"`
 }
 
@@ -41,4 +49,8 @@ func (e *Event) Convert(evt EventDB) {
 	e.State = evt.State
 	e.Place = evt.Place
 	e.ParticipantsCount = evt.ParticipantsCount
+	e.Logo = evt.Logo
+	e.Background = evt.Background
+	e.Site = evt.Site
+	e.TeamSize = evt.TeamSize
 }
