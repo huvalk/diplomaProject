@@ -19,6 +19,52 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
+func (e EventDatabase) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error) {
+	var tms models.TeamWinnerArr
+	t := models.TeamWinner{}
+	pr := models.Prize{}
+	sql := `select t1.*,p1.* from team t1
+join prize p1 on t1.id = any(p1.winnerteamids)
+where t1.event=$1`
+	queryResult, err := e.conn.Query(context.Background(), sql, evtID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID,
+			&pr.Id, &pr.EventID, &pr.Name,
+			&pr.Place, &pr.Amount, &pr.WinnerTeamIDs)
+		if err != nil {
+			return nil, err
+		}
+		t.Prize = pr
+		tms = append(tms, t)
+	}
+	queryResult.Close()
+
+	return &tms, nil
+}
+
+func (e EventDatabase) GetEventTeams(evtID int) (*models.TeamArr, error) {
+	var tms models.TeamArr
+	t := models.Team{}
+	sql := `select * from team where event = $1`
+	queryResult, err := e.conn.Query(context.Background(), sql, evtID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID)
+		if err != nil {
+			return nil, err
+		}
+		tms = append(tms, t)
+	}
+	queryResult.Close()
+
+	return &tms, nil
+}
+
 func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 	sql := `update event set  `
 	if evt.Name != "" {
@@ -228,12 +274,15 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 }
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
-	sql := `INSERT INTO event VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)  RETURNING id`
+	sql := `INSERT INTO event 
+			(name, description, founder, date_start, date_end, state, place
+				participants_count, site, team_size)
+			VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10)  RETURNING id`
 	id := 0
 	err := e.conn.QueryRow(context.Background(), sql, newEvent.Name, newEvent.Description,
 		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd,
 		newEvent.State, newEvent.Place, newEvent.ParticipantsCount,
-		newEvent.Logo, newEvent.Background, newEvent.Site, newEvent.TeamSize).Scan(&id)
+		newEvent.Site, newEvent.TeamSize).Scan(&id)
 	if err != nil {
 		return nil, err
 	}
@@ -247,4 +296,32 @@ func (e EventDatabase) CheckUser(evtID, uid int) bool {
 	err := queryResult.Scan(&evtID, &uid)
 
 	return err != nil
+}
+
+func (e *EventDatabase) SetLogo(uid, eid int, link string) error {
+	sql := `update event set logo=$1 where id=$2 and founder=$3`
+
+	queryResult, err := e.conn.Exec(context.Background(), sql, link, eid, uid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no such event")
+	}
+	return nil
+}
+
+func (e *EventDatabase) SetBackground(uid, eid int, link string) error {
+	sql := `update event set background=$1 where id=$2 and founder=$3`
+
+	queryResult, err := e.conn.Exec(context.Background(), sql, link, eid, uid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no such event")
+	}
+	return nil
 }

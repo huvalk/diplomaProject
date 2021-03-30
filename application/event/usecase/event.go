@@ -5,7 +5,9 @@ import (
 	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
 	"diplomaProject/pkg/constants"
+	"diplomaProject/pkg/sss"
 	"errors"
+	"mime/multipart"
 )
 
 type Event struct {
@@ -15,6 +17,14 @@ type Event struct {
 
 func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
+}
+
+func (e *Event) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error) {
+	return e.events.GetEventWinnerTeams(evtID)
+}
+
+func (e *Event) GetEventTeams(evtID int) (*models.TeamArr, error) {
+	return e.events.GetEventTeams(evtID)
 }
 
 func (e *Event) Update(uID int, evt *models.Event) (*models.Event, error) {
@@ -115,4 +125,28 @@ func (e *Event) Create(newEvent *models.Event) (*models.Event, error) {
 
 func (e *Event) AddPrize(evtID int, prizeArr models.PrizeArr) error {
 	return e.events.AddPrize(evtID, prizeArr)
+}
+
+func (e *Event) SetLogo(uid, eid int, avatar *multipart.Form) (string, error) {
+	link, err := sss.UploadPic(avatar, "")
+	if err != nil {
+		return "", err
+	}
+	err = e.events.SetLogo(uid, eid, link)
+	if err != nil {
+		return "", err
+	}
+	return link, nil
+}
+
+func (e *Event) SetBackground(uid, eid int, avatar *multipart.Form) (string, error) {
+	link, err := sss.UploadPic(avatar, "")
+	if err != nil {
+		return "", err
+	}
+	err = e.events.SetBackground(uid, eid, link)
+	if err != nil {
+		return "", err
+	}
+	return link, nil
 }
