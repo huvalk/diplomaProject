@@ -12,6 +12,7 @@ import (
 	"github.com/mailru/easyjson"
 	"log"
 	"net/http"
+	url2 "net/url"
 	"time"
 )
 
@@ -31,19 +32,21 @@ func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 }
 
 func (eh *AuthHandler) RedirectLogin(ctx echo.Context) error {
-	url := eh.useCase.MakeAuthUrl()
+	backTo := url2.QueryEscape(ctx.QueryParam("backTo"))
+	url := eh.useCase.MakeAuthUrl(backTo)
 
 	return ctx.Redirect(http.StatusTemporaryRedirect, url)
 }
 
 func (eh *AuthHandler) Auth(ctx echo.Context) error {
+	backTo := ctx.QueryParam("backTo")
 	stateTemp := ctx.QueryParam("state")
 	code := ctx.QueryParam("code")
 	if code == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("no code provided"))
 	}
 
-	userID, err := eh.useCase.UpdateUserInfo(code, stateTemp)
+	userID, err := eh.useCase.UpdateUserInfo(code, stateTemp, backTo)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -66,8 +69,7 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 		Secure:   false,
 		HttpOnly: true,
 	})
-
-	return ctx.Redirect(http.StatusTemporaryRedirect, globalVars.FRONTEND_URI)
+	return ctx.Redirect(http.StatusTemporaryRedirect, globalVars.FRONTEND_URI+backTo)
 }
 
 func (eh *AuthHandler) Check(ctx echo.Context) error {
