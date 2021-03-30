@@ -17,6 +17,14 @@ func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
 }
 
+func (e *Event) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error) {
+	return e.events.GetEventWinnerTeams(evtID)
+}
+
+func (e *Event) GetEventTeams(evtID int) (*models.TeamArr, error) {
+	return e.events.GetEventTeams(evtID)
+}
+
 func (e *Event) Update(uID int, evt *models.Event) (*models.Event, error) {
 	if evt.Founder != uID {
 		return nil, errors.New("not founder")

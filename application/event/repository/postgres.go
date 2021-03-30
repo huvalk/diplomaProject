@@ -19,6 +19,52 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
+func (e EventDatabase) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error) {
+	var tms models.TeamWinnerArr
+	t := models.TeamWinner{}
+	pr := models.Prize{}
+	sql := `select t1.*,p1.* from team t1
+join prize p1 on t1.id = any(p1.winnerteamids)
+where t1.event=$1`
+	queryResult, err := e.conn.Query(context.Background(), sql, evtID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID,
+			&pr.Id, &pr.EventID, &pr.Name,
+			&pr.Place, &pr.Amount, &pr.WinnerTeamIDs)
+		if err != nil {
+			return nil, err
+		}
+		t.Prize = pr
+		tms = append(tms, t)
+	}
+	queryResult.Close()
+
+	return &tms, nil
+}
+
+func (e EventDatabase) GetEventTeams(evtID int) (*models.TeamArr, error) {
+	var tms models.TeamArr
+	t := models.Team{}
+	sql := `select * from team where event = $1`
+	queryResult, err := e.conn.Query(context.Background(), sql, evtID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID)
+		if err != nil {
+			return nil, err
+		}
+		tms = append(tms, t)
+	}
+	queryResult.Close()
+
+	return &tms, nil
+}
+
 func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 	sql := `update event set  `
 	if evt.Name != "" {
