@@ -14,7 +14,7 @@ create table users
     vk_url      varchar(80)        not null default '',
     tg_url      varchar(80)        not null default '',
     gh_url      varchar(80)        not null default '',
-    avatar      varchar(380)       not null default ''
+    avatar      varchar(380)       not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg'
 );
 
 create index idx_gin on users using gin (vk_url gin_trgm_ops);
@@ -29,13 +29,13 @@ create table event
     founder            integer REFERENCES users (id),
     date_start         timestamp,
     date_end           timestamp,
-    state              varchar(80),
-    place              varchar(80),
+    state              varchar(80) not null default '',
+    place              varchar(80) not null default '',
     participants_count integer     not null default 0,
-    logo               varchar(80),
-    background         varchar(80),
-    site               varchar(80),
-    team_size          integer
+    logo               varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg',
+    background         varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg',
+    site               varchar(80) not null default '',
+    team_size          integer not null default 1
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 

@@ -258,3 +258,6 @@ SELECT setval('job_id_seq', 100);
 SELECT setval('notification_id_seq', 100);
 SELECT setval('skills_id_seq', 100);
 SELECT setval('team_id_seq', 100);
+INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (1, 101, 'Автомобиль', 0, 4, null);
+INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (2, 101, 'Телефон', 1, 1, null);
+INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (3, 101, 'Часы', 2, 1, null);
