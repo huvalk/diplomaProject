@@ -276,7 +276,7 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
 	sql := `INSERT INTO event 
-			(name, description, founder, date_start, date_end, state, place
+			(id,name, description, founder, date_start, date_end, state, place,
 				participants_count, site, team_size)
 			VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10)  RETURNING id`
 	id := 0
@@ -286,7 +286,6 @@ func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
 		newEvent.State, newEvent.Place, newEvent.ParticipantsCount,
 		newEvent.Site, newEvent.TeamSize).Scan(&id)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return e.Get(id)
