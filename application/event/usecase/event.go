@@ -111,9 +111,11 @@ func (e *Event) Create(newEvent *models.Event) (*models.Event, error) {
 		return nil, err
 	}
 	newEvent.Id = evt.Id
-	err = e.AddPrize(evt.Id, newEvent.PrizeList)
-	if err != nil {
-		return nil, err
+	if newEvent.PrizeList != nil {
+		err = e.AddPrize(evt.Id, newEvent.PrizeList)
+		if err != nil {
+			return nil, err
+		}
 	}
 	fd, err := e.feeds.Create(newEvent.Id)
 	if err != nil {

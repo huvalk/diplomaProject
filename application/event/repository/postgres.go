@@ -248,7 +248,8 @@ order by u1.lastname`
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Avatar)
+		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description,
+			&u.WorkPlace, &u.Vk, &u.Tg, &u.Git, &u.Avatar)
 		if err != nil {
 			return nil, err
 		}
@@ -275,10 +276,11 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
 	sql := `INSERT INTO event 
-			(name, description, founder, date_start, date_end, state, place
+			(id,name, description, founder, date_start, date_end, state, place,
 				participants_count, site, team_size)
 			VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10)  RETURNING id`
 	id := 0
+	fmt.Println(sql)
 	err := e.conn.QueryRow(context.Background(), sql, newEvent.Name, newEvent.Description,
 		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd,
 		newEvent.State, newEvent.Place, newEvent.ParticipantsCount,
