@@ -87,3 +87,4 @@ jobs:
             echo ${{ env.DEV_TAG }}
             REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev SSL=/etc/letsencrypt/live/hahao.ru \
             docker-compose up -d
+            docker image prune -a --filter "until=24h"
