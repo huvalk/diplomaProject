@@ -111,7 +111,7 @@ func (e *Event) Create(newEvent *models.Event) (*models.Event, error) {
 		return nil, err
 	}
 	newEvent.Id = evt.Id
-	if newEvent.PrizeList != nil {
+	if newEvent.PrizeList != nil && len(newEvent.PrizeList) > 0 {
 		err = e.AddPrize(evt.Id, newEvent.PrizeList)
 		if err != nil {
 			return nil, err

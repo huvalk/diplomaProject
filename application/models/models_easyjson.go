@@ -846,6 +846,8 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels10(in *jlexer.Lexer, o
 			out.Place = int(in.Int())
 		case "amount":
 			out.Amount = int(in.Int())
+		case "total":
+			out.Total = int(in.Int())
 		case "winnerTeamIDs":
 			if in.IsNull() {
 				in.Skip()
@@ -907,6 +909,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels10(out *jwriter.Writer
 		const prefix string = ",\"amount\":"
 		out.RawString(prefix)
 		out.Int(int(in.Amount))
+	}
+	{
+		const prefix string = ",\"total\":"
+		out.RawString(prefix)
+		out.Int(int(in.Total))
 	}
 	{
 		const prefix string = ",\"winnerTeamIDs\":"
