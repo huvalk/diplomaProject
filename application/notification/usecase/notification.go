@@ -6,6 +6,7 @@ import (
 	"diplomaProject/pkg/channel"
 	"errors"
 	"github.com/gorilla/websocket"
+	"sync"
 	"time"
 )
 
@@ -152,10 +153,26 @@ func (n *NotificationUseCase) EnterChannel(userID int, socket *websocket.Conn) e
 	defer func() {
 		n.channel.Leave(user)
 	}()
-	go user.Write()
-	// TODO проверять ошибки
-	_ = n.SendPendingNotification(userID)
-	user.Read()
 
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		user.Write()
+		wg.Done()
+	}()
+	go func() {
+		user.Read()
+		wg.Done()
+	}()
+
+	// Это плохо, потом переделаю
+	time.Sleep(2 * time.Second)
+	err := n.SendPendingNotification(userID)
+
+	if err != nil {
+		return err
+	}
+
+	wg.Wait()
 	return nil
 }
