@@ -18,7 +18,7 @@ func NewFeedHandler(e *echo.Echo, usecase feed.UseCase) error {
 
 	handler := FeedHandler{useCase: usecase}
 
-	e.GET("/feed/:id", handler.GetFeed)
+	e.GET("/feed/:f", handler.GetFeed)
 	e.POST("/feed", handler.CreateFeed)
 	e.GET("/event/:id/filter", handler.FilterFeed)
 	return nil

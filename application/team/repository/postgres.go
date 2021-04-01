@@ -82,7 +82,8 @@ func (t TeamDatabase) Get(id int) (*models.Team, error) {
 
 func (t TeamDatabase) GetTeamByUser(uid, evtID int) (*models.Team, error) {
 	tm := models.Team{}
-	sql := `select t1.* from team t1 join team_users tu1 on t1.id=tu1.team_id 
+	sql := `select t1.* from team t1 
+join team_users tu1 on t1.id=tu1.team_id 
 where t1.event = $1 and tu1.user_id=$2`
 
 	queryResult := t.conn.QueryRow(context.Background(), sql, evtID, uid)

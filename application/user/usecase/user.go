@@ -93,7 +93,8 @@ func (u *User) LeaveEvent(uid, evtID int) error {
 	}
 	tm, err := u.teams.GetTeamByUser(uid, evtID)
 	if err != nil {
-		return err
+		//return err
+		return nil
 	}
 	return u.teams.RemoveMember(tm.Id, uid)
 }

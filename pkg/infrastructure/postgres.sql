@@ -74,6 +74,7 @@ create table prize
     name          varchar(80) not null default '',
     place         int         not null,
     amount        int         not null,
+    total        int         not null,
     winnerTeamIDs integer[]
 );
 

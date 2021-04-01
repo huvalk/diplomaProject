@@ -192,7 +192,7 @@ func (ud *UserDatabase) LeaveEvent(uid, evtID int) error {
 	}
 	affected := queryResult.RowsAffected()
 	if affected != 1 {
-		return errors.New("already join event")
+		return errors.New("doesn't join event")
 	}
 	return nil
 }

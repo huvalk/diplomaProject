@@ -107,21 +107,21 @@ func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	add := &models.AddToTeam{}
-	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	//add := &models.AddToTeam{}
+	//if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
+	//	log.Println(err)
+	//	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	//}
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println("userID not found")
 		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
-	if userID != add.UID {
-		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
-	}
+	//if userID != add.UID {
+	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	//}
 
-	err = uh.useCase.JoinEvent(add.UID, evtID)
+	err = uh.useCase.JoinEvent(userID, evtID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -135,21 +135,21 @@ func (uh *UserHandler) LeaveEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	add := &models.AddToTeam{}
-	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	//add := &models.AddToTeam{}
+	//if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
+	//	log.Println(err)
+	//	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	//}
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println("userID not found")
 		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
-	if userID != add.UID {
-		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
-	}
+	//if userID != add.UID {
+	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
+	//}
 
-	err = uh.useCase.LeaveEvent(add.UID, evtID)
+	err = uh.useCase.LeaveEvent(userID, evtID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
