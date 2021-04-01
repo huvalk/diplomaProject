@@ -28,7 +28,7 @@ var (
 )
 
 func RegisterPrometheus(e *echo.Echo) {
-	//e.GET("/metrics", promhttp.Handler)
+	//e.GET("/metrics", echo.HandlerFunc(promhttp.Handler))
 
 	prometheus.MustRegister(RequestCount)
 	prometheus.MustRegister(RequestCurrent)
