@@ -6,6 +6,7 @@ type Prize struct {
 	Name          string `json:"name"`
 	Place         int    `json:"place"`
 	Amount        int    `json:"amount"`
+	Total         int    `json:"total"`
 	WinnerTeamIDs []int  `json:"winnerTeamIDs"`
 }
 

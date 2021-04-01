@@ -33,7 +33,7 @@ where t1.event=$1`
 	for queryResult.Next() {
 		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID,
 			&pr.Id, &pr.EventID, &pr.Name,
-			&pr.Place, &pr.Amount, &pr.WinnerTeamIDs)
+			&pr.Place, &pr.Amount, &pr.Total, &pr.WinnerTeamIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -110,6 +110,10 @@ func (e EventDatabase) UpdatePrize(pr *models.Prize) error {
 	if pr.Amount != 0 {
 		sql += fmt.Sprintf("amount = '%v', ", pr.Amount)
 	}
+	if pr.Total != 0 {
+		sql += fmt.Sprintf("total = '%v', ", pr.Total)
+	}
+
 	if len(sql) <= 18 {
 		return nil
 	}
@@ -188,7 +192,7 @@ where event_id=$1`
 	}
 	for queryResult.Next() {
 		err = queryResult.Scan(&pr.Id, &pr.EventID, &pr.Name,
-			&pr.Place, &pr.Amount, &pr.WinnerTeamIDs)
+			&pr.Place, &pr.Amount, &pr.Total, &pr.WinnerTeamIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -221,8 +225,8 @@ func (e EventDatabase) AddPrize(evtID int, prizeArr models.PrizeArr) error {
 	for i := range prizeArr {
 		prizeArr[i].EventID = evtID
 		prizeArr[i].WinnerTeamIDs = []int{}
-		sql += fmt.Sprintf("(default,$1,'%v',%v,%v,null),",
-			prizeArr[i].Name, prizeArr[i].Place, prizeArr[i].Amount)
+		sql += fmt.Sprintf("(default,$1,'%v',%v,%v,%v,null),",
+			prizeArr[i].Name, prizeArr[i].Place, prizeArr[i].Amount, prizeArr[i].Total)
 	}
 	println(sql[:len(sql)-1])
 	queryResult, err := e.conn.Exec(context.Background(), sql[:len(sql)-1], evtID)
