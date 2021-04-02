@@ -45,7 +45,7 @@ func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err
 }
 
 // TODO поправить
-func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []int, err error) {
+func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, declined bool) (arr []int, err error) {
 	sql := `WITH owner_user_team(team_id) AS (
 				select find_users_team($1)
 			)
@@ -55,13 +55,19 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation) (arr []
 				or invite.team_id = owner_user_team.team_id
 			)
 			and event_id = $2
-			and guest_team_id is null`
+			and guest_team_id is null
+			and approved = false`
+	if declined {
+		sql += "\n and reject = true"
+	} else {
+		sql += "\n and reject = false"
+	}
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }
 
 // TODO поправить
-func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []int, err error) {
+func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, declined bool) (arr []int, err error) {
 	sql := `WITH owner_user_team(team_id) AS (
 				select find_users_team($1)
 			)
@@ -71,7 +77,13 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation) (arr []
 				or invite.team_id = owner_user_team.team_id
 			)
 			and event_id = $2
-			and guest_team_id is not null`
+			and guest_team_id is not null
+			and approved = false`
+	if declined {
+		sql += "\n and reject = true"
+	} else {
+		sql += "\n and reject = false"
+	}
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
 }

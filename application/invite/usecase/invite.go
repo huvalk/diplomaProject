@@ -119,12 +119,12 @@ func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, error) {
 	return i.invites.IsInvited(invitation)
 }
 
-func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation) (models.IDArr, error) {
-	return i.invites.GetInvitedUser(invitation)
+func (i *InviteUseCase) GetInvitedUser(invitation *models.Invitation, declined bool) (models.IDArr, error) {
+	return i.invites.GetInvitedUser(invitation, declined)
 }
 
-func (i *InviteUseCase) GetInvitedTeam(invitation *models.Invitation) (models.IDArr, error) {
-	return i.invites.GetInvitedTeam(invitation)
+func (i *InviteUseCase) GetInvitedTeam(invitation *models.Invitation, declined bool) (models.IDArr, error) {
+	return i.invites.GetInvitedTeam(invitation, declined)
 }
 
 func (i *InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr models.UserArr, err error) {

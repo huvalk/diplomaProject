@@ -191,7 +191,13 @@ func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	users, err := eh.invite.GetInvitedUser(inv)
+	declined, err := strconv.ParseBool(ctx.QueryParam("declined"))
+	if err != nil {
+		err = nil
+		declined = false
+	}
+
+	users, err := eh.invite.GetInvitedUser(inv, declined)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -220,7 +226,13 @@ func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	teams, err := eh.invite.GetInvitedTeam(inv)
+	declined, err := strconv.ParseBool(ctx.QueryParam("declined"))
+	if err != nil {
+		err = nil
+		declined = false
+	}
+
+	teams, err := eh.invite.GetInvitedTeam(inv, declined)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())

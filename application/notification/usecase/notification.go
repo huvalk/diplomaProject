@@ -5,6 +5,7 @@ import (
 	"diplomaProject/application/notification"
 	"diplomaProject/pkg/channel"
 	"errors"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"sync"
 	"time"
@@ -52,53 +53,66 @@ func (n *NotificationUseCase) SendNotification(notification channel.Notification
 	return nil
 }
 
-func (n *NotificationUseCase) SendJoinTeamNotification(users []int) (err error) {
-	message := "Вы теперь в команде, проверьте"
+func (n *NotificationUseCase) SendYouJoinTeamNotification(users []int, evtID int) (err error) {
+	message := "Вы теперь в команде"
 
 	newNot := channel.Notification{
-		Type:    "notification",
+		Type:    fmt.Sprintf("%d",evtID),
 		Message: message,
 		Created: time.Time{},
-		Status:  "good",
+		Status:  "NewTeamNotification",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)
 }
 
-func (n *NotificationUseCase) SendKickTeamNotification(users []int) (err error) {
-	message := "Вас кикнули из команды, проверьте"
+func (n *NotificationUseCase) SendNewMemberNotification(users []int, evtID int) (err error) {
+	message := "В команде новый участник"
 
 	newNot := channel.Notification{
-		Type:    "notification",
+		Type:    fmt.Sprintf("%d",evtID),
 		Message: message,
-		Created: time.Now(),
-		Status:  "bad",
+		Created: time.Time{},
+		Status:  "NewMembersNotification",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)
 }
 
-func (n *NotificationUseCase) SendInviteNotification(users []int) (err error) {
-	message := "У вас новое приглашение, проверьте"
+func (n *NotificationUseCase) SendYouKickedNotification(users []int, evtID int) (err error) {
+	message := "Вас кикнули из команды"
 
 	newNot := channel.Notification{
-		Type:    "notification",
+		Type:    fmt.Sprintf("%d",evtID),
 		Message: message,
 		Created: time.Now(),
-		Status:  "good",
+		Status:  "NewTeamNotification",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)
 }
 
-func (n *NotificationUseCase) SendDenyNotification(users []int) error {
-	message := "Похоже Вам кто-то отказал, проверьте"
+func (n *NotificationUseCase) SendInviteNotification(users []int, evtID int) (err error) {
+	message := "У вас новое приглашение, проверьте свою команду"
 
 	newNot := channel.Notification{
-		Type:    "notification",
+		Type:    fmt.Sprintf("%d",evtID),
 		Message: message,
 		Created: time.Now(),
-		Status:  "bad",
+		Status:  "NewInviteNotification",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
+func (n *NotificationUseCase) SendDenyNotification(users []int, evtID int) error {
+	message := "Похоже Вам кто-то отказал, проверьте свою команду"
+
+	newNot := channel.Notification{
+		Type:    fmt.Sprintf("%d",evtID),
+		Message: message,
+		Created: time.Now(),
+		Status:  "NewDenyNotification",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)

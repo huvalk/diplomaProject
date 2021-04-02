@@ -21,7 +21,8 @@ func (r *InviteRepository) Invite(invitation *models.Invitation) error {
 						ELSE null
 					END, guest_user_team.team_id, 
 				   $4
-			from guest_user_team, owner_user_team;`
+			from guest_user_team, owner_user_team
+			on conflict do nothing`
 
 	_, err := r.conn.Exec(context.Background(),
 		sql, invitation.OwnerID, invitation.GuestID, invitation.EventID, invitation.Silent)

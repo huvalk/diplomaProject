@@ -6,11 +6,16 @@ import (
 )
 
 type UseCase interface {
-	SendJoinTeamNotification(users []int) error
-	SendKickTeamNotification(users []int) error
-	SendInviteNotification(users []int) error
-	SendDenyNotification(users []int) error
-	SendPendingNotification(userID int) error
+	// Оповещение о принятии в команду
+	SendYouJoinTeamNotification(users []int, evtID int) error
+	// Оповещение о новом тиммейте
+	SendNewMemberNotification(users []int, evtID int) error
+	// Оповещение об удалении из команды
+	SendYouKickedNotification(users []int, evtID int) error
+	// Оповещение о новом инвайте
+	SendInviteNotification(users []int, evtID int) error
+	// Оповещение о новом инвайте
+	SendDenyNotification(userID []int, evtID int) error
 	GetPendingNotification(userID int) (models.NotificationArr, error)
 	EnterChannel(userID int, socket *websocket.Conn) error
 }
