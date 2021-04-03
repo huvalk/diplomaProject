@@ -65,11 +65,11 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	err = eh.notification.SendInviteNotification(inviters)
+	err = eh.notification.SendInviteNotification(inviters, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
-	err = eh.notification.SendInviteNotification(invitees)
+	err = eh.notification.SendInviteNotification(invitees, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
@@ -133,7 +133,7 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	err = eh.notification.SendDenyNotification(inviters)
+	err = eh.notification.SendDenyNotification(inviters, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
