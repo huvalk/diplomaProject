@@ -58,9 +58,9 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 			and guest_team_id is null
 			and approved = false`
 	if declined {
-		sql += "\n and reject = true"
+		sql += "\n and rejected = true"
 	} else {
-		sql += "\n and reject = false"
+		sql += "\n and rejected = false"
 	}
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)
@@ -80,9 +80,9 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, decline
 			and guest_team_id is not null
 			and approved = false`
 	if declined {
-		sql += "\n and reject = true"
+		sql += "\n and rejected = true"
 	} else {
-		sql += "\n and reject = false"
+		sql += "\n and rejected = false"
 	}
 
 	return r.getIdsByEventAndID(sql, invitation.OwnerID, invitation.EventID)

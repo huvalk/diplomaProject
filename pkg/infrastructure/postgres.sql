@@ -198,7 +198,7 @@ as
  from team_users
  inner join team t on team_users.team_id = t.id
  where team_users.user_id = $1
- and t.event = $1
+ and t.event = $2
  union
  select null
  order by team_id
