@@ -10,6 +10,6 @@ type UseCase interface {
 	IsInvited(invitation *models.Invitation) (bool, error)
 	GetInvitedUser(invitation *models.Invitation, declined bool) (models.IDArr, error)
 	GetInvitedTeam(invitation *models.Invitation, declined bool) (models.IDArr, error)
-	GetInvitationUser(invitation *models.Invitation) (models.UserArr, error)
-	GetInvitationTeam(invitation *models.Invitation) (models.TeamArr, error)
+	GetInvitationUser(invitation *models.Invitation) (models.IDArr, error)
+	GetInvitationTeam(invitation *models.Invitation) (models.IDArr, error)
 }

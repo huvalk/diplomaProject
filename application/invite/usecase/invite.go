@@ -155,47 +155,10 @@ func (i *InviteUseCase) GetInvitedTeam(invitation *models.Invitation, declined b
 	return i.invites.GetInvitedTeam(invitation, declined)
 }
 
-func (i *InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr models.UserArr, err error) {
-	var userIds []int
-
-	userIds, err = i.invites.GetInvitationFromUser(invitation)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, id := range userIds {
-		u, err := i.users.GetByID(id)
-
-		if err != nil {
-			return nil, err
-		}
-
-		arr = append(arr, *u)
-	}
-
-	return arr, nil
+func (i *InviteUseCase) GetInvitationUser(invitation *models.Invitation) (arr models.IDArr, err error) {
+	return i.invites.GetInvitationFromUser(invitation)
 }
 
-func (i *InviteUseCase) GetInvitationTeam(invitation *models.Invitation) (arr models.TeamArr, err error) {
-	var userIds []int
-	userIds, err = i.invites.GetInvitationFromTeam(invitation)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, id := range userIds {
-		t, err := i.teams.Get(id)
-		if err != nil {
-			return nil, err
-		}
-
-		t.Members, err = i.teams.GetTeamMembers(t.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		arr = append(arr, *t)
-	}
-
-	return arr, nil
+func (i *InviteUseCase) GetInvitationTeam(invitation *models.Invitation) (arr models.IDArr, err error) {
+	return i.invites.GetInvitationFromTeam(invitation)
 }
