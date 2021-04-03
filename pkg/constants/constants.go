@@ -7,7 +7,7 @@ import (
 const (
 	CookieName     = "sessionID"
 	UserIdKey      = "userID"
-	CookieDuration = 10 * time.Hour
+	CookieDuration = 365 * 24 * time.Hour
 )
 
 const (

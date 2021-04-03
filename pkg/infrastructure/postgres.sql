@@ -14,7 +14,7 @@ create table users
     vk_url      varchar(80)        not null default '',
     tg_url      varchar(80)        not null default '',
     gh_url      varchar(80)        not null default '',
-    avatar      varchar(380)       not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg'
+    avatar      varchar(380)       not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_avatar.svg'
 );
 
 create index idx_gin on users using gin (vk_url gin_trgm_ops);
@@ -32,8 +32,8 @@ create table event
     state              varchar(80) not null default '',
     place              varchar(80) not null default '',
     participants_count integer     not null default 0,
-    logo               varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg',
-    background         varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg',
+    logo               varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_logo.svg',
+    background         varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_background.svg',
     site               varchar(80) not null default '',
     team_size          integer     not null default 1
 );
@@ -96,11 +96,11 @@ create table notification
 (
     id      bigserial primary key,
     type    varchar(100) not null default '',
+    status  varchar(100)  not null default 'unknown',
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',
     created timestamp    not null default current_timestamp,
-    watched bool         not null default false,
-    status  varchar(10)  not null default 'normal'
+    watched bool         not null default false
 );
 
 create table invite
@@ -117,6 +117,35 @@ create table invite
     CONSTRAINT approved_rejected CHECK (((rejected = false) OR (approved = false))),
     CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
 );
+
+alter table invite add constraint no_myself_team_invites check (
+        team_id != guest_team_id
+        or approved = true
+    );
+
+alter table invite add constraint no_myself_invites check (
+        user_id != invite.guest_user_id
+    );
+
+create unique index t_to_u_unique_invite on invite (team_id, guest_user_id)
+    where (
+            approved = false
+        );
+
+create unique index u_to_t_unique_invite on invite (user_id, guest_team_id)
+    where (
+            approved = false
+        );
+
+create unique index t_to_t_unique_invite on invite (team_id, guest_team_id)
+    where (
+            approved = false
+        );
+
+create unique index u_to_u_unique_invite on invite (user_id, guest_user_id)
+    where (
+            approved = false
+        );
 
 create table job
 (

@@ -10,7 +10,8 @@ func (r *InviteRepository) setUserTeam(userID int, teamID sql.NullInt64, eventID
 	query := `update invite 
 			set team_id = $1
 			where user_id = $2
-			and event_id = $3`
+			and event_id = $3
+			and approved = false`
 
 	_, err := r.conn.Exec(context.Background(), query, teamID, userID, eventID)
 
@@ -21,7 +22,8 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 	query := `update invite 
 			set guest_team_id = $1
 			where guest_user_id = $2
-			and event_id = $3`
+			and event_id = $3
+			and approved = false`
 
 	_, err := r.conn.Exec(context.Background(), query, teamID, userID, eventID)
 
@@ -52,7 +54,9 @@ func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) e
 				and ( 
 					guest_user_id = $1
 					or guest_team_id = owner_user_team.team_id
-				))`
+				))
+				and rejected = false
+				and approved = false`
 
 	_, err := r.conn.Exec(context.Background(), query, userID1, eventID, userID2)
 
@@ -168,7 +172,9 @@ func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, te
 						and guest_team_id = $2
 					)
 				) 
-				and event_id = $4`
+				and event_id = $4
+				and rejected = false
+				and approved = false`
 
 	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID1, teamFromID2, eventID)
 
@@ -187,7 +193,8 @@ func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventI
 	query := `update invite
 				set team_id = $1
 				where team_id = $2
-				and event_id = $3`
+				and event_id = $3
+				and approved = false`
 
 	if _, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID); err != nil {
 		return err
@@ -196,7 +203,8 @@ func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventI
 	query = `update invite
 				set guest_team_id = $1
 				where guest_team_id = $2
-				and event_id = $3`
+				and event_id = $3
+				and approved = false`
 
 	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID)
 

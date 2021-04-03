@@ -8,7 +8,9 @@ import (
 //easyjson:json
 type Notification struct {
 	ID      int       `json:"ID,omitempty"`
+	// id евента
 	Type    string    `json:"type,omitempty"`
+	// Изменение произошло в
 	Status  string    `json:"status,omitempty"`
 	Message string    `json:"message"`
 	UserID  int       `json:"userID,omitempty"`

@@ -65,11 +65,11 @@ func (eh *InviteHandler) Invite(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	err = eh.notification.SendInviteNotification(inviters)
+	err = eh.notification.SendInviteNotification(inviters, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
-	err = eh.notification.SendInviteNotification(invitees)
+	err = eh.notification.SendInviteNotification(invitees, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
@@ -133,7 +133,7 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	err = eh.notification.SendDenyNotification(inviters)
+	err = eh.notification.SendDenyNotification(inviters, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
@@ -191,7 +191,13 @@ func (eh *InviteHandler) GetInvitedUser(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	users, err := eh.invite.GetInvitedUser(inv)
+	declined, err := strconv.ParseBool(ctx.QueryParam("declined"))
+	if err != nil {
+		err = nil
+		declined = false
+	}
+
+	users, err := eh.invite.GetInvitedUser(inv, declined)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -220,7 +226,13 @@ func (eh *InviteHandler) GetInvitedTeam(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	teams, err := eh.invite.GetInvitedTeam(inv)
+	declined, err := strconv.ParseBool(ctx.QueryParam("declined"))
+	if err != nil {
+		err = nil
+		declined = false
+	}
+
+	teams, err := eh.invite.GetInvitedTeam(inv, declined)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
