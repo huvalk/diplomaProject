@@ -12,7 +12,6 @@ require (
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/kataras/golog v0.1.7
 	github.com/labstack/echo v3.3.10+incompatible
-	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/mailru/easyjson v0.7.7
 	github.com/prometheus/client_golang v1.10.0
