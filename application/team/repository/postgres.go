@@ -23,6 +23,38 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
+func (t TeamDatabase) AddVote(vote *models.Vote) error {
+	sql := `insert into votes values($1,$2,$3,$4)`
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		vote.EventID, vote.TeamID, vote.WhoID, vote.ForWhomID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected == 0 {
+		return errors.New("can't vote")
+	}
+	return nil
+}
+
+func (t TeamDatabase) CancelVote(vote *models.Vote) error {
+	sql := `delete from votes 
+where event_id = $1 AND
+team_id = $2 AND
+who_id = $3 AND
+for_whom_id = $4`
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		vote.EventID, vote.TeamID, vote.WhoID, vote.ForWhomID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected == 0 {
+		return errors.New("can't find vote")
+	}
+	return nil
+}
+
 func (t TeamDatabase) SetName(newTeam *models.Team) error {
 	sql := `update team set name = $1 
 where id = $2 and event = $3 `

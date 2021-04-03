@@ -82,6 +82,7 @@ create table team_users
 (
     team_id integer REFERENCES team (id),
     user_id integer REFERENCES users (id),
+    votes   integer default 0,
     CONSTRAINT uniq_pair4 UNIQUE (team_id, user_id)
 );
 
@@ -92,11 +93,20 @@ create table prize_users
     CONSTRAINT uniq_pair3 UNIQUE (prize_id, user_id)
 );
 
+create table votes
+(
+    event_id    integer REFERENCES event (id),
+    team_id     integer REFERENCES team (id),
+    who_id      integer REFERENCES users (id),
+    for_whom_id integer REFERENCES users (id),
+    CONSTRAINT uniq_pair6 UNIQUE (event_id, team_id, who_id, for_whom_id)
+);
+
 create table notification
 (
     id      bigserial primary key,
     type    varchar(100) not null default '',
-    status  varchar(100)  not null default 'unknown',
+    status  varchar(100) not null default 'unknown',
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',
     created timestamp    not null default current_timestamp,
@@ -118,33 +128,35 @@ create table invite
     CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
 );
 
-alter table invite add constraint no_myself_team_invites check (
-        team_id != guest_team_id
-        or approved = true
-    );
+alter table invite
+    add constraint no_myself_team_invites check (
+            team_id != guest_team_id
+            or approved = true
+        );
 
-alter table invite add constraint no_myself_invites check (
+alter table invite
+    add constraint no_myself_invites check (
         user_id != invite.guest_user_id
-    );
+        );
 
 create unique index t_to_u_unique_invite on invite (team_id, guest_user_id)
     where (
-            approved = false
+        approved = false
         );
 
 create unique index u_to_t_unique_invite on invite (user_id, guest_team_id)
     where (
-            approved = false
+        approved = false
         );
 
 create unique index t_to_t_unique_invite on invite (team_id, guest_team_id)
     where (
-            approved = false
+        approved = false
         );
 
 create unique index u_to_u_unique_invite on invite (user_id, guest_user_id)
     where (
-            approved = false
+        approved = false
         );
 
 create table job
