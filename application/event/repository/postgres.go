@@ -190,6 +190,10 @@ func (e EventDatabase) UpdateWinUsers(prizeID, tId int) error {
 	}
 	queryResult.Close()
 
+	if len(us) == 0 {
+		return nil
+	}
+
 	sql = `insert into prize_users values `
 	for i := range us {
 		sql += fmt.Sprintf("(%v,%v),", prizeID, us[i])
