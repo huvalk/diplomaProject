@@ -119,12 +119,14 @@ create table invite
 );
 
 alter table invite add constraint no_myself_team_invites check (
-        team_id != guest_team_id
+        (team_id != guest_team_id) is null
+        or team_id != guest_team_id
         or approved = true
     );
 
 alter table invite add constraint no_myself_invites check (
-        user_id != invite.guest_user_id
+        (user_id != invite.guest_user_id) is null
+        or user_id != invite.guest_user_id
     );
 
 create unique index t_to_u_unique_invite on invite (team_id, guest_user_id)
@@ -190,11 +192,13 @@ begin
 end;
 $dec_event_participants$ language plpgsql;
 
-create or replace function find_users_team(integer) returns integer
+create or replace function find_users_team(integer, integer) returns integer
 as
 'select team_id
  from team_users
+ inner join team t on team_users.team_id = t.id
  where team_users.user_id = $1
+ and t.event = $1
  union
  select null
  order by team_id

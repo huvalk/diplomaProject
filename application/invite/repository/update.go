@@ -32,9 +32,9 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
 	query := `WITH owner_user_team(team_id) AS (
-					select find_users_team($1)
+					select find_users_team($1, $2)
 				), guest_user_team(team_id) AS (
-					select find_users_team($3)
+					select find_users_team($3, $2)
 				)
 				update invite
 				set approved = true
@@ -74,9 +74,9 @@ func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, e
 	}
 
 	updateSilent := `WITH owner_user_team(team_id) AS (
-						select find_users_team($1)
+						select find_users_team($1, $3)
 					), guest_user_team(team_id) AS (
-						select find_users_team($2)
+						select find_users_team($2, $3)
 					)
 					update invite
 					set silent = false
@@ -213,9 +213,9 @@ func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventI
 
 func (r *InviteRepository) Deny(inv *models.Invitation) error {
 	deny := `WITH owner_user_team(team_id) AS (
-				select find_users_team($1)
+				select find_users_team($1, $3)
 			), guest_user_team(team_id) AS (
-				select find_users_team($2)
+				select find_users_team($2, $3)
 			)
 			update invite
 			set rejected = true

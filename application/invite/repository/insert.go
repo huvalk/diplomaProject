@@ -7,9 +7,9 @@ import (
 
 func (r *InviteRepository) Invite(invitation *models.Invitation) error {
 	sql := `WITH owner_user_team(team_id) AS (
-				select find_users_team($1)
+				select find_users_team($1, $3)
 			), guest_user_team(team_id) AS (
-				select find_users_team($2)
+				select find_users_team($2, $3)
 			)
 			insert into invite
 			(user_id, team_id, event_id, guest_user_id, guest_team_id, silent)

@@ -47,7 +47,7 @@ func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err
 // TODO поправить
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, declined bool) (arr []int, err error) {
 	sql := `WITH owner_user_team(team_id) AS (
-				select find_users_team($1)
+				select find_users_team($1, $2)
 			)
 			select distinct guest_user_id
 			from invite, owner_user_team
@@ -69,7 +69,7 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 // TODO поправить
 func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, declined bool) (arr []int, err error) {
 	sql := `WITH owner_user_team(team_id) AS (
-				select find_users_team($1)
+				select find_users_team($1, $2)
 			)
 			select distinct guest_team_id
 			from invite, owner_user_team
@@ -90,7 +90,7 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, decline
 
 func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) (arr []int, err error) {
 	sql := `WITH guest_user_team(team_id) AS (
-				select find_users_team($1)
+				select find_users_team($1, $2)
 			)
 			select distinct user_id
 			from invite, guest_user_team
@@ -110,7 +110,7 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 
 func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) (arr []int, err error) {
 	sql := `WITH guest_user_team(team_id) AS (
-				select find_users_team($1)
+				select find_users_team($1, $2)
 			)
 			select distinct invite.team_id
 			from invite, guest_user_team
