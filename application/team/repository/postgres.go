@@ -7,6 +7,7 @@ import (
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 )
@@ -23,6 +24,26 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
+//Select * from team_users tu1
+// where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = 9)
+//and team_id=9 or (team_id=9 AND user_id=1)
+
+func (t TeamDatabase) ChangeUserVotesCount(tID, uID, state int) error {
+	sql := `update team_users set votes = team_users.votes ` + fmt.Sprintf("%+d", state) +
+		` where team_id=$1 AND user_id=$2`
+	fmt.Println(sql)
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		tID, uID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("can't vote")
+	}
+	return nil
+}
+
 func (t TeamDatabase) AddVote(vote *models.Vote) error {
 	sql := `insert into votes values($1,$2,$3,$4)`
 	queryResult, err := t.conn.Exec(context.Background(), sql,
@@ -31,8 +52,8 @@ func (t TeamDatabase) AddVote(vote *models.Vote) error {
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected == 0 {
-		return errors.New("can't vote")
+	if affected != 1 {
+		return errors.New("already voted")
 	}
 	return nil
 }
@@ -49,8 +70,8 @@ for_whom_id = $4`
 		return err
 	}
 	affected := queryResult.RowsAffected()
-	if affected == 0 {
-		return errors.New("can't find vote")
+	if affected != 1 {
+		return errors.New("can't find vote or already voted")
 	}
 	return nil
 }

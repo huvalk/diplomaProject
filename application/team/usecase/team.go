@@ -21,15 +21,14 @@ func (t *Team) SendVote(vote *models.Vote) error {
 	var err error
 	if vote.State == 1 {
 		err = t.teams.AddVote(vote)
-		//TODO:inc user votes
 	} else if vote.State == -1 {
 		err = t.teams.CancelVote(vote)
-		//TODO:dec user votes
 	}
 	if err != nil {
 		return err
 	}
-	return nil
+	return t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
+	//TODO:Re-select lead
 }
 
 func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
@@ -127,7 +126,6 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			if err != nil {
 				return nil, err
 			}
-			//SendYouJoinTeamNotificationSendYouJoinTeamNotification
 			return t.AddMember(newTeam.Id, uid1, uid2)
 		} else {
 			// 2 user has team
@@ -139,8 +137,6 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			if err != nil {
 				return nil, err
 			}
-			//SendYouJoinTeamNotification
-			//SendNewMemberNotification
 			return tm, nil
 		}
 	}
