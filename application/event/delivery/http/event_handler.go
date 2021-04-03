@@ -22,6 +22,7 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 
 	e.GET("/event/:id", handler.GetEvent)
 	e.POST("/event/:id/finish", handler.FinishEvent, middleware.UserID)
+	e.DELETE("/event/:id/prize", handler.DeletePrize, middleware.UserID)
 	e.GET("/event/:id/users", handler.GetEventUsers)
 	e.GET("/event/:id/teams", handler.GetEventTeams)
 	e.GET("/event/:id/teams/win", handler.GetEventWinnerTeams)
@@ -63,6 +64,34 @@ func (eh *EventHandler) FinishEvent(ctx echo.Context) error {
 	}
 
 	evt, err := eh.useCase.Finish(userID, evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(evt, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (eh *EventHandler) DeletePrize(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	prArr := &models.PrizeArr{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, prArr); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+
+	evt, err := eh.useCase.RemovePrize(userID, evtID, prArr)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())

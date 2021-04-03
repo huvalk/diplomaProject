@@ -19,6 +19,24 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
+func (e EventDatabase) RemovePrize(prArr *models.PrizeArr) error {
+	sql := `delete from prize_users where`
+	sql2 := `delete from prize where`
+	for i := range *prArr {
+		sql += fmt.Sprintf("prize_id = %v OR", (*prArr)[i].Id)
+		sql2 += fmt.Sprintf("id = %v OR", (*prArr)[i].Id)
+	}
+	fmt.Println(sql[:len(sql)-3])
+	fmt.Println(sql2[:len(sql2)-3])
+	//queryResult, err := e.conn.Exec(context.Background(), sql)
+	//if err != nil {
+	//	return err
+	//}
+	//affected := queryResult.RowsAffected()
+	//log.Println(affected)
+	return nil
+}
+
 func (e EventDatabase) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error) {
 	var tms models.TeamWinnerArr
 	t := models.TeamWinner{}
@@ -220,7 +238,7 @@ func (e EventDatabase) Finish(id int) error {
 	return nil
 }
 
-func (e EventDatabase) AddPrize(evtID int, prizeArr models.PrizeArr) error {
+func (e EventDatabase) CreatePrize(evtID int, prizeArr models.PrizeArr) error {
 	sql := `INSERT INTO prize VALUES`
 	for i := range prizeArr {
 		prizeArr[i].EventID = evtID

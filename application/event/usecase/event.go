@@ -19,6 +19,21 @@ func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
 }
 
+func (e *Event) RemovePrize(uID, evtID int, prArr *models.PrizeArr) (*models.Event, error) {
+	ev, err := e.Get(evtID)
+	if err != nil {
+		return nil, err
+	}
+	if ev.Founder != uID {
+		return nil, errors.New("not founder")
+	}
+	err = e.events.RemovePrize(prArr)
+	if err != nil {
+		return nil, err
+	}
+	return e.Get(evtID)
+}
+
 func (e *Event) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error) {
 	return e.events.GetEventWinnerTeams(evtID)
 }
@@ -126,7 +141,7 @@ func (e *Event) Create(newEvent *models.Event) (*models.Event, error) {
 }
 
 func (e *Event) AddPrize(evtID int, prizeArr models.PrizeArr) error {
-	return e.events.AddPrize(evtID, prizeArr)
+	return e.events.CreatePrize(evtID, prizeArr)
 }
 
 func (e *Event) SetLogo(uid, eid int, avatar *multipart.Form) (string, error) {
