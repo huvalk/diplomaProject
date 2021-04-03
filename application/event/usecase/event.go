@@ -27,7 +27,10 @@ func (e *Event) RemovePrize(uID, evtID int, prArr *models.PrizeArr) (*models.Eve
 	if ev.Founder != uID {
 		return nil, errors.New("not founder")
 	}
-	err = e.events.RemovePrize(prArr)
+	if prArr == nil || len(*prArr) < 1 {
+		return e.Get(evtID)
+	}
+	err = e.events.RemovePrize(evtID, prArr)
 	if err != nil {
 		return nil, err
 	}

@@ -35,7 +35,7 @@ create table event
     logo               varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg',
     background         varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/camera.d7e59fb4.svg',
     site               varchar(80) not null default '',
-    team_size          integer not null default 1
+    team_size          integer     not null default 1
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 
@@ -74,7 +74,7 @@ create table prize
     name          varchar(80) not null default '',
     place         int         not null,
     amount        int         not null,
-    total        int         not null,
+    total         int         not null,
     winnerTeamIDs integer[]
 );
 

@@ -9,7 +9,7 @@ type Repository interface {
 	UpdateEvent(evt *models.Event) error
 	UpdatePrize(pr *models.Prize) error
 	Finish(id int) error
-	RemovePrize(prArr *models.PrizeArr) error
+	RemovePrize(evtID int, prArr *models.PrizeArr) error
 	Create(newEvent *models.Event) (*models.EventDB, error)
 	CheckUser(evtID, uid int) bool
 	GetEventUsers(evtID int) (*models.UserArr, error)

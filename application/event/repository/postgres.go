@@ -19,21 +19,29 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
-func (e EventDatabase) RemovePrize(prArr *models.PrizeArr) error {
-	sql := `delete from prize_users where`
-	sql2 := `delete from prize where`
+func (e EventDatabase) RemovePrize(evtId int, prArr *models.PrizeArr) error {
+	sql := `delete from prize_users where `
+	sql2 := `delete from prize where event_id = $1 AND (`
 	for i := range *prArr {
-		sql += fmt.Sprintf("prize_id = %v OR", (*prArr)[i].Id)
-		sql2 += fmt.Sprintf("id = %v OR", (*prArr)[i].Id)
+		sql += fmt.Sprintf(" prize_id = %v OR ", (*prArr)[i].Id)
+		sql2 += fmt.Sprintf(" id = %v OR ", (*prArr)[i].Id)
 	}
 	fmt.Println(sql[:len(sql)-3])
-	fmt.Println(sql2[:len(sql2)-3])
-	//queryResult, err := e.conn.Exec(context.Background(), sql)
-	//if err != nil {
-	//	return err
-	//}
-	//affected := queryResult.RowsAffected()
-	//log.Println(affected)
+	fmt.Println(sql2[:len(sql2)-3] + ")")
+	queryResult, err := e.conn.Exec(context.Background(), sql[:len(sql)-3])
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	log.Println(affected)
+
+	queryResult, err = e.conn.Exec(context.Background(), sql2[:len(sql2)-3]+")", evtId)
+	if err != nil {
+		return err
+	}
+	affected = queryResult.RowsAffected()
+	log.Println(affected)
+
 	return nil
 }
 
