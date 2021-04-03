@@ -160,7 +160,7 @@ func (e EventDatabase) UpdatePrize(pr *models.Prize) error {
 func (e EventDatabase) SelectWinner(prizeID, tId int) error {
 	sql := `update prize set winnerteamids = array_append(winnerteamids,$1) , 
 amount = amount -1
-where id = $2 on conflict do nothing`
+where id = $2`
 	queryResult, err := e.conn.Exec(context.Background(), sql, tId, prizeID)
 	if err != nil {
 		return err
@@ -195,6 +195,7 @@ func (e EventDatabase) UpdateWinUsers(prizeID, tId int) error {
 		sql += fmt.Sprintf("(%v,%v),", prizeID, us[i])
 	}
 	sql = sql[:len(sql)-1] + ` on conflict on CONSTRAINT uniq_pair3 do nothing`
+	fmt.Println(sql)
 	_, err = e.conn.Exec(context.Background(), sql)
 	if err != nil {
 		return err
