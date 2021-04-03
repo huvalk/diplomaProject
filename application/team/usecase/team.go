@@ -3,6 +3,7 @@ package usecase
 import (
 	"diplomaProject/application/event"
 	"diplomaProject/application/models"
+	"diplomaProject/application/notification"
 	"diplomaProject/application/team"
 	//"errors"
 	"fmt"
@@ -11,10 +12,11 @@ import (
 type Team struct {
 	teams  team.Repository
 	events event.Repository
+	notif  notification.UseCase
 }
 
-func NewTeam(t team.Repository, e event.Repository) team.UseCase {
-	return &Team{teams: t, events: e}
+func NewTeam(t team.Repository, e event.Repository, n notification.UseCase) team.UseCase {
+	return &Team{teams: t, events: e, notif: n}
 }
 
 func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
@@ -111,6 +113,10 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			if err != nil {
 				return nil, err
 			}
+			err = t.notif.SendYouJoinTeamNotification([]int{uid1, uid2}, evtID)
+			if err != nil {
+				return nil, err
+			}
 			return t.AddMember(newTeam.Id, uid1, uid2)
 		} else {
 			// 2 user has team
@@ -119,6 +125,18 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 				return nil, err
 			}
 			err = t.teams.UpdateUserJoinedTeam(uid2, uid1, t2.Id, evtID)
+			if err != nil {
+				return nil, err
+			}
+			err = t.notif.SendYouJoinTeamNotification([]int{uid1}, evtID)
+			if err != nil {
+				return nil, err
+			}
+			var teamIDs []int
+			for i := range t2.Members {
+				teamIDs = append(teamIDs, t2.Members[i].Id)
+			}
+			err = t.notif.SendNewMemberNotification(teamIDs, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -132,6 +150,18 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			return nil, err
 		}
 		err = t.teams.UpdateUserJoinedTeam(uid1, uid2, t1.Id, evtID)
+		if err != nil {
+			return nil, err
+		}
+		err = t.notif.SendYouJoinTeamNotification([]int{uid2}, evtID)
+		if err != nil {
+			return nil, err
+		}
+		var teamIDs []int
+		for i := range t1.Members {
+			teamIDs = append(teamIDs, t1.Members[i].Id)
+		}
+		err = t.notif.SendNewMemberNotification(teamIDs, evtID)
 		if err != nil {
 			return nil, err
 		}
@@ -169,6 +199,10 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	}
 	//teamjointeam
 	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
+	if err != nil {
+		return nil, err
+	}
+	err = t.notif.SendNewMemberNotification(newTeamIDS, evtID)
 	if err != nil {
 		return nil, err
 	}
