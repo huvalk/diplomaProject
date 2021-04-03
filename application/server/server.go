@@ -65,9 +65,18 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
+	//notification
+	notificationRepo := repositoryNotification.NewNotificationRepository(db)
+	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
+	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
 	//team handler
 	teams := repository3.NewTeamDatabase(db)
-	team := usecase3.NewTeam(teams, events)
+	team := usecase3.NewTeam(teams, events, notificationUsecase)
 	err = http3.NewTeamHandler(e, team)
 	if err != nil {
 		log.Println(err)
@@ -79,15 +88,6 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	users := repository.NewUserDatabase(db)
 	user := usecase.NewUser(users, feeds, teams)
 	err = http.NewUserHandler(e, user)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	//notification
-	notificationRepo := repositoryNotification.NewNotificationRepository(db)
-	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
-	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
 	if err != nil {
 		log.Println(err)
 		return nil
