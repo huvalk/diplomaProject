@@ -53,8 +53,19 @@ func (e *Event) Update(uID int, evt *models.Event) (*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
+	var prArr models.PrizeArr
 	for i := range evt.PrizeList {
-		err = e.events.UpdatePrize(&evt.PrizeList[i])
+		if evt.PrizeList[i].Id == 0 {
+			prArr = append(prArr, evt.PrizeList[i])
+		} else {
+			err = e.events.UpdatePrize(&evt.PrizeList[i])
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	if len(prArr) > 0 {
+		err = e.AddPrize(evt.Id, prArr)
 		if err != nil {
 			return nil, err
 		}

@@ -21,6 +21,7 @@ func NewTeamHandler(e *echo.Echo, usecase team.UseCase) error {
 	handler := TeamHandler{useCase: usecase}
 
 	e.GET("/team/:id", handler.GetTeam)
+	e.POST("/team/:id", handler.UpdateTeam)
 	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
 	e.POST("/event/:evtid/team", handler.CreateTeam)
 	e.POST("/team/:id/add", handler.AddMember)
@@ -84,6 +85,30 @@ func (th *TeamHandler) CreateTeam(ctx echo.Context) error {
 	}
 
 	newTeam, err = th.useCase.Create(newTeam, evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(newTeam, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (th *TeamHandler) UpdateTeam(ctx echo.Context) error {
+	tmID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	newTeam := &models.Team{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, newTeam); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	newTeam.Id = tmID
+	newTeam, err = th.useCase.SetName(newTeam)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

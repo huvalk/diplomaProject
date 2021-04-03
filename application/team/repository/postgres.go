@@ -8,6 +8,7 @@ import (
 	"diplomaProject/application/team"
 	"errors"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 )
 
 type TeamDatabase struct {
@@ -20,6 +21,19 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	invRepo = repository.NewInviteRepository(db)
 
 	return &TeamDatabase{conn: db}
+}
+
+func (t TeamDatabase) SetName(newTeam *models.Team) error {
+	sql := `update team set name = $1 
+where id = $2 and event = $3 `
+
+	queryResult, err := t.conn.Exec(context.Background(), sql, newTeam.Name, newTeam.Id, newTeam.EventID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	log.Println(affected)
+	return err
 }
 
 func (t TeamDatabase) RemoveAllUsers(tid int) error {

@@ -17,6 +17,15 @@ func NewTeam(t team.Repository, e event.Repository) team.UseCase {
 	return &Team{teams: t, events: e}
 }
 
+func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
+	err := t.teams.SetName(newTeam)
+	if err != nil {
+		return nil, err
+	}
+	return t.Get(newTeam.Id)
+
+}
+
 func (t *Team) Get(id int) (*models.Team, error) {
 	tm, err := t.teams.Get(id)
 	if err != nil {
@@ -136,7 +145,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 
 	//merge teams
 	newTeam := &models.Team{
-		Name:    t1.Name + t2.Name,
+		Name:    t1.Name + "_" + t2.Name,
 		EventID: evtID,
 	}
 	newTeam, err := t.Create(newTeam, evtID)
