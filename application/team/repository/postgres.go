@@ -136,16 +136,17 @@ func (t TeamDatabase) AddMember(tid int, uid ...int) (*models.Team, error) {
 func (t TeamDatabase) GetTeamMembers(tid int) ([]models.User, error) {
 	var us []models.User
 	u := models.User{}
-	sql := `select u1.id,u1.firstname,u1.lastname,u1.email from team t1 
-join team_users tu1 on t1.id=tu1.team_id 
-join users u1 on tu1.user_id=u1.id where t1.id = $1`
+	sql := `select u1.* from team_users tu1 
+join users u1 on tu1.user_id=u1.id where tu1.team_id = $1`
 
 	queryResult, err := t.conn.Query(context.Background(), sql, tid)
 	if err != nil {
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email)
+		//TODO:scan all
+		err = queryResult.Scan(&u.Id, &u.FirstName, &u.LastName, &u.Email, &u.Bio, &u.Description, &u.WorkPlace, &u.Vk,
+			&u.Tg, &u.Git, &u.Avatar)
 		if err != nil {
 			return nil, err
 		}
