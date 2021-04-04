@@ -11,7 +11,7 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, er
 			), guest_user_team(team_id) AS (
 				select find_users_team($3, $2)
 			) select exists (
-				select 1 from invite i, owner_user_team, find_users_team
+				select 1 from invite i, owner_user_team, guest_user_team
 				where ( 
 					i.user_id = $1
 					or i.team_id = owner_user_team.team_id
