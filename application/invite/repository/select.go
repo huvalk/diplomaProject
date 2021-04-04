@@ -5,29 +5,24 @@ import (
 	"diplomaProject/application/models"
 )
 
-// TODO так надо делать, чтобы не ловить баги при смене команды пользователем между запросами
 func (r *InviteRepository) IsInvited(invitation *models.Invitation) (is bool, err error) {
-	sql := `select exists (
-				select 1 from invite
+	sql := `WITH owner_user_team(team_id) AS (
+				select find_users_team($1, $2)
+			), guest_user_team(team_id) AS (
+				select find_users_team($3, $2)
+			) select exists (
+				select 1 from invite i, owner_user_team, find_users_team
 				where ( 
-					user_id = $1
-					or team_id = (
-						select distinct(team_id) 
-						from team_users
-						where user_id = $1
-					)
+					i.user_id = $1
+					or i.team_id = owner_user_team.team_id
 				)
-				and event_id = $2
+				and i.event_id = $2
 				and ( 
-					guest_user_id = $3
-					or guest_team_id = (
-						select distinct(team_id) 
-						from team_users
-						where user_id = $3
-					)
+					i.guest_user_id = $3
+					or i.guest_team_id = guest_user_team.team_id
 				)
-				and rejected = false
-				and approved = false
+				and i.rejected = false
+				and i.approved = false
 			)`
 
 	err = r.conn.QueryRow(context.Background(), sql, invitation.OwnerID, invitation.EventID, invitation.GuestID).
