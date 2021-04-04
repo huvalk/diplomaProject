@@ -1,0 +1,32 @@
+	e.GET("/user/:id", handler.Profile)
+	e.GET("/user/:id/events", handler.GetUserEvents)
+	e.GET("/event/:eventID/user/search", handler.FindUserByTag)
+	e.PUT("/user/:id", handler.Update, middleware.UserID)
+	e.POST("/user/:id/image", handler.SetImage, middleware.UserID)
+	e.POST("/event/:evtid/join", handler.JoinEvent, middleware.UserID)
+	e.POST("/event/:evtid/leave", handler.LeaveEvent, middleware.UserID)
+
+	e.GET("/team/:id", handler.GetTeam)
+	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
+	e.POST("/event/:evtid/team", handler.CreateTeam)
+	e.POST("/team/:id/add", handler.AddMember)
+	e.POST("/team/:id/leave", handler.Leave, middleware.UserID)
+	e.POST("/event/:evtid/team/join", handler.Union, middleware.UserID)
+
+	e.GET("/event/:id", handler.GetEvent)
+	e.POST("/event/:id/finish", handler.FinishEvent, middleware.UserID)
+	e.GET("/event/:id/users", handler.GetEventUsers)
+	e.POST("/event", handler.CreateEvent, middleware.UserID)
+	e.POST("/event/:id/win", handler.SelectWinner, middleware.UserID)
+
+	e.GET("/feed/:id", handler.GetFeed)
+	e.POST("/feed", handler.CreateFeed)
+	e.GET("/event/:id/filter", handler.FilterFeed)
+
+    e.GET("/notification/:userid", handler.GetPendingNotification)
+    e.GET("/notification/channel/:userid", handler.ConnectToChannel)
+
+	e.GET("/job", handler.GetJobs)
+	e.GET("/job/:name/skills", handler.GetSkillsByJob)
+	e.POST("user/:id/skills", handler.AddSkill, middleware.UserID)
+	e.DELETE("user/:id/skills", handler.RemoveSkill, middleware.UserID)

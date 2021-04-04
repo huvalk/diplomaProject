@@ -1,0 +1,118 @@
+name: Build and Deploy
+
+env:
+  DEV_TAG: dev-${GITHUB_SHA::8}
+  PROD_TAG: prod-${GITHUB_SHA::8}
+  PROJ_PATH: /home/haha/diplomaProject
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+    branches:
+      - master
+      - dev
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run golangci-lint
+        uses: actions-contrib/golangci-lint@v1
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run test with cover
+        run: make test-cover
+
+  build:
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'dev') || contains(github.ref, 'master')
+    needs: [test, lint]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+      - name: Build Docker images
+        run: |
+          docker build \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.DEV_TAG }} \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/app:latest \
+          -f docker/app.Dockerfile .
+
+      - name: Tag prod images
+        if: ${{ contains(github.ref, 'master') && contains(github.event_name, 'push') }}
+        run: |
+          docker image tag app ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.PROD_TAG }}
+
+      - name: Push the images
+        run: |
+          docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/app
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'dev')
+    needs: build
+    steps:
+      - name: Pull docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd ${{ env.PROJ_PATH }}
+            git checkout dev
+            git pull
+
+      - name: Run project
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd ${{ env.PROJ_PATH }}
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev \
+            docker-compose up -d
+            docker image prune -a --filter "until=24h"
+
+  deployOnDev:
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'master') && contains(github.event_name, 'push')
+    needs: build
+    steps:
+      - name: Pull docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          password: ${{ secrets.PROD_PASSWORD }}
+          script: |
+            cd ${{ env.PROD_PROJ_PATH }}
+            git checkout dev
+            git pull
+
+      - name: Run project
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          password: ${{ secrets.PROD_PASSWORD }}
+          script: |
+            cd ${{ env.PROD_PROJ_PATH }}
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.PROD_TAG }} ENV=dev \
+            docker-compose -f prod-docker-compose.database.yml up -d
+            docker image prune -a --filter "until=24h"

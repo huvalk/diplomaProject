@@ -1,30 +1,25 @@
 package main
 
 import (
-	"fmt"
-	"github.com/kataras/golog"
-	"net/http"
-	"os"
+	"diplomaProject/application/server"
+	"diplomaProject/pkg/infrastructure"
+	"flag"
+	"github.com/labstack/echo"
+	"log"
 )
 
-
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		golog.Debug("Knok-knok")
+	e := echo.New()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-		_, err := w.Write([]byte("I am flying, Jack"))
-
-		if err != nil {
-			golog.Error("Knok failed: ", err)
-		}
-	})
-
-	err := http.ListenAndServeTLS(fmt.Sprintf(":%d", 8080),
-		os.Getenv("SSL_PATH") + "fullchain.pem",
-		os.Getenv("SSL_PATH") + "privkey.pem",
-		nil)
-
+	conn, err := infrastructure.InitDatabase()
 	if err != nil {
-		golog.Error("Server haha failed: ", err)
+		log.Fatal(err)
 	}
+	serv := server.NewServer(e, conn)
+	//sslPath := flag.String("ssl_path", "/etc/letsencrypt", "ssl cert path")
+	flag.Parse()
+
+	log.Fatal(serv.ListenAndServe())
+	//log.Fatal(serv.ListenAndServeTLS(*sslPath))
 }
