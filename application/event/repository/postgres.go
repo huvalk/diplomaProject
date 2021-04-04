@@ -198,7 +198,7 @@ func (e EventDatabase) UpdateWinUsers(prizeID, tId int) error {
 	for i := range us {
 		sql += fmt.Sprintf("(%v,%v),", prizeID, us[i])
 	}
-	sql = sql[:len(sql)-1] + ` on conflict on CONSTRAINT uniq_pair3 do nothing`
+	sql = sql[:len(sql)-1] + ` on conflict on CONSTRAINT (uniq_pair3) do nothing`
 	fmt.Println(sql)
 	_, err = e.conn.Exec(context.Background(), sql)
 	if err != nil {

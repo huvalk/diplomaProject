@@ -115,6 +115,34 @@ func (i *InviteUseCase) Deny(invitation *models.Invitation) (invitersIDs []int, 
 	return inviterIDs, nil
 }
 
+func (i *InviteUseCase) DenyAndBan(invitation *models.Invitation) (invitersIDs []int, err error) {
+	err = i.invites.DenyAndBan(invitation)
+	if err != nil {
+		return nil, err
+	}
+
+	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, err
+	}
+
+	var inviterIDs []int
+	if ownerTeam != nil {
+		members, err := i.teams.GetTeamMembers(ownerTeam.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, member := range members {
+			inviterIDs = append(inviterIDs, member.Id)
+		}
+	} else {
+		inviterIDs = append(inviterIDs, invitation.OwnerID)
+	}
+
+	return inviterIDs, nil
+}
+
 func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, error) {
 	return i.invites.IsInvited(invitation)
 }

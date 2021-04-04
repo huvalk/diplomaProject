@@ -27,6 +27,7 @@ func NewInviteHandler(e *echo.Echo, iu invite.UseCase, nu notification.UseCase) 
 	e.POST("/event/:eventID/user/:userID/invite", handler.Invite, middleware.UserID)
 	e.POST("/event/:eventID/user/:userID/uninvite", handler.UnInvite, middleware.UserID)
 	e.POST("/event/:eventID/user/:userID/decline", handler.Deny, middleware.UserID)
+	e.POST("/event/:eventID/user/:userID/ban", handler.DenyAndBan, middleware.UserID)
 	e.GET("/event/:eventID/invited/user/:userID", handler.IsInvited, middleware.UserID)
 	e.GET("/event/:eventID/invited/users", handler.GetInvitedUser, middleware.UserID)
 	e.GET("/event/:eventID/invited/teams", handler.GetInvitedTeam, middleware.UserID)
@@ -129,6 +130,40 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 	}
 
 	inviters, err := eh.invite.Deny(inv)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	err = eh.notification.SendDenyNotification(inviters, inv.EventID)
+	if err != nil {
+		log.Println("Notification wasnt sent: ", err)
+	}
+
+	return nil
+}
+
+func (eh *InviteHandler) DenyAndBan(ctx echo.Context) (err error) {
+	inv := &models.Invitation{}
+
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	inv.GuestID = userID
+
+	inv.OwnerID, err = strconv.Atoi(ctx.Param("userID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	inv.EventID, err = strconv.Atoi(ctx.Param("eventID"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	inviters, err := eh.invite.DenyAndBan(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())

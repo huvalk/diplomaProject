@@ -31,14 +31,22 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 }
 
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
+	//query := `WITH owner_user_team(team_id) AS (
+	//				select find_users_team($1, $2)
+	//			), guest_user_team(team_id) AS (
+	//				select find_users_team($3, $2)
+	//			)
+	//			update invite
+	//			set approved = true
+	//			from guest_user_team, owner_user_team
+
 	query := `WITH owner_user_team(team_id) AS (
 					select find_users_team($1, $2)
 				), guest_user_team(team_id) AS (
 					select find_users_team($3, $2)
 				)
-				update invite
-				set approved = true
-				from guest_user_team, owner_user_team
+				delete from invite
+				using guest_user_team, owner_user_team
 				where event_id = $2
 				and (( 
 					user_id = $1
@@ -159,10 +167,12 @@ func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID
 }
 
 func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error {
-	query := `update invite
-				set team_id = $1,
-				guest_team_id = $1,
-				approved = true
+	//query := `update invite
+	//			set team_id = $1,
+	//			guest_team_id = $1,
+	//			approved = true
+
+	query := `delete from invite
 				where ((
 						team_id = $2
 						and guest_team_id = $3
@@ -211,7 +221,46 @@ func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventI
 	return err
 }
 
+// Удаляю инвайты
 func (r *InviteRepository) Deny(inv *models.Invitation) error {
+	deny := `WITH owner_user_team(team_id) AS (
+				select find_users_team($1, $3)
+			), guest_user_team(team_id) AS (
+				select find_users_team($2, $3)
+			)
+			delete from invite
+			using guest_user_team, owner_user_team
+			where
+			(
+				(
+					invite.team_id = owner_user_team.team_id
+					or user_id = $1
+				)
+				and (
+					guest_user_id = $2
+					or guest_team_id = guest_user_team.team_id
+				)
+			)
+			or (
+				(
+					invite.team_id = guest_user_team.team_id
+					or user_id = $2
+				)
+				and (
+					guest_user_id = $1
+					or guest_team_id = owner_user_team.team_id
+				)
+			)
+			and event_id = $3
+			and rejected = false
+			and approved = false`
+	_, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
+
+	return err
+}
+
+// Устанавливая отказ
+func (r *InviteRepository) DenyAndBan(inv *models.Invitation) error {
 	deny := `WITH owner_user_team(team_id) AS (
 				select find_users_team($1, $3)
 			), guest_user_team(team_id) AS (
