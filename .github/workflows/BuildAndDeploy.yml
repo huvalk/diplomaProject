@@ -34,7 +34,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'dev')
+    if: contains(github.ref, 'dev') || contains(github.ref, 'master')
     needs: [test, lint]
     steps:
       - uses: actions/checkout@v1
@@ -83,8 +83,36 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ${{ env.PROJ_PATH }}
-            echo ${{ secrets.DOCKERHUB_USERNAME }}
-            echo ${{ env.DEV_TAG }}
-            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev SSL=/etc/letsencrypt/live/hahao.ru \
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev \
             docker-compose up -d
+            docker image prune -a --filter "until=24h"
+
+  deployOnDev:
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'master') && contains(github.event_name, 'push')
+    needs: build
+    steps:
+      - name: Pull docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          password: ${{ secrets.PROD_PASSWORD }}
+          script: |
+            cd ${{ env.PROD_PROJ_PATH }}
+            git checkout dev
+            git pull
+
+      - name: Run project
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          password: ${{ secrets.PROD_PASSWORD }}
+          script: |
+            cd ${{ env.PROD_PROJ_PATH }}
+            REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.PROD_TAG }} ENV=dev \
+            docker-compose -f prod-docker-compose.database.yml up -d
             docker image prune -a --filter "until=24h"
