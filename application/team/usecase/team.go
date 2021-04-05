@@ -19,6 +19,20 @@ func NewTeam(t team.Repository, e event.Repository, n notification.UseCase) team
 	return &Team{teams: t, events: e, notif: n}
 }
 
+func (t *Team) SendVote(vote *models.Vote) error {
+	var err error
+	if vote.State == 1 {
+		err = t.teams.AddVote(vote)
+	} else if vote.State == -1 {
+		err = t.teams.CancelVote(vote)
+	}
+	if err != nil {
+		return err
+	}
+	return t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
+	//TODO:Re-select lead
+}
+
 func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
 	err := t.teams.SetName(newTeam)
 	if err != nil {
@@ -98,7 +112,8 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		if err2 != nil {
 			//both users have no team
 			newTeam := &models.Team{
-				Name: fmt.Sprintf("team-%v-%v", uid1, uid2),
+				Name:   fmt.Sprintf("team-%v-%v", uid1, uid2),
+				LeadID: uid1,
 			}
 			newTeam, err2 = t.Create(newTeam, evtID)
 			if err2 != nil {
@@ -174,6 +189,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	}
 
 	//merge teams
+	//TODO: move votes from one team to another
 	newTeam := &models.Team{
 		Name:    t1.Name + "_" + t2.Name,
 		EventID: evtID,

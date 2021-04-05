@@ -7,6 +7,7 @@ import (
 	"diplomaProject/application/models"
 	"diplomaProject/application/team"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 )
@@ -21,6 +22,82 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	invRepo = repository.NewInviteRepository(db)
 
 	return &TeamDatabase{conn: db}
+}
+
+//Select * from team_users tu1
+// where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = 9)
+//and team_id=9 or (team_id=9 AND user_id=1)
+
+func (t TeamDatabase) GetVotes(tm *models.Team) ([]models.User, error) {
+	us := make(map[int]int) //[userID] votes
+	userID := 0
+	votes := 0
+	sql := `Select * from team_users tu1
+where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = $1)
+and team_id=$1 or (team_id=$1 AND user_id=$2)`
+
+	queryResult, err := t.conn.Query(context.Background(), sql, tm.Id, tm.LeadID)
+	if err != nil {
+		return nil, err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&userID, &votes)
+		if err != nil {
+			return nil, err
+		}
+		us[userID] = votes
+	}
+	queryResult.Close()
+
+	return nil, err
+}
+
+func (t TeamDatabase) ChangeUserVotesCount(tID, uID, state int) error {
+	sql := `update team_users set votes = team_users.votes ` + fmt.Sprintf("%+d", state) +
+		` where team_id=$1 AND user_id=$2`
+	fmt.Println(sql)
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		tID, uID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("can't vote")
+	}
+	return nil
+}
+
+func (t TeamDatabase) AddVote(vote *models.Vote) error {
+	sql := `insert into votes values($1,$2,$3,$4)`
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		vote.EventID, vote.TeamID, vote.WhoID, vote.ForWhomID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("already voted")
+	}
+	return nil
+}
+
+func (t TeamDatabase) CancelVote(vote *models.Vote) error {
+	sql := `delete from votes 
+where event_id = $1 AND
+team_id = $2 AND
+who_id = $3 AND
+for_whom_id = $4`
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		vote.EventID, vote.TeamID, vote.WhoID, vote.ForWhomID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("can't find vote or already voted")
+	}
+	return nil
 }
 
 func (t TeamDatabase) SetName(newTeam *models.Team) error {

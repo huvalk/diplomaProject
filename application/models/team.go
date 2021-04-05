@@ -5,6 +5,7 @@ type Team struct {
 	Name    string  `json:"name"`
 	Members UserArr `json:"members"`
 	EventID int     `json:"eventid"`
+	LeadID  int     `json:"leadid"`
 }
 
 //easyjson:json

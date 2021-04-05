@@ -82,6 +82,7 @@ create table team_users
 (
     team_id integer REFERENCES team (id),
     user_id integer REFERENCES users (id),
+    votes   integer default 0,
     CONSTRAINT uniq_pair4 UNIQUE (team_id, user_id)
 );
 
@@ -90,6 +91,15 @@ create table prize_users
     prize_id integer REFERENCES prize (id),
     user_id  integer REFERENCES users (id),
     CONSTRAINT uniq_pair3 UNIQUE (prize_id, user_id)
+);
+
+create table votes
+(
+    event_id    integer REFERENCES event (id),
+    team_id     integer REFERENCES team (id),
+    who_id      integer REFERENCES users (id),
+    for_whom_id integer REFERENCES users (id),
+    CONSTRAINT uniq_pair6 UNIQUE (event_id, team_id, who_id, for_whom_id)
 );
 
 create table notification
