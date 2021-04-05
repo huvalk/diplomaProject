@@ -59,7 +59,7 @@ jobs:
 
   deployOnDev:
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'dev')
+    if: contains(github.ref, 'dev') && contains(github.event_name, 'push')
     needs: build
     steps:
       - name: Pull docker-compose
@@ -101,7 +101,8 @@ jobs:
           password: ${{ secrets.PROD_PASSWORD }}
           script: |
             cd ${{ env.PROD_PROJ_PATH }}
-            echo $PWD
+            pwd
+            ls -al
             git checkout dev
             git pull
 
