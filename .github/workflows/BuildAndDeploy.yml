@@ -101,7 +101,7 @@ jobs:
           password: ${{ secrets.PROD_PASSWORD }}
           script: |
             cd /home/akiraq_yandex_ru/teamup
-            git checkout dev
+            git checkout master
             git pull
 
       - name: Run project
