@@ -114,5 +114,5 @@ jobs:
           script: |
             cd /home/akiraq_yandex_ru/teamup
             REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.PROD_TAG }} ENV=dev \
-            docker-compose -f prod-docker-compose.database.yml up -d
+            docker-compose up -d
             docker image prune -a --filter "until=24h"
