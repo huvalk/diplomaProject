@@ -57,7 +57,7 @@ jobs:
         run: |
           docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/app
 
-  deploy:
+  deployOnDev:
     runs-on: ubuntu-latest
     if: contains(github.ref, 'dev')
     needs: build
@@ -87,7 +87,7 @@ jobs:
             docker-compose up -d
             docker image prune -a --filter "until=24h"
 
-  deployOnDev:
+  deployOnProd:
     runs-on: ubuntu-latest
     if: contains(github.ref, 'master') && contains(github.event_name, 'push')
     needs: build
