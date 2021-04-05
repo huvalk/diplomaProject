@@ -15,6 +15,7 @@ type UseCase interface {
 	GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error)
 	Create(newEvent *models.Event) (*models.Event, error)
 	SelectWinner(uID, evtID, prizeID, tId int) error
+	UnSelectWinner(uID, evtID, prizeID, tId int) error
 	SetLogo(uid, eid int, avatar *multipart.Form) (string, error)
 	SetBackground(uid, eid int, avatar *multipart.Form) (string, error)
 }
