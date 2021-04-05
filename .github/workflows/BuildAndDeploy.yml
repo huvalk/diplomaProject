@@ -101,6 +101,7 @@ jobs:
           password: ${{ secrets.PROD_PASSWORD }}
           script: |
             cd ${{ env.PROD_PROJ_PATH }}
+            echo $PWD
             git checkout dev
             git pull
 
