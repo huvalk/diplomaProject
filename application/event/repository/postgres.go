@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
+	"strings"
 )
 
 type EventDatabase struct {
@@ -17,6 +18,19 @@ type EventDatabase struct {
 
 func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
+}
+
+func (e EventDatabase) GetPrize(prizeID int) (*models.Prize, error) {
+	pr := models.Prize{}
+	sql := `select * from prize where id = $1`
+
+	queryResult := e.conn.QueryRow(context.Background(), sql, prizeID)
+	err := queryResult.Scan(&pr.Id, &pr.EventID, &pr.Name, &pr.Place,
+		&pr.Amount, &pr.Total, &pr.WinnerTeamIDs)
+	if err != nil {
+		return nil, err
+	}
+	return &pr, err
 }
 
 func (e EventDatabase) RemovePrize(evtId int, prArr *models.PrizeArr) error {
@@ -157,6 +171,67 @@ func (e EventDatabase) UpdatePrize(pr *models.Prize) error {
 	return nil
 }
 
+func (e EventDatabase) UnSelectWinner(prizeID, tId int, winnerArr []int) error {
+	//	sql := `update prize set winnerteamids = '{}' ,
+	//amount = amount +1
+	//where id = $2`
+	arr := fmt.Sprintf("%v", winnerArr)
+	arr = arr[1 : len(arr)-1]
+	arr = strings.Replace(arr, " ", ",", -1)
+	sql := fmt.Sprintf(`update prize set winnerteamids = '{%v}' , 
+amount = amount +1
+where id = $1`, arr)
+
+	queryResult, err := e.conn.Exec(context.Background(), sql, prizeID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected != 1 {
+		return errors.New("no prize")
+	}
+
+	return e.UpdateUnWinUsers(prizeID, tId)
+}
+
+func (e EventDatabase) UpdateUnWinUsers(prizeID, tId int) error {
+	var us []int
+	u := 0
+	sql := `select user_id from team_users where team_id=$1`
+	queryResult, err := e.conn.Query(context.Background(), sql, tId)
+	if err != nil {
+		return err
+	}
+	for queryResult.Next() {
+		err = queryResult.Scan(&u)
+		if err != nil {
+			return err
+		}
+		us = append(us, u)
+	}
+	queryResult.Close()
+
+	if len(us) == 0 {
+		return nil
+	}
+
+	sql = `delete from prize_users where `
+	for i := range us {
+		sql += fmt.Sprintf("(prize_id = %v AND user_id = %v) OR ", prizeID, us[i])
+	}
+	sql = sql[:len(sql)-3] + ``
+	fmt.Println(sql)
+	_, err = e.conn.Exec(context.Background(), sql)
+	if err != nil {
+		return err
+	}
+	//affected := qR.RowsAffected()
+	//if affected != 1 {
+	//	return errors.New("already finished")
+	//}
+	return nil
+}
+
 func (e EventDatabase) SelectWinner(prizeID, tId int) error {
 	sql := `update prize set winnerteamids = array_append(winnerteamids,$1) , 
 amount = amount -1
@@ -198,7 +273,7 @@ func (e EventDatabase) UpdateWinUsers(prizeID, tId int) error {
 	for i := range us {
 		sql += fmt.Sprintf("(%v,%v),", prizeID, us[i])
 	}
-	sql = sql[:len(sql)-1] + ` on conflict on CONSTRAINT (uniq_pair3) do nothing`
+	sql = sql[:len(sql)-1] + ` on conflict on CONSTRAINT uniq_pair4 do nothing`
 	fmt.Println(sql)
 	_, err = e.conn.Exec(context.Background(), sql)
 	if err != nil {
