@@ -51,7 +51,7 @@ jobs:
       - name: Tag prod images
         if: ${{ contains(github.ref, 'master') && contains(github.event_name, 'push') }}
         run: |
-          docker image tag app ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.PROD_TAG }}
+          docker image tag ${{ secrets.DOCKERHUB_USERNAME }}/app:latest ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ env.PROD_TAG }}
 
       - name: Push the images
         run: |

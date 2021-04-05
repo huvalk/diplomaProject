@@ -20,6 +20,7 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
+
 func (e EventDatabase) GetPrize(prizeID int) (*models.Prize, error) {
 	pr := models.Prize{}
 	sql := `select * from prize where id = $1`
