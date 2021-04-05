@@ -100,7 +100,7 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           password: ${{ secrets.PROD_PASSWORD }}
           script: |
-            cd ${{ env.PROD_PROJ_PATH }}
+            cd /home/akiraq_yandex_ru/teamup
             git checkout dev
             git pull
 
@@ -112,7 +112,7 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           password: ${{ secrets.PROD_PASSWORD }}
           script: |
-            cd ${{ env.PROD_PROJ_PATH }}
+            cd /home/akiraq_yandex_ru/teamup
             REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.PROD_TAG }} ENV=dev \
             docker-compose -f prod-docker-compose.database.yml up -d
             docker image prune -a --filter "until=24h"
