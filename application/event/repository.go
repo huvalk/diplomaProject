@@ -16,8 +16,10 @@ type Repository interface {
 	GetEventTeams(evtID int) (*models.TeamArr, error)
 	GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, error)
 	GetEventPrize(evtID int) (*models.PrizeArr, error)
+	GetPrize(prizeID int) (*models.Prize, error)
 	CreatePrize(evtID int, prizeArr models.PrizeArr) error
 	SelectWinner(prizeID, tId int) error
+	UnSelectWinner(prizeID, tId int, winnerArr []int) error
 	SetLogo(uid, eid int, link string) error
 	SetBackground(uid, eid int, link string) error
 }

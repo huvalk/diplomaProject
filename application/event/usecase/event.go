@@ -73,6 +73,34 @@ func (e *Event) Update(uID int, evt *models.Event) (*models.Event, error) {
 	return e.Get(evt.Id)
 }
 
+func (e *Event) UnSelectWinner(uID, evtID, PrizeID, tId int) error {
+	ev, err := e.Get(evtID)
+	if err != nil {
+		return nil
+	}
+	if ev.Founder != uID {
+		return errors.New("not owner")
+	}
+	if ev.State != constants.EventStatusClosed {
+		return errors.New("not finished")
+	}
+	//TODO:check amount>=1
+	pr, err := e.events.GetPrize(PrizeID)
+	if err != nil {
+		return errors.New("no such prize")
+	}
+	if len(pr.WinnerTeamIDs) == 0 {
+		return nil
+	}
+	for i := range pr.WinnerTeamIDs {
+		if pr.WinnerTeamIDs[i] == tId {
+			pr.WinnerTeamIDs = append(pr.WinnerTeamIDs[:i], pr.WinnerTeamIDs[i+1:]...)
+			break
+		}
+	}
+	return e.events.UnSelectWinner(PrizeID, tId, pr.WinnerTeamIDs)
+}
+
 func (e *Event) SelectWinner(uID, evtID, PrizeID, tId int) error {
 	ev, err := e.Get(evtID)
 	if err != nil {
