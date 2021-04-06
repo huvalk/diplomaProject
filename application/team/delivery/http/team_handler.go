@@ -54,15 +54,15 @@ func (th *TeamHandler) SendVote(ctx echo.Context) error {
 	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
 	//}
 
-	err = th.useCase.SendVote(vt)
+	tm, err := th.useCase.SendVote(vt)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	//if _, err = easyjson.MarshalToWriter(tm, ctx.Response().Writer); err != nil {
-	//	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	//}
-	return ctx.String(200, "OK")
+	if _, err = easyjson.MarshalToWriter(tm, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
 }
 
 func (th *TeamHandler) GetTeamByUser(ctx echo.Context) error {

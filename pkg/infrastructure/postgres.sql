@@ -62,9 +62,10 @@ create table feed_users
 
 create table team
 (
-    id    bigserial primary key,
-    name  varchar(80) not null default '',
-    event integer REFERENCES event (id)
+    id      bigserial primary key,
+    name    varchar(80) not null default '',
+    event   integer REFERENCES event (id),
+    lead_id integer REFERENCES users (id)
 );
 
 create table prize

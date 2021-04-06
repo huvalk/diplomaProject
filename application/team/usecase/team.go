@@ -17,18 +17,30 @@ func NewTeam(t team.Repository, e event.Repository) team.UseCase {
 	return &Team{teams: t, events: e}
 }
 
-func (t *Team) SendVote(vote *models.Vote) error {
+func (t *Team) SendVote(vote *models.Vote) (*models.Team, error) {
 	var err error
+	tm, err := t.Get(vote.TeamID)
+	if err != nil {
+		return nil, err
+	}
 	if vote.State == 1 {
 		err = t.teams.AddVote(vote)
 	} else if vote.State == -1 {
 		err = t.teams.CancelVote(vote)
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
-	//TODO:Re-select lead
+	err = t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
+	if err != nil {
+		return nil, err
+	}
+	leadID, err := t.teams.SelectLead(tm)
+	if err != nil {
+		return nil, err
+	}
+	tm.LeadID = leadID
+	return tm, nil
 }
 
 func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {

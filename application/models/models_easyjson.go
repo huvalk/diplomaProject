@@ -477,6 +477,8 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels5(in *jlexer.Lexer, ou
 			out.Name = string(in.String())
 		case "eventid":
 			out.EventID = int(in.Int())
+		case "leadid":
+			out.LeadID = int(in.Int())
 		case "prize":
 			(out.Prize).UnmarshalEasyJSON(in)
 		default:
@@ -507,6 +509,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels5(out *jwriter.Writer,
 		const prefix string = ",\"eventid\":"
 		out.RawString(prefix)
 		out.Int(int(in.EventID))
+	}
+	{
+		const prefix string = ",\"leadid\":"
+		out.RawString(prefix)
+		out.Int(int(in.LeadID))
 	}
 	{
 		const prefix string = ",\"prize\":"
