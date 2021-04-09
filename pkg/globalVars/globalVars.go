@@ -10,6 +10,8 @@ var (
 	BACKEND_URI          = os.Getenv("BACKEND_URI")
 	STATE                = os.Getenv("STATE")
 	CLIENT_SECRET        = os.Getenv("CLIENT_SECRET")
+	POSTGRES_HOST        = os.Getenv("POSTGRES_HOST")
+	POSTGRES_PORT        = os.Getenv("POSTGRES_PORT")
 	POSTGRES_USER        = os.Getenv("POSTGRES_USER")
 	POSTGRES_PASSWORD    = os.Getenv("POSTGRES_PASSWORD")
 	POSTGRES_DB          = os.Getenv("POSTGRES_DB")
