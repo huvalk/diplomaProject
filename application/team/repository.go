@@ -17,5 +17,5 @@ type Repository interface {
 	AddVote(vote *models.Vote) error
 	CancelVote(vote *models.Vote) error
 	ChangeUserVotesCount(tID, uID, state int) error
-	//SelectLead() (error)
+	SelectLead(tm *models.Team) (int, error)
 }

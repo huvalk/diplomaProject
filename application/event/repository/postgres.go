@@ -72,7 +72,7 @@ where t1.event=$1`
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID,
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID, &t.LeadID,
 			&pr.Id, &pr.EventID, &pr.Name,
 			&pr.Place, &pr.Amount, &pr.Total, &pr.WinnerTeamIDs)
 		if err != nil {
@@ -95,7 +95,7 @@ func (e EventDatabase) GetEventTeams(evtID int) (*models.TeamArr, error) {
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID)
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID, &t.LeadID)
 		if err != nil {
 			return nil, err
 		}

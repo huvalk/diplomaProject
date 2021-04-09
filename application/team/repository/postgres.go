@@ -28,28 +28,56 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 // where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = 9)
 //and team_id=9 or (team_id=9 AND user_id=1)
 
-func (t TeamDatabase) GetVotes(tm *models.Team) ([]models.User, error) {
-	us := make(map[int]int) //[userID] votes
+func (t TeamDatabase) SelectLead(tm *models.Team) (int, error) {
 	userID := 0
 	votes := 0
-	sql := `Select * from team_users tu1
+	leadVotes := 0
+	maxVotes := 0
+	maxVotesID := 0
+	sql := `Select user_id,votes from team_users tu1
 where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = $1)
 and team_id=$1 or (team_id=$1 AND user_id=$2)`
 
 	queryResult, err := t.conn.Query(context.Background(), sql, tm.Id, tm.LeadID)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	for queryResult.Next() {
 		err = queryResult.Scan(&userID, &votes)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		us[userID] = votes
+		if votes > maxVotes {
+			maxVotes = votes
+			maxVotesID = userID
+		}
+		if userID == tm.LeadID {
+			leadVotes = votes
+		}
 	}
 	queryResult.Close()
+	if maxVotes > leadVotes {
+		err = t.UpdateLead(tm.Id, maxVotesID)
+		if err != nil {
+			return 0, err
+		}
+		return maxVotesID, nil
+	}
 
-	return nil, err
+	return tm.LeadID, nil
+}
+
+func (t TeamDatabase) UpdateLead(tmID, newLeadID int) error {
+	sql := `update team set lead_id = $1 
+where id = $2 `
+
+	queryResult, err := t.conn.Exec(context.Background(), sql, newLeadID, tmID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	log.Println(affected)
+	return err
 }
 
 func (t TeamDatabase) ChangeUserVotesCount(tID, uID, state int) error {
@@ -164,7 +192,7 @@ func (t TeamDatabase) Get(id int) (*models.Team, error) {
 	sql := `select * from team where id = $1`
 
 	queryResult := t.conn.QueryRow(context.Background(), sql, id)
-	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID)
+	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &tm.LeadID)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +206,7 @@ join team_users tu1 on t1.id=tu1.team_id
 where t1.event = $1 and tu1.user_id=$2`
 
 	queryResult := t.conn.QueryRow(context.Background(), sql, evtID, uid)
-	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID)
+	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &tm.LeadID)
 	if err != nil {
 		return nil, err
 	}

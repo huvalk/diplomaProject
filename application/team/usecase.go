@@ -10,5 +10,5 @@ type UseCase interface {
 	RemoveMember(tid, uid int) (*models.Team, error)
 	Union(uid1, uid2, evtID int) (*models.Team, error)
 	GetTeamByUser(uid, evtID int) (*models.Team, error)
-	SendVote(vote *models.Vote) error
+	SendVote(vote *models.Vote) (*models.Team, error)
 }

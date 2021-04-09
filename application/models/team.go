@@ -25,6 +25,7 @@ type TeamWinner struct {
 	Id      int    `json:"id"`
 	Name    string `json:"name"`
 	EventID int    `json:"eventid"`
+	LeadID  int    `json:"leadid"`
 	Prize   Prize  `json:"prize"`
 }
 
