@@ -20,7 +20,6 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
-
 func (e EventDatabase) GetPrize(prizeID int) (*models.Prize, error) {
 	pr := models.Prize{}
 	sql := `select * from prize where id = $1`
@@ -113,6 +112,12 @@ func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 	}
 	if evt.Description != "" {
 		sql += "description = '" + evt.Description + "', "
+	}
+	if !evt.DateStart.IsZero() {
+		sql += "date_start = '" + evt.DateStart.String() + "', "
+	}
+	if !evt.DateEnd.IsZero() {
+		sql += "date_end = '" + evt.DateEnd.String() + "', "
 	}
 	if evt.Place != "" {
 		sql += "place = '" + evt.Place + "', "
