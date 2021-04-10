@@ -13,6 +13,7 @@ drop table job_skills_users cascade;
 drop table users cascade;
 drop table skills cascade;
 drop table job cascade;
+drop table votes cascade;
 endef
 
 build-app:
@@ -28,6 +29,13 @@ start-db:
 	docker-compose -f docker-compose.database.yml up
 
 export DROP_ALL_TABLES
+db-dump:
+	pg_dump -U postgres -h localhost -p 8081 --column-inserts --data-only hhton >> config/dump.sql
+
+new-db-schema-from-dump:
+	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
+	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/dump.sql
+
 new-db-schema-local:
 	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
 	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/hhton_public.sql
