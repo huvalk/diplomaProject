@@ -35,7 +35,8 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 		},
 	}
 
-	e.GET("/notification/:userID", handler.GetPendingNotification, middleware.UserID)
+	//e.GET("/notification/:userID", handler.GetPendingNotification, middleware.UserID)
+	e.GET("/notification/:userID/last", handler.GetLastNotification, middleware.UserID)
 	if globalVars.ENV == constants.PROD {
 		e.GET("/notification/channel/:userID", handler.ConnectToChannel, middleware.UserID)
 	} else {
@@ -44,7 +45,7 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 	return nil
 }
 
-func (eh *NotificationHandler) GetPendingNotification(ctx echo.Context) error {
+func (eh *NotificationHandler) GetLastNotification(ctx echo.Context) error {
 	userID, err := strconv.Atoi(ctx.Param("userID"))
 	if err != nil {
 		log.Println(err)
@@ -59,7 +60,7 @@ func (eh *NotificationHandler) GetPendingNotification(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
 	}
 
-	notifications, err := eh.useCase.GetPendingNotification(userID)
+	notifications, err := eh.useCase.GetLastNotification(userID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())

@@ -7,10 +7,10 @@ create table users
     id          bigserial primary key,
     firstname   varchar(80)        not null default '',
     lastName    varchar(80)        not null default '',
-    email       varchar(80) unique not null,
-    bio         varchar(80)        not null default '',
-    description varchar(80)        not null default '',
-    workPlace   varchar(80)        not null default '',
+    email       varchar(80)        not null,
+    bio         varchar(500)        not null default '',
+    description varchar(500)        not null default '',
+    workPlace   varchar(500)        not null default '',
     vk_url      varchar(80)        not null default '',
     tg_url      varchar(80)        not null default '',
     gh_url      varchar(80)        not null default '',
@@ -24,17 +24,17 @@ create index idx_gin on users using gin (tg_url gin_trgm_ops);
 create table event
 (
     id                 bigserial primary key,
-    name               varchar(80) not null default '',
-    description        varchar(80) not null default '',
+    name               varchar(380) not null default '',
+    description        varchar(500) not null default '',
     founder            integer REFERENCES users (id),
     date_start         timestamp,
     date_end           timestamp,
     state              varchar(80) not null default '',
-    place              varchar(80) not null default '',
+    place              varchar(380) not null default '',
     participants_count integer     not null default 0,
-    logo               varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_logo.svg',
-    background         varchar(80) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_background.svg',
-    site               varchar(80) not null default '',
+    logo               varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_logo.svg',
+    background         varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_background.svg',
+    site               varchar(380) not null default '',
     team_size          integer     not null default 1
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
@@ -63,7 +63,7 @@ create table feed_users
 create table team
 (
     id      bigserial primary key,
-    name    varchar(80) not null default '',
+    name    varchar(380) not null default '',
     event   integer REFERENCES event (id),
     lead_id integer REFERENCES users (id)
 );
@@ -72,7 +72,7 @@ create table prize
 (
     id            bigserial primary key,
     event_id      integer REFERENCES event (id),
-    name          varchar(80) not null default '',
+    name          varchar(380) not null default '',
     place         int         not null,
     amount        int         not null,
     total         int         not null,
@@ -140,22 +140,22 @@ alter table invite add constraint no_myself_invites check (
         or user_id != invite.guest_user_id
     );
 
-create unique index t_to_u_unique_invite on invite (team_id, guest_user_id)
+create unique index t_to_u_unique_invite on invite (team_id, guest_user_id, event_id)
     where (
             approved = false
         );
 
-create unique index u_to_t_unique_invite on invite (user_id, guest_team_id)
+create unique index u_to_t_unique_invite on invite (user_id, guest_team_id, event_id)
     where (
             approved = false
         );
 
-create unique index t_to_t_unique_invite on invite (team_id, guest_team_id)
+create unique index t_to_t_unique_invite on invite (team_id, guest_team_id, event_id)
     where (
             approved = false
         );
 
-create unique index u_to_u_unique_invite on invite (user_id, guest_user_id)
+create unique index u_to_u_unique_invite on invite (user_id, guest_user_id, event_id)
     where (
             approved = false
         );
@@ -217,7 +217,6 @@ as
     language sql
     immutable
     returns null on null input;
-
 
 create or replace function find_users_lead_team(integer, integer) returns integer
 as
