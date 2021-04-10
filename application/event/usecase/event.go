@@ -19,6 +19,10 @@ func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
 	return &Event{events: e, feeds: f}
 }
 
+func (e *Event) GetTopEvents() (*models.EventDBArr, error) {
+	return e.events.GetTopEvents()
+}
+
 func (e *Event) RemovePrize(uID, evtID int, prArr *models.PrizeArr) (*models.Event, error) {
 	ev, err := e.Get(evtID)
 	if err != nil {

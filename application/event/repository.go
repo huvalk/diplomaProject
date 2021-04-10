@@ -22,4 +22,5 @@ type Repository interface {
 	UnSelectWinner(prizeID, tId int, winnerArr []int) error
 	SetLogo(uid, eid int, link string) error
 	SetBackground(uid, eid int, link string) error
+	GetTopEvents() (*models.EventDBArr, error)
 }

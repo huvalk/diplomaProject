@@ -7,6 +7,7 @@ import (
 	"diplomaProject/pkg/constants"
 	"errors"
 	"fmt"
+	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"strings"
@@ -18,6 +19,19 @@ type EventDatabase struct {
 
 func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
+}
+
+func (e *EventDatabase) GetTopEvents() (*models.EventDBArr, error) {
+	var evtArr models.EventDBArr
+	sql := `SELECT * from event where state = 'Open' order by participants_count desc limit 10`
+
+	err := pgxscan.Select(context.Background(), e.conn, &evtArr, sql)
+
+	if err != nil {
+		return &models.EventDBArr{}, err
+	}
+
+	return &evtArr, nil
 }
 
 func (e EventDatabase) GetPrize(prizeID int) (*models.Prize, error) {

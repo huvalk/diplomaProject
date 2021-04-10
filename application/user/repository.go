@@ -13,4 +13,5 @@ type Repository interface {
 	GetUserEvents(uid int) (*models.EventArr, error)
 	GetUserParams(uid int) (models.Job, []models.Skills, error)
 	GetUserHistory(uid int) (models.HistoryEventArr, error)
+	GetFounderEvents(userID int) (*models.EventDBArr, error)
 }

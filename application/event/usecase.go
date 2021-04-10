@@ -18,4 +18,5 @@ type UseCase interface {
 	UnSelectWinner(uID, evtID, prizeID, tId int) error
 	SetLogo(uid, eid int, avatar *multipart.Form) (string, error)
 	SetBackground(uid, eid int, avatar *multipart.Form) (string, error)
+	GetTopEvents() (*models.EventDBArr, error)
 }

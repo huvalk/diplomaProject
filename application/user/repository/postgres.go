@@ -5,6 +5,7 @@ import (
 	"diplomaProject/application/models"
 	"diplomaProject/application/user"
 	"errors"
+	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -14,6 +15,19 @@ type UserDatabase struct {
 
 func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
+}
+
+func (ud *UserDatabase) GetFounderEvents(userID int) (*models.EventDBArr, error) {
+	var evtArr models.EventDBArr
+	sql := `SELECT * from event where founder = $1`
+
+	err := pgxscan.Select(context.Background(), ud.conn, &evtArr, sql, userID)
+
+	if err != nil {
+		return &models.EventDBArr{}, err
+	}
+
+	return &evtArr, nil
 }
 
 func (ud *UserDatabase) GetUserHistory(uid int) (models.HistoryEventArr, error) {

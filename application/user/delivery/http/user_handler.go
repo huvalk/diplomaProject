@@ -23,6 +23,7 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 	handler := UserHandler{useCase: usecase}
 
 	e.GET("/user/:id", handler.Profile)
+	e.GET("/founder/events", handler.GetCreatedEvents, middleware.UserID)
 	e.GET("/user/:id/events", handler.GetUserEvents)
 	e.GET("/event/:eventID/user/search", handler.FindUserByTag)
 	// Логин реализован в auth
@@ -31,6 +32,23 @@ func NewUserHandler(e *echo.Echo, usecase user.UseCase) error {
 	e.POST("/user/:id/image", handler.SetImage, middleware.UserID)
 	e.POST("/event/:evtid/join", handler.JoinEvent, middleware.UserID)
 	e.POST("/event/:evtid/leave", handler.LeaveEvent, middleware.UserID)
+	return nil
+}
+
+func (uh *UserHandler) GetCreatedEvents(ctx echo.Context) error {
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	evtArr, err := uh.useCase.GetFounderEvents(userID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(evtArr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 

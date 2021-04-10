@@ -20,6 +20,7 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 
 	handler := EventHandler{useCase: usecase}
 
+	e.GET("/event/top", handler.GetTopEvents)
 	e.GET("/event/:id", handler.GetEvent)
 	e.POST("/event/:id/finish", handler.FinishEvent, middleware.UserID)
 	e.DELETE("/event/:id/prize", handler.DeletePrize, middleware.UserID)
@@ -32,6 +33,18 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 	e.POST("/event/:id/unwin", handler.SelectUnWinner, middleware.UserID)
 	e.POST("/event/:id/logo", handler.SetLogo, middleware.UserID)
 	e.POST("/event/:id/background", handler.SetBackground, middleware.UserID)
+	return nil
+}
+
+func (eh *EventHandler) GetTopEvents(ctx echo.Context) error {
+	evtArr, err := eh.useCase.GetTopEvents()
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(evtArr, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 

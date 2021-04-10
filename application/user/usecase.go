@@ -15,4 +15,5 @@ type UseCase interface {
 	JoinEvent(uid, evtID int) error
 	LeaveEvent(uid, evtID int) error
 	GetUserEvents(uid int) (*models.EventArr, error)
+	GetFounderEvents(userID int) (*models.EventDBArr, error)
 }

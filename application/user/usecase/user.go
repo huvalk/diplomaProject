@@ -25,6 +25,10 @@ func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCa
 	return &User{users: u, feeds: f, teams: t, tagRegexp: r}
 }
 
+func (u *User) GetFounderEvents(userID int) (*models.EventDBArr, error) {
+	return u.users.GetFounderEvents(userID)
+}
+
 func (u *User) SetImage(uid int, avatar *multipart.Form) (string, error) {
 	link, err := sss.UploadPic(avatar, "")
 	if err != nil {

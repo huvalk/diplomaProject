@@ -18,6 +18,9 @@ type EventDB struct {
 	TeamSize          int       `json:"teamSize"`
 }
 
+//easyjson:json
+type EventDBArr []EventDB
+
 type Event struct {
 	Id                int       `json:"id"`
 	Name              string    `json:"name"`
