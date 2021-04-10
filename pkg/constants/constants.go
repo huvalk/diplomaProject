@@ -19,3 +19,9 @@ const (
 	EventStatusClosed = "Closed"
 	EventStatusOpen   = "Open"
 )
+
+const (
+	PROD = "prod"
+	DEV   = "dev"
+	LOCAL   = "local"
+)

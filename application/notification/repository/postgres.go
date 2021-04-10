@@ -24,6 +24,13 @@ func (r *NotificationRepository) SaveNotification(n *channel.Notification) error
 	return err
 }
 
+func (r *NotificationRepository) GetEventName(eventID int) (name string, err error) {
+	sql := `select distinct(name) from event where id=$1`
+
+	err = r.conn.QueryRow(context.Background(), sql, eventID).Scan(&name)
+	return name, err
+}
+
 func (r *NotificationRepository) MarkAsWatched(notificationID int) error {
 	sql := `update notification 
 			set watched = TRUE
@@ -39,6 +46,33 @@ func (r *NotificationRepository) GetPendingNotification(userID int) (arr []chann
 			from notification 
 			where user_id = $1
 			and watched = FALSE`
+
+	rows, err := r.conn.Query(context.Background(), sql, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var n channel.Notification
+
+		err = rows.Scan(&n.ID, &n.Type, &n.UserID, &n.Message, &n.Created, &n.Watched, &n.Status)
+		if err != nil {
+			return nil, err
+		}
+
+		arr = append(arr, n)
+	}
+	return arr, err
+}
+
+func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.Notification, err error) {
+	arr = []channel.Notification{}
+	sql := `select id, type, user_id, message, created, watched, status
+			from notification 
+			where user_id = $1
+			order by created desc
+			limit 10`
 
 	rows, err := r.conn.Query(context.Background(), sql, userID)
 	if err != nil {

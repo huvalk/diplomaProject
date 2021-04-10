@@ -54,7 +54,11 @@ func (n *NotificationUseCase) SendNotification(notification channel.Notification
 }
 
 func (n *NotificationUseCase) SendYouJoinTeamNotification(users []int, evtID int) (err error) {
-	message := "Вы теперь в команде"
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | Вы теперь в команде", eventName)
 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
@@ -67,7 +71,11 @@ func (n *NotificationUseCase) SendYouJoinTeamNotification(users []int, evtID int
 }
 
 func (n *NotificationUseCase) SendNewMemberNotification(users []int, evtID int) (err error) {
-	message := "В команде новый участник"
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | В команде новый участник", eventName)
 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
@@ -80,7 +88,11 @@ func (n *NotificationUseCase) SendNewMemberNotification(users []int, evtID int) 
 }
 
 func (n *NotificationUseCase) SendYouKickedNotification(users []int, evtID int) (err error) {
-	message := "Вас кикнули из команды"
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | Вас кикнули из команды", eventName)
 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
@@ -93,7 +105,11 @@ func (n *NotificationUseCase) SendYouKickedNotification(users []int, evtID int) 
 }
 
 func (n *NotificationUseCase) SendInviteNotification(users []int, evtID int) (err error) {
-	message := "У вас новое приглашение, проверьте свою команду"
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | У вас новое приглашение, проверьте свою команду", eventName)
 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
@@ -106,7 +122,11 @@ func (n *NotificationUseCase) SendInviteNotification(users []int, evtID int) (er
 }
 
 func (n *NotificationUseCase) SendDenyNotification(users []int, evtID int) error {
-	message := "Похоже Вам кто-то отказал, проверьте свою команду"
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | Похоже Вам кто-то отказал, проверьте свою команду", eventName)
 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
@@ -118,8 +138,45 @@ func (n *NotificationUseCase) SendDenyNotification(users []int, evtID int) error
 	return n.SendNotification(newNot, users)
 }
 
+func (n *NotificationUseCase) SendVoteNotification(users []int, evtID int) error {
+	newNot := channel.Notification{
+		Type:    fmt.Sprintf("%d",evtID),
+		Message: "",
+		Created: time.Now(),
+		Status:  "NewVoteNotification",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
+func (n *NotificationUseCase) SendTeamLeadNotification(users []int, evtID int) error {
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | В команде новый тимлид", eventName)
+
+	newNot := channel.Notification{
+		Type:    fmt.Sprintf("%d",evtID),
+		Message: message,
+		Created: time.Now(),
+		Status:  "NewTeamLeadNotification",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
 func (n *NotificationUseCase) GetPendingNotification(userID int) (models.NotificationArr, error) {
 	res, err := n.notifications.GetPendingNotification(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return models.NotificationFromChannelArr(res), nil
+}
+
+func (n *NotificationUseCase) GetLastNotification(userID int) (models.NotificationArr, error) {
+	res, err := n.notifications.GetLastNotification(userID)
 	if err != nil {
 		return nil, err
 	}

@@ -128,10 +128,10 @@ func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 		sql += "description = '" + evt.Description + "', "
 	}
 	if !evt.DateStart.IsZero() {
-		sql += "date_start = '" + evt.DateStart.String() + "', "
+		sql += fmt.Sprintf("date_start = to_timestamp(%d), ", evt.DateStart.Unix())
 	}
 	if !evt.DateEnd.IsZero() {
-		sql += "date_end = '" + evt.DateEnd.String() + "', "
+		sql += fmt.Sprintf("date_end = to_timestamp(%d), ", evt.DateEnd.Unix())
 	}
 	if evt.Place != "" {
 		sql += "place = '" + evt.Place + "', "

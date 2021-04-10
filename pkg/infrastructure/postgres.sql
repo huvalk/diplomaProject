@@ -218,6 +218,21 @@ as
     immutable
     returns null on null input;
 
+
+create or replace function find_users_lead_team(integer, integer) returns integer
+as
+'select id
+ from team t
+ where t.lead_id = $1
+   and t.event = $2
+ union
+ select null
+ order by id
+ limit 1;'
+    language sql
+    immutable
+    returns null on null input;
+
 create trigger added_event_user
     after insert
     on event_users

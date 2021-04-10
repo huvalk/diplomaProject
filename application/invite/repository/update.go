@@ -11,7 +11,8 @@ func (r *InviteRepository) setUserTeam(userID int, teamID sql.NullInt64, eventID
 			set team_id = $1
 			where user_id = $2
 			and event_id = $3
-			and approved = false`
+			and approved = false
+			and rejected = false`
 
 	_, err := r.conn.Exec(context.Background(), query, teamID, userID, eventID)
 
@@ -23,7 +24,8 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 			set guest_team_id = $1
 			where guest_user_id = $2
 			and event_id = $3
-			and approved = false`
+			and approved = false
+			and rejected = false`
 
 	_, err := r.conn.Exec(context.Background(), query, teamID, userID, eventID)
 
@@ -78,53 +80,6 @@ func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, e
 	return err == nil, err
 }
 
-func (r *InviteRepository) UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error {
-	nullTeamID := sql.NullInt64{
-		Int64: int64(teamID),
-		Valid: true,
-	}
-
-	err := r.setGuestUserTeam(userID1, nullTeamID, eventID)
-	if err != nil {
-		return err
-	}
-
-	err = r.setUserTeam(userID2, nullTeamID, eventID)
-	if err != nil {
-		return err
-	}
-
-	return r.AcceptInvite(userID1, userID2, eventID)
-}
-
-func (r *InviteRepository) UpdateUserLeftTeam(userID int, teamID int, eventID int) error {
-	nullTeamID := sql.NullInt64{
-		Int64: int64(teamID),
-		Valid: false,
-	}
-
-	err := r.setUserTeam(userID, nullTeamID, eventID)
-	if err != nil {
-		return err
-	}
-
-	return r.setGuestUserTeam(userID, nullTeamID, eventID)
-}
-
-func (r *InviteRepository) UpdateUserChangedTeam(userID int, teamID int, eventID int) error {
-	nullTeamID := sql.NullInt64{
-		Int64: int64(teamID),
-		Valid: true,
-	}
-
-	err := r.setUserTeam(userID, nullTeamID, eventID)
-	if err != nil {
-		return err
-	}
-
-	return r.setGuestUserTeam(userID, nullTeamID, eventID)
-}
-
 func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventID int) error {
 	query := `update invite
 				set team_id = $1
@@ -152,31 +107,22 @@ func (r *InviteRepository) DenyAndBan(inv *models.Invitation) error {
 	deny := `WITH owner_user_team(team_id) AS (
 				select find_users_team($1, $3)
 			), guest_user_team(team_id) AS (
-				select find_users_team($2, $3)
+				select find_users_lead_team($2, $3)
 			)
 			update invite
 			set rejected = true
 			from guest_user_team, owner_user_team
 			where
 			(
-				(
-					invite.team_id = owner_user_team.team_id
-					or user_id = $1
-				)
-				and (
-					guest_user_id = $2
-					or guest_team_id = guest_user_team.team_id
-				)
+				invite.team_id = owner_user_team.team_id
+				or user_id = $1
 			)
-			or (
+			and (
 				(
-					invite.team_id = guest_user_team.team_id
-					or user_id = $2
+					guest_user_id = $2
+					and guest_team_id is null
 				)
-				and (
-					guest_user_id = $1
-					or guest_team_id = owner_user_team.team_id
-				)
+				or guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $3
 			and rejected = false

@@ -6,8 +6,17 @@ import (
 )
 
 func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
-	query := `delete from invite
-			where user_id = $1
+	query := `WITH owner_user_team(team_id) AS (
+				select find_users_lead_team($1, $2)
+			) delete from invite
+			using owner_user_team
+			where (
+				(
+					user_id = $1
+					and team_id is null
+				)
+				or team_id = owner_user_team.team_id
+			)
 			and event_id = $2
 			and ( 
 				guest_user_id = $3
@@ -28,45 +37,31 @@ func (r *InviteRepository) Deny(inv *models.Invitation) error {
 	deny := `WITH owner_user_team(team_id) AS (
 				select find_users_team($1, $3)
 			), guest_user_team(team_id) AS (
-				select find_users_team($2, $3)
+				select find_users_lead_team($2, $3)
 			)
 			delete from invite
 			using guest_user_team, owner_user_team
 			where
 			(
-				(
-					invite.team_id = owner_user_team.team_id
-					or user_id = $1
-				)
-				and (
-					guest_user_id = $2
-					or guest_team_id = guest_user_team.team_id
-				)
+				invite.team_id = owner_user_team.team_id
+				or user_id = $1
 			)
-			or (
+			and (
 				(
-					invite.team_id = guest_user_team.team_id
-					or user_id = $2
+					guest_user_id = $2
+					and guest_team_id is null
 				)
-				and (
-					guest_user_id = $1
-					or guest_team_id = owner_user_team.team_id
-				)
+				or guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $3
-			and rejected = false
 			and approved = false`
+//			TODO убрать rejected для разбана 'and rejected = false'
 	_, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
 
 	return err
 }
 
 func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error {
-	//query := `update invite
-	//			set team_id = $1,
-	//			guest_team_id = $1,
-	//			approved = true
-
 	query := `delete from invite
 				where ((
 						team_id = $2
@@ -95,15 +90,6 @@ func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, te
 }
 
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
-	//query := `WITH owner_user_team(team_id) AS (
-	//				select find_users_team($1, $2)
-	//			), guest_user_team(team_id) AS (
-	//				select find_users_team($3, $2)
-	//			)
-	//			update invite
-	//			set approved = true
-	//			from guest_user_team, owner_user_team
-
 	query := `WITH owner_user_team(team_id) AS (
 					select find_users_team($1, $2)
 				), guest_user_team(team_id) AS (

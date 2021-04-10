@@ -195,12 +195,13 @@ where tu1.team_id=$1 AND tu1.user_id=$2`
 	return nil
 }
 
-func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (bool, error) {
-	return invRepo.IsInvited(&models.Invitation{
+func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (is bool, err error) {
+	is, _, err = invRepo.IsInvited(&models.Invitation{
 		OwnerID: uid1,
 		GuestID: uid2,
 		EventID: evtID,
 	})
+	return is, err
 }
 
 func (t TeamDatabase) UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error {
