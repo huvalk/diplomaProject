@@ -19,3 +19,5 @@ go_build_golang_server_
 
 *.pem
 app/app
+
+config/after_hack_dump.sql
