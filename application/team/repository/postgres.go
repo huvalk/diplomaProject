@@ -8,7 +8,9 @@ import (
 	"diplomaProject/application/team"
 	"errors"
 	"fmt"
+	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4/pgxpool"
+
 	"log"
 )
 
@@ -24,9 +26,19 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
-//Select * from team_users tu1
-// where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = 9)
-//and team_id=9 or (team_id=9 AND user_id=1)
+func (t TeamDatabase) TeamVotes(teamID int) (*models.TeamVotesArr, error) {
+	var tmVotes models.TeamVotesArr
+	sql := `SELECT user_id,votes from team_users where team_id = $1`
+
+	err := pgxscan.Select(context.Background(), t.conn, &tmVotes,
+		sql, teamID)
+
+	if err != nil {
+		return &models.TeamVotesArr{}, err
+	}
+
+	return &tmVotes, nil
+}
 
 func (t TeamDatabase) SelectLead(tm *models.Team) (int, error) {
 	userID := 0
@@ -108,6 +120,18 @@ func (t TeamDatabase) AddVote(vote *models.Vote) error {
 		return errors.New("already voted")
 	}
 	return nil
+}
+
+func (t TeamDatabase) GetVote(uId, tID int) (*models.Vote, error) {
+	vt := models.Vote{}
+	sql := `select * from votes where who_id = $1 AND team_id = $2`
+
+	queryResult := t.conn.QueryRow(context.Background(), sql, uId, tID)
+	err := queryResult.Scan(&vt.EventID, &vt.TeamID, &vt.WhoID, &vt.ForWhomID)
+	if err != nil {
+		return nil, err
+	}
+	return &vt, err
 }
 
 func (t TeamDatabase) CancelVote(vote *models.Vote) error {

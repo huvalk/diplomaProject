@@ -11,4 +11,6 @@ type UseCase interface {
 	Union(uid1, uid2, evtID int) (*models.Team, error)
 	GetTeamByUser(uid, evtID int) (*models.Team, error)
 	SendVote(vote *models.Vote) (*models.Team, error)
+	TeamVotes(teamID int) (*models.TeamVotesArr, error)
+	GetVote(uId, tID int) (*models.Vote, error)
 }

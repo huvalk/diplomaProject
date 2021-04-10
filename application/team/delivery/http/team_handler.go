@@ -22,12 +22,56 @@ func NewTeamHandler(e *echo.Echo, usecase team.UseCase) error {
 
 	e.GET("/team/:id", handler.GetTeam)
 	e.POST("/team/:id", handler.UpdateTeam)
-	e.POST("/team/:id/vote", handler.SendVote, middleware.UserID)
 	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
 	e.POST("/event/:evtid/team", handler.CreateTeam)
 	e.POST("/team/:id/add", handler.AddMember)
 	e.POST("/team/:id/leave", handler.Leave, middleware.UserID)
 	e.POST("/event/:evtid/team/join", handler.Union, middleware.UserID)
+
+	e.GET("/team/:id/votes", handler.GetTeamVotes)
+	e.GET("/team/:id/myvote", handler.GetUserVote, middleware.UserID)
+	e.POST("/team/:id/vote", handler.SendVote, middleware.UserID)
+	return nil
+}
+
+func (th *TeamHandler) GetUserVote(ctx echo.Context) error {
+	tid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	tmVotes, err := th.useCase.GetVote(userID, tid)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if _, err = easyjson.MarshalToWriter(tmVotes, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (th *TeamHandler) GetTeamVotes(ctx echo.Context) error {
+	tid, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	tmVotes, err := th.useCase.TeamVotes(tid)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if _, err = easyjson.MarshalToWriter(tmVotes, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return nil
 }
 

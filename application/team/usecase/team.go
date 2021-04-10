@@ -19,21 +19,41 @@ func NewTeam(t team.Repository, e event.Repository, n notification.UseCase) team
 	return &Team{teams: t, events: e, notif: n}
 }
 
+func (t *Team) GetVote(uId, tID int) (*models.Vote, error) {
+	return t.teams.GetVote(uId, tID)
+}
+
+func (t *Team) TeamVotes(teamID int) (*models.TeamVotesArr, error) {
+	return t.teams.TeamVotes(teamID)
+}
+
 func (t *Team) SendVote(vote *models.Vote) (*models.Team, error) {
 	var err error
 	tm, err := t.Get(vote.TeamID)
 	if err != nil {
 		return nil, err
 	}
+	vt, err := t.teams.GetVote(vote.WhoID, vote.TeamID)
+	if err == nil && vote.State == -1 {
+		err = t.teams.CancelVote(vote)
+		if err != nil {
+			return nil, err
+		}
+		err = t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
+	} else if err == nil && vote.State == 1 {
+		err = t.teams.CancelVote(vt)
+		if err != nil {
+			return nil, err
+		}
+		err = t.teams.ChangeUserVotesCount(vt.TeamID, vt.ForWhomID, -1)
+	}
 	if vote.State == 1 {
 		err = t.teams.AddVote(vote)
-	} else if vote.State == -1 {
-		err = t.teams.CancelVote(vote)
+		if err != nil {
+			return nil, err
+		}
+		err = t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
 	}
-	if err != nil {
-		return nil, err
-	}
-	err = t.teams.ChangeUserVotesCount(vote.TeamID, vote.ForWhomID, vote.State)
 	if err != nil {
 		return nil, err
 	}

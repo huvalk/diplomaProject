@@ -31,3 +31,11 @@ type TeamWinner struct {
 
 //easyjson:json
 type TeamWinnerArr []TeamWinner
+
+type TeamVotes struct {
+	UserId int `json:"userid"`
+	Votes  int `json:"votes"`
+}
+
+//easyjson:json
+type TeamVotesArr []TeamVotes
