@@ -197,13 +197,13 @@ func (eh *InviteHandler) IsInvited(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	invited, err := eh.invite.IsInvited(inv)
+	invited, banned, err := eh.invite.IsInvited(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
-	if _, err = easyjson.MarshalToWriter(models.IsInvited{IsInvited: invited}, ctx.Response().Writer); err != nil {
+	if _, err = easyjson.MarshalToWriter(models.IsInvited{IsInvited: invited, IsBanned: banned}, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

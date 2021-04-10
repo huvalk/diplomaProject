@@ -4,7 +4,7 @@ import "diplomaProject/application/models"
 
 type Repository interface {
 	Invite(invitation *models.Invitation) error
-	IsInvited(invitation *models.Invitation) (bool, error)
+	IsInvited(invitation *models.Invitation) (bool, bool, error)
 	UnInvite(invitation *models.Invitation) error
 	Deny(invitation *models.Invitation) error
 	DenyAndBan(inv *models.Invitation) error

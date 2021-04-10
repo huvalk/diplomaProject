@@ -177,9 +177,6 @@ func (n *NotificationUseCase) GetPendingNotification(userID int) (models.Notific
 
 func (n *NotificationUseCase) GetLastNotification(userID int) (models.NotificationArr, error) {
 	res, err := n.notifications.GetLastNotification(userID)
-	for i, j := 0, len(res)-1; i < j; i, j = i+1, j-1 {
-		res[i], res[j] = res[j], res[i]
-	}
 	if err != nil {
 		return nil, err
 	}

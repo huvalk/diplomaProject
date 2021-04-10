@@ -33,17 +33,13 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	}
 
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
-	// TODO ignore no rows error
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
 	}
 	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
-	//TODO ignore no rows error
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
 	}
-
-	// TODO Убрать в один запрос поиск членов команды
 
 	var inviterIDs []int
 	if invitation.Silent && notify {
@@ -143,7 +139,7 @@ func (i *InviteUseCase) DenyAndBan(invitation *models.Invitation) (invitersIDs [
 	return inviterIDs, nil
 }
 
-func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, error) {
+func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, bool, error) {
 	return i.invites.IsInvited(invitation)
 }
 
