@@ -14,7 +14,7 @@ func UserID(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		var userID int
 
-		if globalVars.ENV == "dev" || globalVars.ENV == "deploy" {
+		if globalVars.ENV == constants.DEV || globalVars.ENV == constants.PROD {
 			cookie, err := c.Cookie(constants.CookieName)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())

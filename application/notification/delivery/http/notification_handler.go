@@ -3,6 +3,8 @@ package http
 import (
 	"diplomaProject/application/middleware"
 	"diplomaProject/application/notification"
+	"diplomaProject/pkg/constants"
+	"diplomaProject/pkg/globalVars"
 	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -34,7 +36,11 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 	}
 
 	e.GET("/notification/:userID", handler.GetPendingNotification, middleware.UserID)
-	e.GET("/notification/channel/:userID", handler.ConnectToChannel)//, middleware.UserID)
+	if globalVars.ENV == constants.PROD {
+		e.GET("/notification/channel/:userID", handler.ConnectToChannel, middleware.UserID)
+	} else {
+		e.GET("/notification/channel/:userID", handler.ConnectToChannel)
+	}
 	return nil
 }
 
