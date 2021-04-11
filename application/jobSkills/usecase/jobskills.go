@@ -31,6 +31,9 @@ func (j JobSkills) AddSkill(uid int, params *models.AddSkillIDArr) error {
 	if err != nil {
 		return err
 	}
+	if params == nil || len(*params) == 0 {
+		return nil
+	}
 
 	return j.jobSkills.AddManySkills(uid, params)
 }

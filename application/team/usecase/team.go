@@ -57,9 +57,23 @@ func (t *Team) SendVote(vote *models.Vote) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
+	var teamIDs []int
+	for i := range tm.Members {
+		teamIDs = append(teamIDs, tm.Members[i].Id)
+	}
+	err = t.notif.SendVoteNotification(teamIDs, vote.EventID)
+	if err != nil {
+		return nil, err
+	}
 	leadID, err := t.teams.SelectLead(tm)
 	if err != nil {
 		return nil, err
+	}
+	if leadID != tm.LeadID {
+		err = t.notif.SendTeamLeadNotification(teamIDs, vote.EventID)
+		if err != nil {
+			return nil, err
+		}
 	}
 	tm.LeadID = leadID
 	return tm, nil
