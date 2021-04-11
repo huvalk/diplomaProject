@@ -239,6 +239,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	newTeam := &models.Team{
 		Name:    t1.Name + "_" + t2.Name,
 		EventID: evtID,
+		LeadID:  t1.LeadID,
 	}
 	newTeam, err := t.Create(newTeam, evtID)
 	if err != nil {
