@@ -167,6 +167,17 @@ func (n *NotificationUseCase) SendTeamLeadNotification(users []int, evtID int) e
 	return n.SendNotification(newNot, users)
 }
 
+func (n *NotificationUseCase) SendUnInviteNotification(users []int, evtID int) error {
+	newNot := channel.Notification{
+		Type:    fmt.Sprintf("%d",evtID),
+		Message: "",
+		Created: time.Now(),
+		Status:  "NewUnInviteNotification",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
 func (n *NotificationUseCase) GetPendingNotification(userID int) (models.NotificationArr, error) {
 	res, err := n.notifications.GetPendingNotification(userID)
 	if err != nil {

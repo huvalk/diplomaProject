@@ -43,6 +43,10 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	//	return nil, nil, err
 	//}
 
+	return i.getTeamsUsersByInvitation(invitation)
+}
+
+func (i *InviteUseCase) getTeamsUsersByInvitation(invitation *models.Invitation) (inviters []int, invitees []int, err error) {
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
@@ -92,8 +96,17 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	return inviterIDs, inviteeIDs, nil
 }
 
-func (i *InviteUseCase) UnInvite(invitation *models.Invitation) error {
-	return i.invites.UnInvite(invitation)
+func (i *InviteUseCase) UnInvite(invitation *models.Invitation) (inviters []int, err error)  {
+	err = i.invites.UnInvite(invitation)
+	if err != nil {
+		return nil, err
+	}
+
+	u1, u2, err := i.getTeamsUsersByInvitation(invitation)
+	if err != nil {
+		return nil, err
+	}
+	return append(u1, u2...), err
 }
 
 func (i *InviteUseCase) Deny(invitation *models.Invitation) (invitersIDs []int, err error) {

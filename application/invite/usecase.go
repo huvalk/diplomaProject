@@ -4,7 +4,7 @@ import "diplomaProject/application/models"
 
 type UseCase interface {
 	Invite(invitation *models.Invitation) ([]int, []int, error)
-	UnInvite(invitation *models.Invitation) error
+	UnInvite(invitation *models.Invitation) ([]int, error)
 	Deny(invitation *models.Invitation) ([]int, error)
 	DenyAndBan(inv *models.Invitation) ([]int, error)
 	IsInvited(invitation *models.Invitation) (bool, bool, error)

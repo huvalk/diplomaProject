@@ -20,6 +20,8 @@ type UseCase interface {
 	SendVoteNotification(userID []int, evtID int) error
 	// Оповещение о новом тимлиде
 	SendTeamLeadNotification(userID []int, evtID int) error
+	// Оповещение об удалении инвайта
+	SendUnInviteNotification(userID []int, evtID int) error
 	GetLastNotification(userID int) (models.NotificationArr, error)
 	GetPendingNotification(userID int) (models.NotificationArr, error)
 	EnterChannel(userID int, socket *websocket.Conn) error

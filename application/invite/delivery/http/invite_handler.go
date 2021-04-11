@@ -99,10 +99,14 @@ func (eh *InviteHandler) UnInvite(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err = eh.invite.UnInvite(inv)
+	u, err := eh.invite.UnInvite(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	err = eh.notification.SendUnInviteNotification(u, inv.EventID)
+	if err != nil {
+		log.Println("Notification wasnt sent: ", err)
 	}
 
 	return nil
