@@ -205,21 +205,12 @@ func (th *TeamHandler) Leave(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	add := &models.AddToTeam{}
-	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println("userID not found")
 		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
-	if userID != add.UID {
-		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
-	}
-
-	tm, err := th.useCase.RemoveMember(tID, add.UID)
+	tm, err := th.useCase.RemoveMember(tID, userID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
