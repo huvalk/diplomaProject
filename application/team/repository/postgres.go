@@ -239,9 +239,9 @@ where t1.event = $1 and tu1.user_id=$2`
 }
 
 func (t TeamDatabase) Create(newTeam *models.Team, evtID int) (*models.Team, error) {
-	sql := `INSERT INTO team VALUES(default,$1,$2)  RETURNING id`
+	sql := `INSERT INTO team VALUES(default,$1,$2,$3)  RETURNING id`
 	id := 0
-	err := t.conn.QueryRow(context.Background(), sql, newTeam.Name, evtID).Scan(&id)
+	err := t.conn.QueryRow(context.Background(), sql, newTeam.Name, evtID, newTeam.LeadID).Scan(&id)
 	if err != nil {
 		return nil, err
 	}
