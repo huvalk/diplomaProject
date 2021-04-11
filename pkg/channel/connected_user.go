@@ -3,10 +3,11 @@ package channel
 import (
 	"github.com/gorilla/websocket"
 	"github.com/kataras/golog"
+	"sync"
 	"time"
 )
 
-func (c *ConnectedUser) Read() {
+func (c *ConnectedUser) Read(wg *sync.WaitGroup) {
 	var err error
 
 	err = c.Socket.SetReadDeadline(time.Now().Add(pongWait))
@@ -21,6 +22,7 @@ func (c *ConnectedUser) Read() {
 		return err
 	})
 
+	wg.Done()
 	for {
 		if _, msg, err := c.Socket.ReadMessage(); err == nil {
 			golog.Infof("Read by %d: %s", c.ID, msg)
@@ -41,10 +43,11 @@ func (c *ConnectedUser) Read() {
 	}
 }
 
-func (c *ConnectedUser) Write() {
+func (c *ConnectedUser) Write(wg *sync.WaitGroup) {
 	var err error
 	ticker := time.NewTicker(pingPeriod)
 
+	wg.Done()
 LOOP:
 	for {
 		select {

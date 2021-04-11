@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/kataras/golog"
 	"sync"
 	"time"
 )
@@ -225,25 +226,29 @@ func (n *NotificationUseCase) EnterChannel(userID int, socket *websocket.Conn) e
 		n.channel.Leave(user)
 	}()
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	var waitToClose sync.WaitGroup
+	waitToClose.Add(2)
+	var waitToSendPending sync.WaitGroup
+	waitToSendPending.Add(2)
 	go func() {
-		user.Write()
-		wg.Done()
+		user.Write(&waitToSendPending)
+		waitToClose.Done()
 	}()
 	go func() {
-		user.Read()
-		wg.Done()
+		user.Read(&waitToSendPending)
+		waitToClose.Done()
 	}()
 
-	// Это плохо, потом переделаю
-	time.Sleep(2 * time.Second)
+	// TODO Проверить
+	//time.Sleep(2 * time.Second)
+	waitToSendPending.Wait()
 	err := n.SendPendingNotification(userID)
+	golog.Error("Send success")
 
 	if err != nil {
 		return err
 	}
 
-	wg.Wait()
+	waitToClose.Wait()
 	return nil
 }
