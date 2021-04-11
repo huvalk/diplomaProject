@@ -5,16 +5,16 @@ create extension pg_trgm;
 create table users
 (
     id          bigserial primary key,
-    firstname   varchar(80)        not null default '',
-    lastName    varchar(80)        not null default '',
-    email       varchar(80)        not null,
-    bio         varchar(500)        not null default '',
-    description varchar(500)        not null default '',
-    workPlace   varchar(500)        not null default '',
-    vk_url      varchar(80)        not null default '',
-    tg_url      varchar(80)        not null default '',
-    gh_url      varchar(80)        not null default '',
-    avatar      varchar(380)       not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_avatar.svg'
+    firstname   varchar(80)  not null default '',
+    lastName    varchar(80)  not null default '',
+    email       varchar(80)  not null,
+    bio         varchar(500) not null default '',
+    description varchar(500) not null default '',
+    workPlace   varchar(500) not null default '',
+    vk_url      varchar(80)  not null default '',
+    tg_url      varchar(80)  not null default '',
+    gh_url      varchar(80)  not null default '',
+    avatar      varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_avatar.svg'
 );
 
 create index idx_gin on users using gin (vk_url gin_trgm_ops);
@@ -29,13 +29,13 @@ create table event
     founder            integer REFERENCES users (id),
     date_start         timestamp,
     date_end           timestamp,
-    state              varchar(80) not null default '',
+    state              varchar(80)  not null default '',
     place              varchar(380) not null default '',
-    participants_count integer     not null default 0,
+    participants_count integer      not null default 0,
     logo               varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_logo.svg',
     background         varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_background.svg',
     site               varchar(380) not null default '',
-    team_size          integer     not null default 1
+    team_size          integer      not null default 1
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 
@@ -63,9 +63,9 @@ create table feed_users
 create table team
 (
     id      bigserial primary key,
-    name    varchar(380) not null default '',
+    name    varchar(380) not null         default '',
     event   integer REFERENCES event (id),
-    lead_id integer REFERENCES users (id)
+    lead_id integer REFERENCES users (id) default 0
 );
 
 create table prize
@@ -73,9 +73,9 @@ create table prize
     id            bigserial primary key,
     event_id      integer REFERENCES event (id),
     name          varchar(380) not null default '',
-    place         int         not null,
-    amount        int         not null,
-    total         int         not null,
+    place         int          not null,
+    amount        int          not null,
+    total         int          not null,
     winnerTeamIDs integer[]
 );
 
@@ -107,7 +107,7 @@ create table notification
 (
     id      bigserial primary key,
     type    varchar(100) not null default '',
-    status  varchar(100)  not null default 'unknown',
+    status  varchar(100) not null default 'unknown',
     user_id integer REFERENCES users (id),
     message varchar(320) not null default '',
     created timestamp    not null default current_timestamp,
@@ -129,16 +129,18 @@ create table invite
     CONSTRAINT has_reflection CHECK (((rejected IS NOT NULL) AND (approved IS NOT NULL)))
 );
 
-alter table invite add constraint no_myself_team_invites check (
-        (team_id != guest_team_id) is null
-        or team_id != guest_team_id
-        or approved = true
-    );
+alter table invite
+    add constraint no_myself_team_invites check (
+            (team_id != guest_team_id) is null
+            or team_id != guest_team_id
+            or approved = true
+        );
 
-alter table invite add constraint no_myself_invites check (
-        (user_id != invite.guest_user_id) is null
-        or user_id != invite.guest_user_id
-    );
+alter table invite
+    add constraint no_myself_invites check (
+            (user_id != invite.guest_user_id) is null
+            or user_id != invite.guest_user_id
+        );
 
 create unique index t_to_u_unique_invite on invite (team_id, guest_user_id, event_id);
 --     where (
@@ -207,9 +209,9 @@ create or replace function find_users_team(integer, integer) returns integer
 as
 'select team_id
  from team_users
- inner join team t on team_users.team_id = t.id
+          inner join team t on team_users.team_id = t.id
  where team_users.user_id = $1
- and t.event = $2
+   and t.event = $2
  union
  select null
  order by team_id
