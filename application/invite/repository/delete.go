@@ -26,7 +26,8 @@ func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
 					from team_users
 					where user_id = $3
 				)
-			)`
+			)
+			and rejected = false`
 
 	_, err := r.conn.Exec(context.Background(), query, inv.OwnerID, inv.EventID, inv.GuestID)
 
