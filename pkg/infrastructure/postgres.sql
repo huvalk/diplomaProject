@@ -218,7 +218,7 @@ as
     immutable
     returns null on null input;
 
-create or replace function find_users_lead_team(integer, integer) returns integer
+create or replace function find_users_lead_team(integer, integer) returns bigint
 as
 'select id
  from team t
