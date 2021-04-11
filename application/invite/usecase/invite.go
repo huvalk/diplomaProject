@@ -22,7 +22,13 @@ func NewInviteUseCase(inv invite.Repository, u user.Repository, t team.Repositor
 }
 
 func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, invitees []int, err error) {
-	is, banned, err := i.IsInvited(invitation)
+	mutualInvite := models.Invitation{
+		OwnerID: invitation.GuestID,
+		GuestID: invitation.OwnerID,
+		EventID: invitation.EventID,
+		Silent:  false,
+	}
+	is, banned, err := i.IsInvited(&mutualInvite)
 	if err != nil || is || banned {
 		return nil, nil, err
 	}
