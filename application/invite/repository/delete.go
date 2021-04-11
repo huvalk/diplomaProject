@@ -124,12 +124,9 @@ func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) e
 				and rejected = false
 				and approved = false`
 
-	res, err := r.conn.Exec(context.Background(), query, userID1, eventID, userID2)
+	_, err := r.conn.Exec(context.Background(), query, userID1, eventID, userID2)
 	if err != nil {
 		return err
-	}
-	if res.RowsAffected() == 0 {
-		return errors.New("no invite to accept")
 	}
 
 	return nil
