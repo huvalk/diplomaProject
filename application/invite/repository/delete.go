@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"diplomaProject/application/models"
+	"errors"
 )
 
 func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
@@ -13,9 +14,9 @@ func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
 			where (
 				(
 					user_id = $1
-					and team_id is null
+					and invite.team_id is null
 				)
-				or team_id = owner_user_team.team_id
+				or invite.team_id = owner_user_team.team_id
 			)
 			and event_id = $2
 			and ( 
@@ -56,9 +57,15 @@ func (r *InviteRepository) Deny(inv *models.Invitation) error {
 			and event_id = $3
 			and approved = false`
 //			TODO убрать rejected для разбана 'and rejected = false'
-	_, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
+	res, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return errors.New("no invite to ban")
+	}
 
-	return err
+	return nil
 }
 
 func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error {
@@ -116,7 +123,13 @@ func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) e
 				and rejected = false
 				and approved = false`
 
-	_, err := r.conn.Exec(context.Background(), query, userID1, eventID, userID2)
+	res, err := r.conn.Exec(context.Background(), query, userID1, eventID, userID2)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return errors.New("no invite to ban")
+	}
 
-	return err
+	return nil
 }

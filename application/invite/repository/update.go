@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"diplomaProject/application/models"
+	"errors"
 )
 
 func (r *InviteRepository) setUserTeam(userID int, teamID sql.NullInt64, eventID int) error {
@@ -127,7 +128,13 @@ func (r *InviteRepository) DenyAndBan(inv *models.Invitation) error {
 			and event_id = $3
 			and rejected = false
 			and approved = false`
-	_, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
+	res, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return errors.New("no invite to ban")
+	}
 
-	return err
+	return nil
 }
