@@ -97,6 +97,7 @@ func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, te
 	return r.changeTeamToTeam(teamFromID2, teamToID, eventID)
 }
 
+// TODO Возможно лишнее, ничего не удаляет
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
 	query := `WITH owner_user_team(team_id) AS (
 					select find_users_team($1, $2)

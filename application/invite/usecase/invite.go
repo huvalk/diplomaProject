@@ -43,17 +43,37 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	//	return nil, nil, err
 	//}
 
-	return i.getTeamsUsersByInvitation(invitation)
+	t1, t2, err := i.getTeamsUsersByInvitation(invitation)
+	if err != nil {
+		return nil, nil, err
+	}
+	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, nil, err
+	}
+
+	if err != nil && err.Error() == "no rows in result set" {
+		return append(t1, t2...), []int{invitation.GuestID}, nil
+	} else if guestTeam != nil {
+		return append(t1, t2...), []int{guestTeam.LeadID}, nil
+	}  else {
+		return nil, nil, nil
+	}
+
 }
 
 func (i *InviteUseCase) getTeamsUsersByInvitation(invitation *models.Invitation) (inviters []int, invitees []int, err error) {
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
+	} else {
+		err = nil
 	}
 	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
+	} else {
+		err = nil
 	}
 
 	var inviterIDs []int
@@ -67,9 +87,9 @@ func (i *InviteUseCase) getTeamsUsersByInvitation(invitation *models.Invitation)
 		}
 
 		for _, member := range members {
-			//if member.ID == invitation.OwnerID {
-			//	continue
-			//}
+			if member.Id == invitation.OwnerID {
+				continue
+			}
 			inviterIDs = append(inviterIDs, member.Id)
 		}
 	} else {
