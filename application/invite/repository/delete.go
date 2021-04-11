@@ -63,7 +63,7 @@ func (r *InviteRepository) Deny(inv *models.Invitation) error {
 		return err
 	}
 	if res.RowsAffected() == 0 {
-		return errors.New("no invite to ban")
+		return errors.New("no invite to delete")
 	}
 
 	return nil
@@ -129,7 +129,7 @@ func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) e
 		return err
 	}
 	if res.RowsAffected() == 0 {
-		return errors.New("no invite to ban")
+		return errors.New("no invite to accept")
 	}
 
 	return nil
