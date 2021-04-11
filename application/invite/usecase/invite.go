@@ -22,15 +22,20 @@ func NewInviteUseCase(inv invite.Repository, u user.Repository, t team.Repositor
 }
 
 func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, invitees []int, err error) {
+	is, banned, err := i.IsInvited(invitation)
+	if err != nil || is || banned {
+		return nil, nil, err
+	}
 	err = i.invites.Invite(invitation)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	notify, err := i.invites.MakeMutual(invitation)
-	if err != nil {
-		return nil, nil, err
-	}
+	// TODO для анонимных инвайтов
+	//notify, err := i.invites.MakeMutual(invitation)
+	//if err != nil {
+	//	return nil, nil, err
+	//}
 
 	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
 	if err != nil && err.Error() != "no rows in result set" {
@@ -42,38 +47,40 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	}
 
 	var inviterIDs []int
-	if invitation.Silent && notify {
-		if ownerTeam != nil {
-			members, err := i.teams.GetTeamMembers(ownerTeam.Id)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			for _, member := range members {
-				//if member.ID == invitation.OwnerID {
-				//	continue
-				//}
-				inviterIDs = append(inviterIDs, member.Id)
-			}
-		} else {
-			inviterIDs = append(inviterIDs, invitation.OwnerID)
+	// TODO для анонимных инвайтов
+	//if invitation.Silent && notify {
+	//}
+	if ownerTeam != nil {
+		members, err := i.teams.GetTeamMembers(ownerTeam.Id)
+		if err != nil {
+			return nil, nil, err
 		}
+
+		for _, member := range members {
+			//if member.ID == invitation.OwnerID {
+			//	continue
+			//}
+			inviterIDs = append(inviterIDs, member.Id)
+		}
+	} else {
+		inviterIDs = append(inviterIDs, invitation.OwnerID)
 	}
 
 	var inviteeIDs []int
-	if !invitation.Silent || notify {
-		if guestTeam != nil {
-			members, err := i.teams.GetTeamMembers(guestTeam.Id)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			for _, member := range members {
-				inviteeIDs = append(inviteeIDs, member.Id)
-			}
-		} else {
-			inviteeIDs = append(inviteeIDs, invitation.GuestID)
+	// TODO для анонимных инвайтов
+	//if !invitation.Silent || notify {
+	//}
+	if guestTeam != nil {
+		members, err := i.teams.GetTeamMembers(guestTeam.Id)
+		if err != nil {
+			return nil, nil, err
 		}
+
+		for _, member := range members {
+			inviteeIDs = append(inviteeIDs, member.Id)
+		}
+	} else {
+		inviteeIDs = append(inviteeIDs, invitation.GuestID)
 	}
 
 	return inviterIDs, inviteeIDs, nil

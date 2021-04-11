@@ -95,8 +95,7 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 			and event_id = $2
 			and invite.team_id is null
 			and rejected = false
-			and approved = false
-			and silent = false`
+			and approved = false`
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.GuestID, invitation.EventID)
 }
@@ -115,7 +114,6 @@ func (r *InviteRepository) GetInvitationFromTeam(invitation *models.Invitation) 
 			and event_id = $2
 			and rejected = false
 			and approved = false
-			and silent = false
 			and invite.team_id is not null`
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.GuestID, invitation.EventID)
