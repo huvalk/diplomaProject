@@ -33,6 +33,30 @@ func (r *InviteRepository) setGuestUserTeam(userID int, teamID sql.NullInt64, ev
 	return err
 }
 
+func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventID int) error {
+	query := `update invite
+				set team_id = $1
+				where team_id = $2
+				and event_id = $3
+				and rejected = false
+				and approved = false`
+
+	if _, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID); err != nil {
+		return err
+	}
+
+	query = `update invite
+				set guest_team_id = $1
+				where guest_team_id = $2
+				and event_id = $3
+				and rejected = false
+				and approved = false`
+
+	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID)
+
+	return err
+}
+
 func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, err error) {
 	isMutual, err := r.IsMutual(invitation)
 	if err != nil {
@@ -79,28 +103,6 @@ func (r *InviteRepository) MakeMutual(invitation *models.Invitation) (is bool, e
 
 	_, err = r.conn.Exec(context.Background(), updateSilent, invitation.OwnerID, invitation.GuestID, invitation.EventID)
 	return err == nil, err
-}
-
-func (r *InviteRepository) changeTeamToTeam(teamFromID int, teamToID int, eventID int) error {
-	query := `update invite
-				set team_id = $1
-				where team_id = $2
-				and event_id = $3
-				and approved = false`
-
-	if _, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID); err != nil {
-		return err
-	}
-
-	query = `update invite
-				set guest_team_id = $1
-				where guest_team_id = $2
-				and event_id = $3
-				and approved = false`
-
-	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID, eventID)
-
-	return err
 }
 
 // Устанавливая отказ

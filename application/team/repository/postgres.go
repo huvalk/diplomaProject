@@ -204,8 +204,12 @@ func (t TeamDatabase) CheckInviteStatus(uid1, uid2, evtID int) (is bool, err err
 	return is, err
 }
 
-func (t TeamDatabase) UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error {
-	return invRepo.UpdateUserJoinedTeam(uid1, uid2, tid, evtID)
+func (t TeamDatabase) UpdateUserJoinedTeam(uid1, tid, evtID int) error {
+	return invRepo.UpdateUserJoinedTeam(uid1, tid, evtID)
+}
+
+func (t TeamDatabase) AcceptInvite(uid1, uid2, evtID int) error {
+	return invRepo.AcceptInvite(uid1, uid2, evtID)
 }
 
 func (t TeamDatabase) UpdateTeamMerged(tid1, tid2, tid3, evtID int) error {

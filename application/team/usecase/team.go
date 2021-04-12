@@ -169,11 +169,17 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 				fmt.Println(err2)
 				return nil, err2
 			}
-			err := t.teams.UpdateUserJoinedTeam(uid1, uid2, newTeam.Id, evtID)
+			// Подтверждение инвайта
+			err := t.teams.AcceptInvite(uid1, uid2, evtID)
 			if err != nil {
 				return nil, err
 			}
-			err = t.teams.UpdateUserJoinedTeam(uid2, uid1, newTeam.Id, evtID)
+			// Обновление инвайтов обоих пользователей
+			err = t.teams.UpdateUserJoinedTeam(uid1, newTeam.Id, evtID)
+			if err != nil {
+				return nil, err
+			}
+			err = t.teams.UpdateUserJoinedTeam(uid2, newTeam.Id, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -188,7 +194,13 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			if err != nil {
 				return nil, err
 			}
-			err = t.teams.UpdateUserJoinedTeam(uid2, uid1, t2.Id, evtID)
+			// Подтверждение инвайта
+			err = t.teams.AcceptInvite(uid1, uid2, evtID)
+			if err != nil {
+				return nil, err
+			}
+			// Обновление инвайтов 1 пользовотеля
+			err = t.teams.UpdateUserJoinedTeam(uid1, t2.Id, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -215,7 +227,13 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = t.teams.UpdateUserJoinedTeam(uid1, uid2, t1.Id, evtID)
+		// Подтверждение инвайта
+		err = t.teams.AcceptInvite(uid1, uid2, evtID)
+		if err != nil {
+			return nil, err
+		}
+		// Обновление инвайтов пользователей
+		err = t.teams.UpdateUserJoinedTeam(uid2, t1.Id, evtID)
 		if err != nil {
 			return nil, err
 		}
@@ -271,6 +289,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		return nil, err
 	}
 	//teamjointeam
+	// Подтверждение инвайта и обновление
 	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
 	if err != nil {
 		return nil, err

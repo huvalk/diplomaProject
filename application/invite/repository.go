@@ -9,7 +9,7 @@ type Repository interface {
 	Deny(invitation *models.Invitation) error
 	DenyAndBan(inv *models.Invitation) error
 	AcceptInvite(userID1 int, userID2 int, eventID int) error
-	UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error
+	UpdateUserJoinedTeam(userID1 int, teamID int, eventID int) error
 	UpdateUserLeftTeam(userID int, teamID int, eventID int) error
 	UpdateUserChangedTeam(userID int, teamID int, eventID int) error
 	UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error

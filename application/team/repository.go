@@ -12,7 +12,8 @@ type Repository interface {
 	GetTeamMembers(tid int) ([]models.User, error)
 	GetTeamByUser(uid, evtID int) (*models.Team, error)
 	CheckInviteStatus(uid1, uid2, evtID int) (bool, error)
-	UpdateUserJoinedTeam(uid1, uid2, tid, evtID int) error
+	UpdateUserJoinedTeam(uid1, tid, evtID int) error
+	AcceptInvite(uid1, uid2, evtID int) error
 	UpdateTeamMerged(tid1, tid2, tid3, evtID int) error
 	AddVote(vote *models.Vote) error
 	CancelVote(vote *models.Vote) error
