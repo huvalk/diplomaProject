@@ -9,5 +9,5 @@ type Repository interface {
 	GetEventName(eventID int) (name string, err error)
 	MarkAsWatched(notificationID int) error
 	GetLastNotification(userID int) ([]channel.Notification, error)
-	GetPendingNotification(userID int) ([]channel.Notification, error)
+	GetMoreLastNotification(userID int) ([]channel.Notification, error)
 }
