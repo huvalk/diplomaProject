@@ -108,7 +108,7 @@ create table notification
     id      bigserial primary key,
     type    varchar(100) not null default '',
     status  varchar(100) not null default 'unknown',
-    user_id integer REFERENCES users (id),
+    user_id integer REFERENCES users (id) on delete cascade on update cascade,
     message varchar(320) not null default '',
     created timestamp    not null default current_timestamp,
     watched bool         not null default false
@@ -116,11 +116,11 @@ create table notification
 
 create table invite
 (
-    user_id       integer REFERENCES users (id),
-    team_id       integer REFERENCES team (id),
-    event_id      integer REFERENCES event (id),
-    guest_user_id integer REFERENCES users (id),
-    guest_team_id integer REFERENCES team (id),
+    user_id       integer REFERENCES users (id) on delete cascade on update cascade,
+    team_id       integer REFERENCES team (id) on delete cascade on update cascade,
+    event_id      integer REFERENCES event (id) on delete cascade on update cascade,
+    guest_user_id integer REFERENCES users (id) on delete cascade on update cascade,
+    guest_team_id integer REFERENCES team (id) on delete cascade on update cascade,
     rejected      boolean   DEFAULT false,
     approved      boolean   DEFAULT false,
     silent        boolean   DEFAULT false,

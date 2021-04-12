@@ -115,4 +115,4 @@ jobs:
             cd /home/akiraq_yandex_ru/teamup
             REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.PROD_TAG }} ENV=dev \
             docker-compose up -d
-            docker image prune -a --filter "until=24h" -f
+            docker image prune -a --force --filter "until=24h"

@@ -5,7 +5,7 @@ import (
 )
 
 type Notification struct {
-	UserID  int    `json:"userID"`
+	UserID  int    `json:"-"`
 	Type    string `json:"type"`
 	Message string `json:"message"`
 	Status  string `json:"status"`

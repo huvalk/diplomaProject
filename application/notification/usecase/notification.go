@@ -45,6 +45,9 @@ func (n *NotificationUseCase) SendNotification(notification channel.Notification
 			return err
 		}
 
+		if notification.Message == "" {
+			continue
+		}
 		err = n.notifications.SaveNotification(&notification)
 		if err != nil {
 			return err

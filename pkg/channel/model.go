@@ -7,15 +7,15 @@ import (
 
 //easyjson:json
 type Notification struct {
-	ID      int       `json:"ID,omitempty"`
+	ID      int       `json:"-"`
 	// id евента
 	Type    string    `json:"type,omitempty"`
 	// Изменение произошло в
 	Status  string    `json:"status,omitempty"`
 	Message string    `json:"message"`
-	UserID  int       `json:"userID,omitempty"`
-	Created time.Time `json:"created,omitempty"`
-	Watched bool      `json:"watched,omitempty"`
+	UserID  int       `json:"-"`
+	Created time.Time `json:"-"`
+	Watched bool      `json:"-"`
 }
 
 //easyjson:skip
