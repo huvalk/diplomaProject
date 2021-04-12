@@ -65,7 +65,7 @@ create table team
     id      bigserial primary key,
     name    varchar(380) not null         default '',
     event   integer REFERENCES event (id),
-    lead_id integer REFERENCES users (id) default 0
+    lead_id integer REFERENCES users (id)
 );
 
 create table prize
