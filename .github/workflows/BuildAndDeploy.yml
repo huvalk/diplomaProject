@@ -85,7 +85,7 @@ jobs:
             cd ${{ env.PROJ_PATH }}
             REPO=${{ secrets.DOCKERHUB_USERNAME }} TAG=${{ env.DEV_TAG }} ENV=dev \
             docker-compose up -d
-            docker image prune -a --filter "until=24h"
+            docker image prune -a --force  --filter "until=24h"
 
   deployOnProd:
     runs-on: ubuntu-latest
