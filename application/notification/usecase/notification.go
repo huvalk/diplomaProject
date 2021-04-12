@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/kataras/golog"
 	"sync"
 	"time"
 )
@@ -268,7 +267,6 @@ func (n *NotificationUseCase) EnterChannel(userID int, socket *websocket.Conn) e
 	//time.Sleep(2 * time.Second)
 	waitToSendPending.Wait()
 	err := n.SendPendingNotification(userID)
-	golog.Error("Send success")
 
 	if err != nil {
 		return err

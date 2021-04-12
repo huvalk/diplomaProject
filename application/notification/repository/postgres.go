@@ -44,7 +44,7 @@ func (r *NotificationRepository) MarkAsWatched(notificationID int) error {
 // TODO убрать
 func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sql := `select distinct(type, user_id, status), message, created
+	sql := `select distinct(type, user_id, status), message, created, id
 			from notification 
 			where user_id = $1
 			and watched = FALSE
@@ -60,7 +60,7 @@ func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []chan
 	for rows.Next() {
 		var n channel.Notification
 
-		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created)
+		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created, &n.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -72,7 +72,7 @@ func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []chan
 
 func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sqlRow := `select distinct(type, user_id, status), message, created
+	sqlRow := `select distinct(type, user_id, status), message, created, id
 			from notification 
 			where user_id = $1
 			order by created desc
@@ -88,7 +88,7 @@ func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.
 	for rows.Next() {
 		var n channel.Notification
 
-		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created)
+		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created, &n.ID)
 		if err != nil {
 			return nil, err
 		}
