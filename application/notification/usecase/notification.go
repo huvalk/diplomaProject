@@ -193,7 +193,7 @@ func (n *NotificationUseCase) SendSilentUpdateNotification(users []int, evtID in
 }
 
 func (n *NotificationUseCase) GetPendingNotification(userID int) (models.NotificationArr, error) {
-	res, err := n.notifications.GetPendingNotification(userID)
+	res, err := n.notifications.GetMoreLastNotification(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func (n *NotificationUseCase) GetLastNotification(userID int) (models.Notificati
 }
 
 func (n *NotificationUseCase) SendPendingNotification(userID int) error {
-	res, err := n.notifications.GetPendingNotification(userID)
+	res, err := n.notifications.GetMoreLastNotification(userID)
 	if err != nil {
 		return err
 	}

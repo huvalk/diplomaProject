@@ -5,7 +5,6 @@ import (
 	"diplomaProject/application/notification"
 	"diplomaProject/pkg/constants"
 	"diplomaProject/pkg/globalVars"
-	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
@@ -35,8 +34,8 @@ func NewNotificationHandler(e *echo.Echo, usecase notification.UseCase) error {
 		},
 	}
 
-	//e.GET("/notification/:userID", handler.GetPendingNotification, middleware.UserID)
-	e.GET("/notification/:userID/last", handler.GetLastNotification, middleware.UserID)
+	//e.GET("/notification/:userID", handler.GetMoreLastNotification, middleware.UserID)
+	e.GET("/notification/:userID/last", handler.GetLastNotification)
 	if globalVars.ENV == constants.PROD {
 		e.GET("/notification/channel/:userID", handler.ConnectToChannel, middleware.UserID)
 	} else {
@@ -51,14 +50,14 @@ func (eh *NotificationHandler) GetLastNotification(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	currentUser, found := ctx.Get("userID").(int)
-	if !found {
-		log.Println("userID not found")
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
-	}
-	if currentUser != userID {
-		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
-	}
+	//currentUser, found := ctx.Get("userID").(int)
+	//if !found {
+	//	log.Println("userID not found")
+	//	return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
+	//}
+	//if currentUser != userID {
+	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
+	//}
 
 	notifications, err := eh.useCase.GetLastNotification(userID)
 	if err != nil {
