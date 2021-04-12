@@ -26,7 +26,7 @@ func (r *InviteRepository) IsMutual(invitation *models.Invitation) (is bool, err
 	return is, err
 }
 
-func (r *InviteRepository) UpdateUserJoinedTeam(userID1 int, userID2 int, teamID int, eventID int) error {
+func (r *InviteRepository) UpdateUserJoinedTeam(userID1 int, teamID int, eventID int) error {
 	nullTeamID := sql.NullInt64{
 		Int64: int64(teamID),
 		Valid: true,
@@ -37,12 +37,7 @@ func (r *InviteRepository) UpdateUserJoinedTeam(userID1 int, userID2 int, teamID
 		return err
 	}
 
-	err = r.setUserTeam(userID2, nullTeamID, eventID)
-	if err != nil {
-		return err
-	}
-
-	return r.AcceptInvite(userID1, userID2, eventID)
+	return r.setUserTeam(userID1, nullTeamID, eventID)
 }
 
 func (r *InviteRepository) UpdateUserLeftTeam(userID int, teamID int, eventID int) error {

@@ -165,15 +165,16 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	//}
 
 	// есть ли инвайт на добавление
-	//hasInvite, err := t.teams.CheckInviteStatus(uid1, uid2, evtID)
-	//if !hasInvite || err != nil {
-	//	return nil, errors.New("user has not got invite")
-	//}
+	hasInvite, err := t.teams.CheckInviteStatus(uid1, uid2, evtID)
+	if !hasInvite || err != nil {
+		return nil, errors.New("user has not got invite")
+	}
 	t1, err1 := t.GetTeamByUser(uid1, evtID)
 	t2, err2 := t.GetTeamByUser(uid2, evtID)
-	if err1 != nil {
-		if err2 != nil {
+	if err1 != nil && err1.Error() == "no rows in result set" {
+		if err2 != nil && err2.Error() == "no rows in result set" {
 			//both users have no team
+			//Что-то напутално с условиями
 			newTeam := &models.Team{
 				Name:   fmt.Sprintf("team-%v-%v", uid1, uid2),
 				LeadID: uid1,
@@ -183,11 +184,17 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 				fmt.Println(err2)
 				return nil, err2
 			}
-			err := t.teams.UpdateUserJoinedTeam(uid1, uid2, newTeam.Id, evtID)
+			// Подтверждение инвайта
+			err := t.teams.AcceptInvite(uid1, uid2, evtID)
 			if err != nil {
 				return nil, err
 			}
-			err = t.teams.UpdateUserJoinedTeam(uid2, uid1, newTeam.Id, evtID)
+			// Обновление инвайтов обоих пользователей
+			err = t.teams.UpdateUserJoinedTeam(uid1, newTeam.Id, evtID)
+			if err != nil {
+				return nil, err
+			}
+			err = t.teams.UpdateUserJoinedTeam(uid2, newTeam.Id, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -196,13 +203,19 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 				return nil, err
 			}
 			return t.AddMember(newTeam.Id, uid1, uid2)
-		} else {
+		} else if err2 == nil {
 			// 2 user has team
 			tm, err := t.AddMember(t2.Id, uid1)
 			if err != nil {
 				return nil, err
 			}
-			err = t.teams.UpdateUserJoinedTeam(uid2, uid1, t2.Id, evtID)
+			// Подтверждение инвайта
+			err = t.teams.AcceptInvite(uid1, uid2, evtID)
+			if err != nil {
+				return nil, err
+			}
+			// Обновление инвайтов 1 пользовотеля
+			err = t.teams.UpdateUserJoinedTeam(uid1, t2.Id, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -220,14 +233,22 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			}
 			return tm, nil
 		}
+	} else if err1 != nil {
+		return nil, err1
 	}
-	if err2 != nil {
+	if err2 != nil && err2.Error() == "no rows in result set" {
 		//1 user has team
 		tm, err := t.AddMember(t1.Id, uid2)
 		if err != nil {
 			return nil, err
 		}
-		err = t.teams.UpdateUserJoinedTeam(uid1, uid2, t1.Id, evtID)
+		// Подтверждение инвайта
+		err = t.teams.AcceptInvite(uid1, uid2, evtID)
+		if err != nil {
+			return nil, err
+		}
+		// Обновление инвайтов пользователей
+		err = t.teams.UpdateUserJoinedTeam(uid2, t1.Id, evtID)
 		if err != nil {
 			return nil, err
 		}
@@ -244,8 +265,13 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			return nil, err
 		}
 		return tm, nil
+	} else if err2 != nil {
+		return nil, err2
 	}
 
+	if t1 == nil || t2 == nil {
+		return nil, errors.New("no sql error but no team neither")
+	}
 	if t1.Id == t2.Id {
 		//same team
 		return t.Get(t1.Id)
@@ -258,7 +284,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		EventID: evtID,
 		LeadID:  t1.LeadID,
 	}
-	newTeam, err := t.Create(newTeam, evtID)
+	newTeam, err = t.Create(newTeam, evtID)
 	if err != nil {
 		return nil, err
 	}
@@ -278,6 +304,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		return nil, err
 	}
 	//teamjointeam
+	// Подтверждение инвайта и обновление
 	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
 	if err != nil {
 		return nil, err
