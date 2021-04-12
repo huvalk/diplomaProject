@@ -5,6 +5,8 @@ import (
 	"diplomaProject/application/models"
 	"diplomaProject/application/notification"
 	"diplomaProject/application/team"
+	"errors"
+
 	//"errors"
 	"fmt"
 )
@@ -82,16 +84,16 @@ func (t *Team) SendVote(vote *models.Vote) (*models.Team, error) {
 func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
 	err := t.teams.SetName(newTeam)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("can't update team name: " + err.Error())
 	}
-	return t.Get(newTeam.Id)
 
+	return t.Get(newTeam.Id)
 }
 
 func (t *Team) Get(id int) (*models.Team, error) {
 	tm, err := t.teams.Get(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("can't get team : " + err.Error())
 	}
 	members, err := t.teams.GetTeamMembers(id)
 	if err != nil {
@@ -121,6 +123,21 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 
 func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 	err := t.teams.RemoveMember(tid, uid)
+	if err != nil {
+		return nil, err
+	}
+	return t.Get(tid)
+}
+
+func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
+	tm, err := t.teams.Get(tid)
+	if err != nil {
+		return nil, err
+	}
+	if leadID != tm.LeadID {
+		return nil, errors.New("only lead can kick")
+	}
+	err = t.teams.RemoveMember(tid, userID)
 	if err != nil {
 		return nil, err
 	}

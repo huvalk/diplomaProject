@@ -26,6 +26,7 @@ func NewTeamHandler(e *echo.Echo, usecase team.UseCase) error {
 	e.POST("/event/:evtid/team", handler.CreateTeam)
 	e.POST("/team/:id/add", handler.AddMember)
 	e.POST("/team/:id/leave", handler.Leave, middleware.UserID)
+	e.POST("/team/:id/kick", handler.Kick, middleware.UserID)
 	e.POST("/event/:evtid/team/join", handler.Union, middleware.UserID)
 
 	e.GET("/team/:id/votes", handler.GetTeamVotes)
@@ -193,6 +194,33 @@ func (th *TeamHandler) UpdateTeam(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(newTeam, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (th *TeamHandler) Kick(ctx echo.Context) error {
+	tID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	add := &models.AddToTeam{}
+	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+	tm, err := th.useCase.KickMember(tID, userID, add.UID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(tm, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

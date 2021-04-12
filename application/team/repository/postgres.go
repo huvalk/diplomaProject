@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	sql2 "database/sql"
 	"diplomaProject/application/invite"
 	"diplomaProject/application/invite/repository"
 	"diplomaProject/application/models"
@@ -155,7 +156,7 @@ for_whom_id = $4`
 func (t TeamDatabase) SetName(newTeam *models.Team) error {
 	sql := `update team set name = $1 
 where id = $2 and event = $3 `
-
+	fmt.Println(newTeam.EventID)
 	queryResult, err := t.conn.Exec(context.Background(), sql, newTeam.Name, newTeam.Id, newTeam.EventID)
 	if err != nil {
 		return err
@@ -215,12 +216,14 @@ func (t TeamDatabase) UpdateTeamMerged(tid1, tid2, tid3, evtID int) error {
 func (t TeamDatabase) Get(id int) (*models.Team, error) {
 	tm := models.Team{}
 	sql := `select * from team where id = $1`
+	leadID := sql2.NullInt64{}
 
 	queryResult := t.conn.QueryRow(context.Background(), sql, id)
-	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &tm.LeadID)
+	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &leadID)
 	if err != nil {
 		return nil, err
 	}
+	tm.LeadID = int(leadID.Int64)
 	return &tm, err
 }
 
@@ -229,12 +232,14 @@ func (t TeamDatabase) GetTeamByUser(uid, evtID int) (*models.Team, error) {
 	sql := `select t1.* from team t1 
 join team_users tu1 on t1.id=tu1.team_id 
 where t1.event = $1 and tu1.user_id=$2`
+	leadID := sql2.NullInt64{}
 
 	queryResult := t.conn.QueryRow(context.Background(), sql, evtID, uid)
-	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &tm.LeadID)
+	err := queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &leadID)
 	if err != nil {
 		return nil, err
 	}
+	tm.LeadID = int(leadID.Int64)
 	return &tm, nil
 }
 

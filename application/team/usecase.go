@@ -8,6 +8,7 @@ type UseCase interface {
 	SetName(newTeam *models.Team) (*models.Team, error)
 	AddMember(tid int, uid ...int) (*models.Team, error)
 	RemoveMember(tid, uid int) (*models.Team, error)
+	KickMember(tid, leadID, userID int) (*models.Team, error)
 	Union(uid1, uid2, evtID int) (*models.Team, error)
 	GetTeamByUser(uid, evtID int) (*models.Team, error)
 	SendVote(vote *models.Vote) (*models.Team, error)
