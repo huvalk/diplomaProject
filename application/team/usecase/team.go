@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"diplomaProject/application/event"
+	"diplomaProject/application/invite"
 	"diplomaProject/application/models"
 	"diplomaProject/application/notification"
 	"diplomaProject/application/team"
@@ -12,13 +13,15 @@ import (
 )
 
 type Team struct {
-	teams  team.Repository
-	events event.Repository
-	notif  notification.UseCase
+	teams   team.Repository
+	events  event.Repository
+	notif   notification.UseCase
+	invites invite.Repository
 }
 
-func NewTeam(t team.Repository, e event.Repository, n notification.UseCase) team.UseCase {
-	return &Team{teams: t, events: e, notif: n}
+func NewTeam(t team.Repository, e event.Repository,
+	n notification.UseCase, i invite.Repository) team.UseCase {
+	return &Team{teams: t, events: e, notif: n, invites: i}
 }
 
 func (t *Team) GetVote(uId, tID int) (*models.Vote, error) {
@@ -122,7 +125,15 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 }
 
 func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
-	err := t.teams.RemoveMember(tid, uid)
+	tm, err := t.teams.Get(tid)
+	if err != nil {
+		return nil, err
+	}
+	err = t.teams.RemoveMember(tid, uid)
+	if err != nil {
+		return nil, err
+	}
+	err = t.invites.UpdateUserLeftTeam(uid, tid, tm.EventID)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +149,10 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 		return nil, errors.New("only lead can kick")
 	}
 	err = t.teams.RemoveMember(tid, userID)
+	if err != nil {
+		return nil, err
+	}
+	err = t.invites.UpdateUserLeftTeam(userID, tid, tm.EventID)
 	if err != nil {
 		return nil, err
 	}

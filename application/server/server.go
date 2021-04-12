@@ -74,9 +74,12 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
+	//invite repository
+	invites := repositoryInvite.NewInviteRepository(db)
+
 	//team handler
 	teams := repository3.NewTeamDatabase(db)
-	team := usecase3.NewTeam(teams, events, notificationUsecase)
+	team := usecase3.NewTeam(teams, events, notificationUsecase, invites)
 	err = http3.NewTeamHandler(e, team)
 	if err != nil {
 		log.Println(err)
@@ -103,7 +106,6 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	}
 
 	//invite handler
-	invites := repositoryInvite.NewInviteRepository(db)
 	invite := usecaseInvite.NewInviteUseCase(invites, users, teams)
 	err = httpInvite.NewInviteHandler(e, invite, notificationUsecase)
 	if err != nil {
