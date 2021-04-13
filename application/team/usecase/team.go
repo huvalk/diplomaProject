@@ -184,8 +184,8 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	if !hasInvite || err != nil {
 		return nil, errors.New("user has not got invite")
 	}
-	t1, err1 := t.GetTeamByUser(uid1, evtID)
-	t2, err2 := t.GetTeamByUser(uid2, evtID)
+	t1, err1 := t.GetTeamByUser(uid1, evtID) // Команда приглашающего
+	t2, err2 := t.GetTeamByUser(uid2, evtID) // Команда приглашаемого текущего юзера
 	if err1 != nil && err1.Error() == "no rows in result set" {
 		if err2 != nil && err2.Error() == "no rows in result set" {
 			//both users have no team
@@ -220,6 +220,9 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			return t.AddMember(newTeam.Id, uid1, uid2)
 		} else if err2 == nil {
 			// 2 user has team
+			if t2.LeadID != uid2 {
+				return nil, errors.New("no permission for not teamlead")
+			}
 			tm, err := t.AddMember(t2.Id, uid1)
 			if err != nil {
 				return nil, err
@@ -291,6 +294,9 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		//same team
 		return t.Get(t1.Id)
 	}
+	if t2.LeadID != uid2 {
+		return nil, errors.New("no permission for not teamlead")
+	}
 
 	//merge teams
 	//TODO: move votes from one team to another
@@ -304,11 +310,20 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		return nil, err
 	}
 	var newTeamIDS []int
+	var silentNotifyUsers []int
 	for i := range t1.Members {
 		newTeamIDS = append(newTeamIDS, t1.Members[i].Id)
+		// Пустое оповещение не лиду
+		if t1.Members[i].Id != uid1 {
+			silentNotifyUsers = append(silentNotifyUsers, t1.Members[i].Id)
+		}
 	}
 	for i := range t2.Members {
 		newTeamIDS = append(newTeamIDS, t2.Members[i].Id)
+		// Пустое оповещение не лиду
+		if t2.Members[i].Id != uid2 {
+			silentNotifyUsers = append(silentNotifyUsers, t2.Members[i].Id)
+		}
 	}
 	err = t.teams.RemoveAllUsers(t1.Id)
 	if err != nil {
@@ -324,7 +339,11 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = t.notif.SendNewMemberNotification(newTeamIDS, evtID)
+	err = t.notif.SendNewMemberNotification([]int{t1.LeadID}, evtID)
+	if err != nil {
+		return nil, err
+	}
+	err = t.notif.SendSilentUpdateNotification(silentNotifyUsers, evtID)
 	if err != nil {
 		return nil, err
 	}

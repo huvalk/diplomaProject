@@ -29,7 +29,13 @@ func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
 			)
 			and rejected = false`
 
-	_, err := r.conn.Exec(context.Background(), query, inv.OwnerID, inv.EventID, inv.GuestID)
+	res, err := r.conn.Exec(context.Background(), query, inv.OwnerID, inv.EventID, inv.GuestID)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return errors.New("no invites to deny")
+	}
 
 	return err
 }
@@ -72,19 +78,19 @@ func (r *InviteRepository) Deny(inv *models.Invitation) error {
 func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, teamToID int, eventID int) error {
 	query := `delete from invite
 				where ((
-						team_id = $2
-						and guest_team_id = $3
-					)
-					or (
-						team_id = $3
+						team_id = $1
 						and guest_team_id = $2
 					)
+					or (
+						team_id = $2
+						and guest_team_id = $1
+					)
 				) 
-				and event_id = $4
+				and event_id = $3
 				and rejected = false
 				and approved = false`
 
-	_, err := r.conn.Exec(context.Background(), query, teamToID, teamFromID1, teamFromID2, eventID)
+	_, err := r.conn.Exec(context.Background(), query, teamFromID1, teamFromID2, eventID)
 
 	if err != nil {
 		return err

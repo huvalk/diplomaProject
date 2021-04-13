@@ -291,7 +291,7 @@ func (th *TeamHandler) Union(ctx echo.Context) error {
 		log.Println("userID not found")
 		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
-	if userID != add.UID1 && userID != add.UID2 {
+	if userID != add.UID2 { // Убрал userID != add.UID1 &&
 		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
 	}
 
