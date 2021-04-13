@@ -4,6 +4,7 @@ import (
 	"context"
 	"diplomaProject/application/notification"
 	"diplomaProject/pkg/channel"
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -40,12 +41,15 @@ func (r *NotificationRepository) MarkAsWatched(notificationID int) error {
 	return err
 }
 
-func (r *NotificationRepository) GetPendingNotification(userID int) (arr []channel.Notification, err error) {
+// TODO убрать
+func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sql := `select id, type, user_id, message, created, watched, status
+	sql := `select distinct(type, user_id, status), message, created, id
 			from notification 
 			where user_id = $1
-			and watched = FALSE`
+			and watched = FALSE
+			order by created desc
+			limit 20`
 
 	rows, err := r.conn.Query(context.Background(), sql, userID)
 	if err != nil {
@@ -56,7 +60,7 @@ func (r *NotificationRepository) GetPendingNotification(userID int) (arr []chann
 	for rows.Next() {
 		var n channel.Notification
 
-		err = rows.Scan(&n.ID, &n.Type, &n.UserID, &n.Message, &n.Created, &n.Watched, &n.Status)
+		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created, &n.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -68,13 +72,14 @@ func (r *NotificationRepository) GetPendingNotification(userID int) (arr []chann
 
 func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sql := `select id, type, user_id, message, created, watched, status
+	sqlRow := `select distinct(type, user_id, status), message, created, id
 			from notification 
 			where user_id = $1
 			order by created desc
 			limit 10`
 
-	rows, err := r.conn.Query(context.Background(), sql, userID)
+
+	rows, err := r.conn.Query(context.Background(), sqlRow, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +88,7 @@ func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.
 	for rows.Next() {
 		var n channel.Notification
 
-		err = rows.Scan(&n.ID, &n.Type, &n.UserID, &n.Message, &n.Created, &n.Watched, &n.Status)
+		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created, &n.ID)
 		if err != nil {
 			return nil, err
 		}

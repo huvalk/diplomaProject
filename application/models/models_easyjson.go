@@ -1362,8 +1362,6 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels16(in *jlexer.Lexer, o
 			continue
 		}
 		switch key {
-		case "userID":
-			out.UserID = int(in.Int())
 		case "type":
 			out.Type = string(in.String())
 		case "message":
@@ -1385,13 +1383,13 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels16(out *jwriter.Writer
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"userID\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.UserID))
-	}
-	{
 		const prefix string = ",\"type\":"
-		out.RawString(prefix)
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Type))
 	}
 	{
@@ -1590,6 +1588,8 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels19(in *jlexer.Lexer, o
 		switch key {
 		case "isInvited":
 			out.IsInvited = bool(in.Bool())
+		case "isBanned":
+			out.IsBanned = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -1608,6 +1608,11 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels19(out *jwriter.Writer
 		const prefix string = ",\"isInvited\":"
 		out.RawString(prefix[1:])
 		out.Bool(bool(in.IsInvited))
+	}
+	{
+		const prefix string = ",\"isBanned\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsBanned))
 	}
 	out.RawByte('}')
 }

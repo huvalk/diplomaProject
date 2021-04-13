@@ -42,41 +42,23 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	//if err != nil {
 	//	return nil, nil, err
 	//}
-
-	t1, t2, err := i.getTeamsUsersByInvitation(invitation)
-	if err != nil {
-		return nil, nil, err
-	}
-	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
-	if err != nil && err.Error() != "no rows in result set" {
-		return nil, nil, err
-	}
-
-	if err != nil && err.Error() == "no rows in result set" {
-		return append(t1, t2...), []int{invitation.GuestID}, nil
-	} else if guestTeam != nil {
-		return append(t1, t2...), []int{guestTeam.LeadID}, nil
-	}  else {
-		return nil, nil, nil
-	}
-
+	return i.getSilentTeamLoudLead(invitation.OwnerID, invitation.GuestID, invitation.EventID)
 }
 
-func (i *InviteUseCase) getTeamsUsersByInvitation(invitation *models.Invitation) (inviters []int, invitees []int, err error) {
-	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
+func (i *InviteUseCase) getSilentTeamLoudLead(initiator, victim, event int) (silent []int, loud []int, err error) {
+	ownerTeam, err := i.teams.GetTeamByUser(initiator, event)
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
 	} else {
 		err = nil
 	}
-	guestTeam, err := i.teams.GetTeamByUser(invitation.GuestID, invitation.EventID)
+	guestTeam, err := i.teams.GetTeamByUser(victim, event)
 	if err != nil && err.Error() != "no rows in result set" {
 		return nil, nil, err
 	} else {
 		err = nil
 	}
 
-	var inviterIDs []int
 	// TODO для анонимных инвайтов
 	//if invitation.Silent && notify {
 	//}
@@ -87,16 +69,12 @@ func (i *InviteUseCase) getTeamsUsersByInvitation(invitation *models.Invitation)
 		}
 
 		for _, member := range members {
-			if member.Id == invitation.OwnerID {
-				continue
-			}
-			inviterIDs = append(inviterIDs, member.Id)
+			silent = append(silent, member.Id)
 		}
 	} else {
-		inviterIDs = append(inviterIDs, invitation.OwnerID)
+		silent = append(silent, initiator)
 	}
 
-	var inviteeIDs []int
 	// TODO для анонимных инвайтов
 	//if !invitation.Silent || notify {
 	//}
@@ -107,13 +85,65 @@ func (i *InviteUseCase) getTeamsUsersByInvitation(invitation *models.Invitation)
 		}
 
 		for _, member := range members {
-			inviteeIDs = append(inviteeIDs, member.Id)
+			if member.Id == guestTeam.LeadID {
+				loud = append(loud, member.Id)
+			}
+			silent = append(silent, member.Id)
 		}
 	} else {
-		inviteeIDs = append(inviteeIDs, invitation.GuestID)
+		loud = append(loud, victim)
 	}
 
-	return inviterIDs, inviteeIDs, nil
+	return silent, loud, nil
+}
+
+func (i *InviteUseCase) getAllUsers(initiator, victim, event int) (silent []int, err error) {
+	ownerTeam, err := i.teams.GetTeamByUser(initiator, event)
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, err
+	} else {
+		err = nil
+	}
+	guestTeam, err := i.teams.GetTeamByUser(victim, event)
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, err
+	} else {
+		err = nil
+	}
+
+	// TODO для анонимных инвайтов
+	//if invitation.Silent && notify {
+	//}
+	if ownerTeam != nil {
+		members, err := i.teams.GetTeamMembers(ownerTeam.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, member := range members {
+			silent = append(silent, member.Id)
+		}
+	} else {
+		silent = append(silent, initiator)
+	}
+
+	// TODO для анонимных инвайтов
+	//if !invitation.Silent || notify {
+	//}
+	if guestTeam != nil {
+		members, err := i.teams.GetTeamMembers(guestTeam.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, member := range members {
+			silent = append(silent, member.Id)
+		}
+	} else {
+		silent = append(silent, victim)
+	}
+
+	return silent, nil
 }
 
 func (i *InviteUseCase) UnInvite(invitation *models.Invitation) (inviters []int, err error)  {
@@ -122,67 +152,29 @@ func (i *InviteUseCase) UnInvite(invitation *models.Invitation) (inviters []int,
 		return nil, err
 	}
 
-	u1, u2, err := i.getTeamsUsersByInvitation(invitation)
+	u1, err := i.getAllUsers(invitation.OwnerID, invitation.GuestID, invitation.EventID)
 	if err != nil {
 		return nil, err
 	}
-	return append(u1, u2...), err
+	return u1, err
 }
 
-func (i *InviteUseCase) Deny(invitation *models.Invitation) (invitersIDs []int, err error) {
+func (i *InviteUseCase) Deny(invitation *models.Invitation) (silent []int, loud []int, err error) {
 	err = i.invites.Deny(invitation)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
-	if err != nil && err.Error() != "no rows in result set" {
-		return nil, err
-	}
-
-	var inviterIDs []int
-	if ownerTeam != nil {
-		members, err := i.teams.GetTeamMembers(ownerTeam.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, member := range members {
-			inviterIDs = append(inviterIDs, member.Id)
-		}
-	} else {
-		inviterIDs = append(inviterIDs, invitation.OwnerID)
-	}
-
-	return inviterIDs, nil
+	return i.getSilentTeamLoudLead(invitation.GuestID, invitation.OwnerID, invitation.EventID)
 }
 
-func (i *InviteUseCase) DenyAndBan(invitation *models.Invitation) (invitersIDs []int, err error) {
+func (i *InviteUseCase) DenyAndBan(invitation *models.Invitation) (silent []int, loud []int, err error) {
 	err = i.invites.DenyAndBan(invitation)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	ownerTeam, err := i.teams.GetTeamByUser(invitation.OwnerID, invitation.EventID)
-	if err != nil && err.Error() != "no rows in result set" {
-		return nil, err
-	}
-
-	var inviterIDs []int
-	if ownerTeam != nil {
-		members, err := i.teams.GetTeamMembers(ownerTeam.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, member := range members {
-			inviterIDs = append(inviterIDs, member.Id)
-		}
-	} else {
-		inviterIDs = append(inviterIDs, invitation.OwnerID)
-	}
-
-	return inviterIDs, nil
+	return i.getSilentTeamLoudLead(invitation.GuestID, invitation.OwnerID, invitation.EventID)
 }
 
 func (i *InviteUseCase) IsInvited(invitation *models.Invitation) (bool, bool, error) {

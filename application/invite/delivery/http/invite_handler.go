@@ -133,12 +133,16 @@ func (eh *InviteHandler) Deny(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	inviters, err := eh.invite.Deny(inv)
+	silent, loud, err := eh.invite.Deny(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	err = eh.notification.SendDenyNotification(inviters, inv.EventID)
+	err = eh.notification.SendSilentUpdateNotification(silent, inv.EventID)
+	if err != nil {
+		log.Println("Notification wasnt sent: ", err)
+	}
+	err = eh.notification.SendDenyNotification(loud, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}
@@ -167,12 +171,16 @@ func (eh *InviteHandler) DenyAndBan(ctx echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	inviters, err := eh.invite.DenyAndBan(inv)
+	silent, loud, err := eh.invite.DenyAndBan(inv)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	err = eh.notification.SendDenyNotification(inviters, inv.EventID)
+	err = eh.notification.SendSilentUpdateNotification(silent, inv.EventID)
+	if err != nil {
+		log.Println("Notification wasnt sent: ", err)
+	}
+	err = eh.notification.SendDenyNotification(loud, inv.EventID)
 	if err != nil {
 		log.Println("Notification wasnt sent: ", err)
 	}

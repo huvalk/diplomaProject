@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/kataras/golog"
 	"sync"
 	"time"
 )
@@ -45,6 +44,9 @@ func (n *NotificationUseCase) SendNotification(notification channel.Notification
 			return err
 		}
 
+		if notification.Message == "" {
+			continue
+		}
 		err = n.notifications.SaveNotification(&notification)
 		if err != nil {
 			return err
@@ -190,7 +192,7 @@ func (n *NotificationUseCase) SendSilentUpdateNotification(users []int, evtID in
 }
 
 func (n *NotificationUseCase) GetPendingNotification(userID int) (models.NotificationArr, error) {
-	res, err := n.notifications.GetPendingNotification(userID)
+	res, err := n.notifications.GetMoreLastNotification(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +210,7 @@ func (n *NotificationUseCase) GetLastNotification(userID int) (models.Notificati
 }
 
 func (n *NotificationUseCase) SendPendingNotification(userID int) error {
-	res, err := n.notifications.GetPendingNotification(userID)
+	res, err := n.notifications.GetMoreLastNotification(userID)
 	if err != nil {
 		return err
 	}
@@ -265,7 +267,6 @@ func (n *NotificationUseCase) EnterChannel(userID int, socket *websocket.Conn) e
 	//time.Sleep(2 * time.Second)
 	waitToSendPending.Wait()
 	err := n.SendPendingNotification(userID)
-	golog.Error("Send success")
 
 	if err != nil {
 		return err

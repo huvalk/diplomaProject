@@ -78,14 +78,17 @@ func (eh *NotificationHandler) ConnectToChannel(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	//currentUser, found := ctx.Get("userID").(int)
-	//if !found {
-	//	log.Println("userID not found")
-	//	return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
-	//}
-	//if currentUser != userID {
-	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
-	//}
+
+	if globalVars.ENV == constants.PROD {
+		currentUser, found := ctx.Get("userID").(int)
+		if !found {
+			log.Println("userID not found")
+			return echo.NewHTTPError(http.StatusBadRequest, errors.New("userID not found"))
+		}
+		if currentUser != userID {
+			return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not current user"))
+		}
+	}
 
 	ws, err := eh.upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
 	if err != nil {
