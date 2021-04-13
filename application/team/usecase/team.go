@@ -244,7 +244,7 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			if err != nil {
 				return nil, err
 			}
-			err = t.notif.SendYouJoinTeamNotification([]int{uid1, uid2}, evtID)
+			err = t.notif.SendYouJoinTeamNotification([]int{uid1}, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -272,11 +272,17 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 			if err != nil {
 				return nil, err
 			}
-			var teamIDs []int
+			var silentNotifyUsers []int
 			for i := range t2.Members {
-				teamIDs = append(teamIDs, t2.Members[i].Id)
+				if t2.Members[i].Id != t2.LeadID {
+					silentNotifyUsers = append(silentNotifyUsers, t2.Members[i].Id)
+				}
 			}
-			err = t.notif.SendNewMemberNotification(teamIDs, evtID)
+			err = t.notif.SendNewMemberNotification([]int{t2.LeadID}, evtID)
+			if err != nil {
+				return nil, err
+			}
+			err = t.notif.SendSilentUpdateNotification(silentNotifyUsers, evtID)
 			if err != nil {
 				return nil, err
 			}
@@ -305,11 +311,17 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		if err != nil {
 			return nil, err
 		}
-		var teamIDs []int
+		var silentNotifyUsers []int
 		for i := range t1.Members {
-			teamIDs = append(teamIDs, t1.Members[i].Id)
+			if t1.Members[i].Id != t1.LeadID {
+				silentNotifyUsers = append(silentNotifyUsers, t1.Members[i].Id)
+			}
 		}
-		err = t.notif.SendNewMemberNotification(teamIDs, evtID)
+		err = t.notif.SendNewMemberNotification([]int{t1.LeadID}, evtID)
+		if err != nil {
+			return nil, err
+		}
+		err = t.notif.SendSilentUpdateNotification(silentNotifyUsers, evtID)
 		if err != nil {
 			return nil, err
 		}
@@ -351,10 +363,8 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	}
 	for i := range t2.Members {
 		newTeamIDS = append(newTeamIDS, t2.Members[i].Id)
-		// Пустое оповещение не лиду
-		if t2.Members[i].Id != uid2 {
-			silentNotifyUsers = append(silentNotifyUsers, t2.Members[i].Id)
-		}
+		// Пустое оповещение
+		silentNotifyUsers = append(silentNotifyUsers, t2.Members[i].Id)
 	}
 	err = t.teams.RemoveAllUsers(t1.Id)
 	if err != nil {
