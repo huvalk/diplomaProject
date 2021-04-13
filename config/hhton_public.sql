@@ -251,9 +251,9 @@ INSERT INTO public.invite (user_id, team_id, event_id, guest_user_id, guest_team
 INSERT INTO public.invite (user_id, team_id, event_id, guest_user_id, guest_team_id, rejected, approved, silent, date) VALUES (7, 4, 6, 2, 2, false, false, false, '2021-03-19 20:17:19.025708');
 INSERT INTO public.invite (user_id, team_id, event_id, guest_user_id, guest_team_id, rejected, approved, silent, date) VALUES (8, 4, 6, 1, 2, false, false, false, '2021-03-19 20:17:19.025708');
 INSERT INTO public.invite (user_id, team_id, event_id, guest_user_id, guest_team_id, rejected, approved, silent, date) VALUES (9, 4, 6, 1, 2, false, false, false, '2021-03-19 20:17:19.025708');
-INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (1, 101, 'Автомобиль', 0, 4, null);
-INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (2, 101, 'Телефон', 1, 1, null);
-INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (3, 101, 'Часы', 2, 1, null);
+INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (1, 6, 'Автомобиль', 0, 4, null);
+INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (2, 6, 'Телефон', 1, 1, null);
+INSERT INTO public.prize (id, event_id, name, place, amount, winnerteamids) VALUES (3, 6, 'Часы', 2, 1, null);
 SELECT setval('users_id_seq', 100);
 SELECT setval('event_id_seq', 100);
 SELECT setval('feed_id_seq', 100);

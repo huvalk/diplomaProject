@@ -26,7 +26,7 @@ create table event
     id                 bigserial primary key,
     name               varchar(380) not null default '',
     description        varchar(500) not null default '',
-    founder            integer REFERENCES users (id),
+    founder            integer REFERENCES users (id) on delete no action,
     date_start         timestamp,
     date_end           timestamp,
     state              varchar(80)  not null default '',
@@ -41,21 +41,21 @@ create table event
 
 create table event_users
 (
-    event_id integer REFERENCES event (id),
-    user_id  integer REFERENCES users (id),
+    event_id integer REFERENCES event (id) on delete cascade on update cascade,
+    user_id  integer REFERENCES users (id) on delete no action,
     CONSTRAINT uniq_pair UNIQUE (event_id, user_id)
 );
 
 create table feed
 (
     id    bigserial primary key,
-    event integer REFERENCES event (id)
+    event integer REFERENCES event (id) on delete cascade on update cascade
 );
 
 create table feed_users
 (
-    feed_id integer REFERENCES feed (id),
-    user_id integer REFERENCES users (id),
+    feed_id integer REFERENCES feed (id) on delete cascade on update cascade,
+    user_id integer REFERENCES users (id) on delete cascade,
     CONSTRAINT uniq_pair2 UNIQUE (feed_id, user_id)
 
 );
@@ -64,42 +64,42 @@ create table team
 (
     id      bigserial primary key,
     name    varchar(380) not null         default '',
-    event   integer REFERENCES event (id),
-    lead_id integer REFERENCES users (id)
+    event   integer REFERENCES event (id) on delete cascade on update cascade,
+    lead_id integer REFERENCES users (id) on delete set null on update cascade
 );
 
 create table prize
 (
     id            bigserial primary key,
-    event_id      integer REFERENCES event (id),
+    event_id      integer REFERENCES event (id) on delete cascade on update cascade,
     name          varchar(380) not null default '',
-    place         int          not null,
-    amount        int          not null,
-    total         int          not null,
+    place         int          not null default 1,
+    amount        int          not null default 1,
+    total         int          not null default 1,
     winnerTeamIDs integer[]
 );
 
 create table team_users
 (
-    team_id integer REFERENCES team (id),
-    user_id integer REFERENCES users (id),
+    team_id integer REFERENCES team (id) on delete cascade on update cascade,
+    user_id integer REFERENCES users (id) on delete cascade on update cascade,
     votes   integer default 0,
     CONSTRAINT uniq_pair4 UNIQUE (team_id, user_id)
 );
 
 create table prize_users
 (
-    prize_id integer REFERENCES prize (id),
-    user_id  integer REFERENCES users (id),
+    prize_id integer REFERENCES prize (id) on delete cascade on update cascade,
+    user_id  integer REFERENCES users (id) on delete cascade,
     CONSTRAINT uniq_pair3 UNIQUE (prize_id, user_id)
 );
 
 create table votes
 (
-    event_id    integer REFERENCES event (id),
-    team_id     integer REFERENCES team (id),
-    who_id      integer REFERENCES users (id),
-    for_whom_id integer REFERENCES users (id),
+    event_id    integer REFERENCES event (id) on delete cascade on update cascade,
+    team_id     integer REFERENCES team (id) on delete cascade on update cascade,
+    who_id      integer REFERENCES users (id) on delete cascade,
+    for_whom_id integer REFERENCES users (id) on delete cascade,
     CONSTRAINT uniq_pair6 UNIQUE (event_id, team_id, who_id, for_whom_id)
 );
 
@@ -108,7 +108,7 @@ create table notification
     id      bigserial primary key,
     type    varchar(100) not null default '',
     status  varchar(100) not null default 'unknown',
-    user_id integer REFERENCES users (id) on delete cascade on update cascade,
+    user_id integer REFERENCES users (id) on delete cascade,
     message varchar(320) not null default '',
     created timestamp    not null default current_timestamp,
     watched bool         not null default false
@@ -116,11 +116,11 @@ create table notification
 
 create table invite
 (
-    user_id       integer REFERENCES users (id) on delete cascade on update cascade,
-    team_id       integer REFERENCES team (id) on delete cascade on update cascade,
+    user_id       integer REFERENCES users (id) on delete cascade,
+    team_id       integer REFERENCES team (id) on delete set null on update cascade,
     event_id      integer REFERENCES event (id) on delete cascade on update cascade,
-    guest_user_id integer REFERENCES users (id) on delete cascade on update cascade,
-    guest_team_id integer REFERENCES team (id) on delete cascade on update cascade,
+    guest_user_id integer REFERENCES users (id) on delete cascade,
+    guest_team_id integer REFERENCES team (id) on delete set null on update cascade,
     rejected      boolean   DEFAULT false,
     approved      boolean   DEFAULT false,
     silent        boolean   DEFAULT false,
@@ -172,16 +172,16 @@ create table skills
 (
     id     bigserial primary key,
     name   varchar(80) not null default '',
-    job_id integer REFERENCES job (id)
+    job_id integer REFERENCES job (id) on delete cascade on update cascade
 
 );
 
 -- job_skills is overhead???
 create table job_skills_users
 (
-    job_id   integer REFERENCES job (id),
-    skill_id integer REFERENCES skills (id),
-    user_id  integer REFERENCES users (id)
+    job_id   integer REFERENCES job (id) on delete cascade on update cascade,
+    skill_id integer REFERENCES skills (id) on delete cascade on update cascade,
+    user_id  integer REFERENCES users (id) on delete cascade
 );
 
 create or replace function inc_event_participants() returns trigger as

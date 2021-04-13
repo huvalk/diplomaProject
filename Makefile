@@ -1,19 +1,6 @@
 define DROP_ALL_TABLES
-drop table event_users cascade;
-drop table feed_users cascade;
-drop table feed cascade;
-drop table team_users cascade;
-drop table prize_users cascade;
-drop table prize cascade;
-drop table notification cascade;
-drop table invite cascade;
-drop table team cascade;
-drop table event cascade;
-drop table job_skills_users cascade;
-drop table users cascade;
-drop table skills cascade;
-drop table job cascade;
-drop table votes cascade;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 endef
 
 build-app:

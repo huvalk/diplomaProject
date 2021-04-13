@@ -366,25 +366,18 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 		// Пустое оповещение
 		silentNotifyUsers = append(silentNotifyUsers, t2.Members[i].Id)
 	}
-	err = t.teams.RemoveAllUsers(t1.Id)
+	//teamjointeam
+	// Подтверждение инвайта и обновление
+	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
 	if err != nil {
 		return nil, err
 	}
-	err = t.teams.RemoveAllUsers(t2.Id)
-	if err != nil {
-		return nil, err
-	}
+	// Нельзя менять местами, исчезают инвайты
 	err = t.teams.RemoveTeam(t1.Id)
 	if err != nil {
 		return nil, err
 	}
 	err = t.teams.RemoveTeam(t2.Id)
-	if err != nil {
-		return nil, err
-	}
-	//teamjointeam
-	// Подтверждение инвайта и обновление
-	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
 	if err != nil {
 		return nil, err
 	}

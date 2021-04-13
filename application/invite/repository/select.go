@@ -49,6 +49,7 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 			)
 			and event_id = $2
 			and guest_team_id is null
+			and guest_user_id is not null
 			and approved = false`
 	if declined {
 		sqlQuery += "\n and rejected = true"
@@ -94,6 +95,7 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 			)
 			and event_id = $2
 			and invite.team_id is null
+			and user_id is not null
 			and rejected = false
 			and approved = false`
 
