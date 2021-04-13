@@ -66,7 +66,7 @@ func (n *NotificationUseCase) SendYouJoinTeamNotification(users []int, evtID int
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
 		Message: message,
-		Created: time.Time{},
+		Created: time.Now(),
 		Status:  "NewTeamNotification",
 		Watched: false,
 	}
@@ -83,7 +83,7 @@ func (n *NotificationUseCase) SendNewMemberNotification(users []int, evtID int) 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
 		Message: message,
-		Created: time.Time{},
+		Created: time.Now(),
 		Status:  "NewMembersNotification",
 		Watched: false,
 	}
