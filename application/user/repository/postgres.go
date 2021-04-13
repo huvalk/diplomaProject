@@ -68,38 +68,21 @@ func (ud *UserDatabase) SetImage(uid int, link string) error {
 
 func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 	//	update users set workplace = 'wp' , description = 'dr'  where id=4 returning id;
-	sql := `update users set  `
-	if usr.WorkPlace != "" {
-		sql += "workplace = '" + usr.WorkPlace + "', "
-	}
-	if usr.Description != "" {
-		sql += "description = '" + usr.Description + "', "
-	}
-	if usr.Bio != "" {
-		sql += "bio = '" + usr.Bio + "', "
-	}
-	if usr.Email != "" {
-		sql += "email = '" + usr.Email + "', "
-	}
-	if usr.FirstName != "" {
-		sql += "firstname = '" + usr.FirstName + "', "
-	}
-	if usr.LastName != "" {
-		sql += "lastname = '" + usr.LastName + "', "
-	}
-	if usr.Vk != "" {
-		sql += "vk_url = LOWER('" + usr.Vk + "'), "
-	}
-	if usr.Git != "" {
-		sql += "gh_url = LOWER('" + usr.Git + "'), "
-	}
-	if usr.Tg != "" {
-		sql += "tg_url = LOWER('" + usr.Tg + "'), "
-	}
-	sql = sql[:len(sql)-2] + ` where id=$1 returning id`
+	sql := `update users set
+			workplace = COALESCE(NULLIF($2, ''), workplace),
+			description = COALESCE(NULLIF($3, ''), description),
+			bio = COALESCE(NULLIF($4, ''), bio),
+			email = COALESCE(NULLIF($5, ''), email),
+			firstname = COALESCE(NULLIF($6, ''), firstname),
+			lastname = COALESCE(NULLIF($7, ''), lastname),
+			vk_url = COALESCE(NULLIF(LOWER($8), ''), vk_url),
+			gh_url = COALESCE(NULLIF(LOWER($9), ''), gh_url),
+			tg_url = COALESCE(NULLIF(LOWER($10), ''), tg_url)
+			where id=$1 returning id`
 
 	id := 0
-	err := ud.conn.QueryRow(context.Background(), sql, usr.Id).Scan(&id)
+	err := ud.conn.QueryRow(context.Background(), sql, usr.Id, usr.WorkPlace, usr.Description,
+		usr.Bio, usr.Email, usr.FirstName, usr.LastName, usr.Vk, usr.Git, usr.Tg).Scan(&id)
 	if err != nil {
 		return nil, err
 	}
