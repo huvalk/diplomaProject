@@ -27,6 +27,21 @@ func NewTeamDatabase(db *pgxpool.Pool) team.Repository {
 	return &TeamDatabase{conn: db}
 }
 
+func (t TeamDatabase) RemoveTeam(tid int) error {
+	sql := `Delete from team t1 
+where t1.id=$1`
+	queryResult, err := t.conn.Exec(context.Background(), sql, tid)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	if affected == 0 {
+		return errors.New("team not found")
+	}
+
+	return nil
+}
+
 func (t TeamDatabase) TeamVotes(teamID int) (*models.TeamVotesArr, error) {
 	var tmVotes models.TeamVotesArr
 	sql := `SELECT user_id,votes from team_users where team_id = $1`
