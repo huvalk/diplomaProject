@@ -27,6 +27,7 @@ func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 
 	e.GET("/redirect", handler.RedirectLogin)
 	e.GET("/auth", handler.Auth)
+	e.GET("/unauth", handler.UnAuth)
 	e.GET("/check", handler.Check, middleware.UserID)
 	return nil
 }
@@ -70,6 +71,18 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 		HttpOnly: true,
 	})
 	return ctx.Redirect(http.StatusTemporaryRedirect, globalVars.FRONTEND_URI+backTo)
+}
+
+func (eh *AuthHandler) UnAuth(ctx echo.Context) error {
+	ctx.SetCookie(&http.Cookie{
+		Name:    constants.CookieName,
+		Value:   "",
+		Expires: time.Now(),
+		//SameSite: http.SameSiteStrictMode,
+		Secure:   false,
+		HttpOnly: true,
+	})
+	return nil
 }
 
 func (eh *AuthHandler) Check(ctx echo.Context) error {
