@@ -374,6 +374,14 @@ func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = t.teams.RemoveTeam(t1.Id)
+	if err != nil {
+		return nil, err
+	}
+	err = t.teams.RemoveTeam(t2.Id)
+	if err != nil {
+		return nil, err
+	}
 	//teamjointeam
 	// Подтверждение инвайта и обновление
 	err = t.teams.UpdateTeamMerged(t1.Id, t2.Id, newTeam.Id, evtID)
