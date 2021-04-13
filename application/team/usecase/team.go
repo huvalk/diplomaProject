@@ -125,7 +125,11 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 }
 
 func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
-	tm, err := t.teams.Get(tid)
+	err := t.teams.RemoveMember(tid, uid)
+	if err != nil {
+		return nil, err
+	}
+	tm, err := t.Get(tid)
 	if err != nil {
 		return nil, err
 	}
@@ -138,14 +142,6 @@ func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 		return nil, err
 	}
 	err = t.invites.UpdateUserLeftTeam(uid, tid, tm.EventID)
-	if err != nil {
-		return nil, err
-	}
-	err = t.teams.RemoveMember(tid, uid)
-	if err != nil {
-		return nil, err
-	}
-	tm, err = t.Get(tid)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +172,11 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 	if leadID != tm.LeadID {
 		return nil, errors.New("only lead can kick")
 	}
-	err = t.invites.UpdateUserLeftTeam(userID, tid, tm.EventID)
+	err = t.teams.RemoveMember(tid, userID)
+	if err != nil {
+		return nil, err
+	}
+	tm, err = t.Get(tid)
 	if err != nil {
 		return nil, err
 	}
@@ -184,15 +184,11 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 	for i := range tm.Members {
 		teamIDs = append(teamIDs, tm.Members[i].Id)
 	}
+	err = t.invites.UpdateUserLeftTeam(userID, tid, tm.EventID)
+	if err != nil {
+		return nil, err
+	}
 	err = t.notif.SendSilentUpdateNotification(teamIDs, tm.EventID)
-	if err != nil {
-		return nil, err
-	}
-	err = t.teams.RemoveMember(tid, userID)
-	if err != nil {
-		return nil, err
-	}
-	tm, err = t.Get(tid)
 	if err != nil {
 		return nil, err
 	}
