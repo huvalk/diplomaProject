@@ -90,7 +90,20 @@ func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
 		return nil, errors.New("can't update team name: " + err.Error())
 	}
 
-	return t.Get(newTeam.Id)
+	team, err := t.Get(newTeam.Id)
+	if err != nil {
+		return nil, err
+	}
+	var silent []int
+	for i := range team.Members {
+		silent = append(silent, team.Members[i].Id)
+	}
+	err = t.notif.SendSilentUpdateNotification(silent, team.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	return team, nil
 }
 
 func (t *Team) Get(id int) (*models.Team, error) {

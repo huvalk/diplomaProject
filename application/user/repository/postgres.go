@@ -88,13 +88,13 @@ func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 		sql += "lastname = '" + usr.LastName + "', "
 	}
 	if usr.Vk != "" {
-		sql += "vk_url = '" + usr.Vk + "', "
+		sql += "vk_url = LOWER('" + usr.Vk + "'), "
 	}
 	if usr.Git != "" {
-		sql += "gh_url = '" + usr.Git + "', "
+		sql += "gh_url = LOWER('" + usr.Git + "'), "
 	}
 	if usr.Tg != "" {
-		sql += "tg_url = '" + usr.Tg + "', "
+		sql += "tg_url = LOWER('" + usr.Tg + "'), "
 	}
 	sql = sql[:len(sql)-2] + ` where id=$1 returning id`
 
@@ -110,9 +110,9 @@ func (ud *UserDatabase) SearchUserByTag(eid int, tag string) (models.UserArr, er
 	var users models.UserArr
 	sql := `select u.* from users u
 			join event_users eu on u.id = eu.user_id
-			where (vk_url like concat($1::text, '%')
-				or gh_url like concat($1::text, '%')
-				or tg_url like concat($1::text, '%'))
+			where (LOWER(vk_url) like concat($1::text, '%')
+				or LOWER(gh_url) like concat($1::text, '%')
+				or LOWER(tg_url) like concat($1::text, '%'))
    			and event_id = $2
 			limit 10`
 

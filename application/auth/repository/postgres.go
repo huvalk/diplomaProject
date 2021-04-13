@@ -16,7 +16,7 @@ func NewAuthRepository(db *pgxpool.Pool) auth.Repository {
 }
 
 func (r Repository) UpdateUserInfo(user *models.User) error {
-	sql := `INSERT INTO users (id, firstname, lastname, avatar, email, vk_url) 
+	sql := `INSERT INTO users (id, firstname, lastname, avatar, email, LOWER(vk_url)) 
 			VALUES ($1, $2, $3, $4, $5, $6)
 			ON CONFLICT 
 			DO NOTHING`
