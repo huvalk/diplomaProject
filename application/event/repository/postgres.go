@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	sql2 "database/sql"
 	"diplomaProject/application/event"
 	"diplomaProject/application/models"
 	"diplomaProject/pkg/constants"
@@ -49,13 +50,13 @@ func (e EventDatabase) GetPrize(prizeID int) (*models.Prize, error) {
 
 func (e EventDatabase) RemovePrize(evtId int, prArr *models.PrizeArr) error {
 	sql := `delete from prize_users where `
-	sql2 := `delete from prize where event_id = $1 AND (`
+	sqlPrize := `delete from prize where event_id = $1 AND (`
 	for i := range *prArr {
 		sql += fmt.Sprintf(" prize_id = %v OR ", (*prArr)[i].Id)
-		sql2 += fmt.Sprintf(" id = %v OR ", (*prArr)[i].Id)
+		sqlPrize += fmt.Sprintf(" id = %v OR ", (*prArr)[i].Id)
 	}
 	fmt.Println(sql[:len(sql)-3])
-	fmt.Println(sql2[:len(sql2)-3] + ")")
+	fmt.Println(sqlPrize[:len(sqlPrize)-3] + ")")
 	queryResult, err := e.conn.Exec(context.Background(), sql[:len(sql)-3])
 	if err != nil {
 		return err
@@ -63,7 +64,7 @@ func (e EventDatabase) RemovePrize(evtId int, prArr *models.PrizeArr) error {
 	affected := queryResult.RowsAffected()
 	log.Println(affected)
 
-	queryResult, err = e.conn.Exec(context.Background(), sql2[:len(sql2)-3]+")", evtId)
+	queryResult, err = e.conn.Exec(context.Background(), sqlPrize[:len(sqlPrize)-3]+")", evtId)
 	if err != nil {
 		return err
 	}
@@ -77,6 +78,7 @@ func (e EventDatabase) GetEventWinnerTeams(evtID int) (*models.TeamWinnerArr, er
 	var tms models.TeamWinnerArr
 	t := models.TeamWinner{}
 	pr := models.Prize{}
+	leadID := sql2.NullInt64{}
 	sql := `select t1.*,p1.* from team t1
 join prize p1 on t1.id = any(p1.winnerteamids)
 where t1.event=$1`
@@ -85,12 +87,13 @@ where t1.event=$1`
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID, &t.LeadID,
+		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID, &leadID,
 			&pr.Id, &pr.EventID, &pr.Name,
 			&pr.Place, &pr.Amount, &pr.Total, &pr.WinnerTeamIDs)
 		if err != nil {
 			return nil, err
 		}
+		t.LeadID = int(leadID.Int64)
 		t.Prize = pr
 		tms = append(tms, t)
 	}
@@ -101,18 +104,20 @@ where t1.event=$1`
 
 func (e EventDatabase) GetEventTeams(evtID int) (*models.TeamArr, error) {
 	var tms models.TeamArr
-	t := models.Team{}
+	tm := models.Team{}
+	leadID := sql2.NullInt64{}
 	sql := `select * from team where event = $1`
 	queryResult, err := e.conn.Query(context.Background(), sql, evtID)
 	if err != nil {
 		return nil, err
 	}
 	for queryResult.Next() {
-		err = queryResult.Scan(&t.Id, &t.Name, &t.EventID, &t.LeadID)
+		err = queryResult.Scan(&tm.Id, &tm.Name, &tm.EventID, &leadID)
 		if err != nil {
 			return nil, err
 		}
-		tms = append(tms, t)
+		tm.LeadID = int(leadID.Int64)
+		tms = append(tms, tm)
 	}
 	queryResult.Close()
 
