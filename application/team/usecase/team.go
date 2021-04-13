@@ -137,7 +137,31 @@ func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	return t.Get(tid)
+	tm, err = t.Get(tid)
+	if err != nil {
+		return nil, err
+	}
+	if len((*tm).Members) <= 1 {
+		return &models.Team{}, t.teams.RemoveTeam(tid)
+	}
+	if uid == tm.LeadID {
+		var teamIDs []int
+		for i := range tm.Members {
+			teamIDs = append(teamIDs, tm.Members[i].Id)
+		}
+		leadID, err := t.teams.SelectLead(tm)
+		if err != nil {
+			return nil, err
+		}
+		if leadID != tm.LeadID {
+			err = t.notif.SendTeamLeadNotification(teamIDs, tm.EventID)
+			if err != nil {
+				return nil, err
+			}
+		}
+		tm.LeadID = leadID
+	}
+	return tm, nil
 }
 
 func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
@@ -156,7 +180,14 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	return t.Get(tid)
+	tm, err = t.Get(tid)
+	if err != nil {
+		return nil, err
+	}
+	if len((*tm).Members) <= 1 {
+		return &models.Team{}, t.teams.RemoveTeam(tid)
+	}
+	return tm, nil
 }
 
 func (t *Team) GetTeamByUser(uid, evtID int) (*models.Team, error) {
