@@ -31,12 +31,6 @@ new-db-schema-dev:
 	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
 	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/hhton_public.sql
 
-clear-db-local:
-	psql -h localhost -p 8081 -U postgres -d hhton -c 'truncate users, team, invite, event, feed, skills, job, notification cascade'
-
-clear-db-dev:
-	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -c 'truncate users, team, invite, event, feed, skills, job, notification cascade'
-
 refresh-db-local:
 	make clear-db-local
 	psql -h localhost -p 8081 -U postgres -d hhton -f config/hhton_public.sql
