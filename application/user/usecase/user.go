@@ -16,11 +16,11 @@ import (
 type User struct {
 	users     user.Repository
 	feeds     feed.Repository
-	teams     team.Repository
+	teams     team.UseCase
 	tagRegexp *regexp.Regexp
 }
 
-func NewUser(u user.Repository, f feed.Repository, t team.Repository) user.UseCase {
+func NewUser(u user.Repository, f feed.Repository, t team.UseCase) user.UseCase {
 	r, _ := regexp.Compile(`([a-zA-Z\d])+$`)
 	return &User{users: u, feeds: f, teams: t, tagRegexp: r}
 }
@@ -97,10 +97,13 @@ func (u *User) LeaveEvent(uid, evtID int) error {
 	}
 	tm, err := u.teams.GetTeamByUser(uid, evtID)
 	if err != nil {
-		//return err
-		return nil
+		return err
 	}
-	return u.teams.RemoveMember(tm.Id, uid)
+	_, err = u.teams.RemoveMember(tm.Id, uid)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *User) GetUserEvents(uid int) (*models.EventArr, error) {

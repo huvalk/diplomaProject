@@ -89,7 +89,7 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 	//user handler
 	//sessions := session.NewSessionDatabase(rd)
 	users := repository.NewUserDatabase(db)
-	user := usecase.NewUser(users, feeds, teams)
+	user := usecase.NewUser(users, feeds, team)
 	err = http.NewUserHandler(e, user)
 	if err != nil {
 		log.Println(err)
