@@ -141,26 +141,26 @@ alter table invite
             (user_id != invite.guest_user_id) is null
             or user_id != invite.guest_user_id
         );
-
-create unique index t_to_u_unique_invite on invite (team_id, guest_user_id, event_id);
---     where (
---             approved = false
---         );
-
-create unique index u_to_t_unique_invite on invite (user_id, guest_team_id, event_id);
---     where (
---             approved = false
---         );
-
-create unique index t_to_t_unique_invite on invite (team_id, guest_team_id, event_id);
---     where (
---             approved = false
---         );
-
-create unique index u_to_u_unique_invite on invite (user_id, guest_user_id, event_id);
---     where (
---             approved = false
---         );
+-- Убрано из-законфликтов инвайтов при мердже команд
+-- create unique index t_to_u_unique_invite on invite (team_id, guest_user_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
+--
+-- create unique index u_to_t_unique_invite on invite (user_id, guest_team_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
+--
+-- create unique index t_to_t_unique_invite on invite (team_id, guest_team_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
+--
+-- create unique index u_to_u_unique_invite on invite (user_id, guest_user_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
 
 create table job
 (

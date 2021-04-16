@@ -20,7 +20,9 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (invited boo
 				i.guest_user_id = $3
 				or i.guest_team_id = guest_user_team.team_id
 			)
-			and i.approved = false`
+			and i.approved = false
+			order by rejected desc
+			limit 1`
 
 	err = r.conn.QueryRow(context.Background(), sqlQuery, invitation.OwnerID, invitation.EventID, invitation.GuestID).
 		Scan(&banned)
