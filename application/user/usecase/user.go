@@ -21,7 +21,7 @@ type User struct {
 }
 
 func NewUser(u user.Repository, f feed.Repository, t team.UseCase) user.UseCase {
-	r, _ := regexp.Compile(`([a-zA-Z\d])+$`)
+	r, _ := regexp.Compile(`[^/]+$`)
 	return &User{users: u, feeds: f, teams: t, tagRegexp: r}
 }
 
