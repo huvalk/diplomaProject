@@ -89,21 +89,20 @@ func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
 	if err != nil {
 		return nil, errors.New("can't update team name: " + err.Error())
 	}
-
-	team, err := t.Get(newTeam.Id)
+	tm, err := t.Get(newTeam.Id)
 	if err != nil {
 		return nil, err
 	}
 	var silent []int
-	for i := range team.Members {
-		silent = append(silent, team.Members[i].Id)
+	for i := range tm.Members {
+		silent = append(silent, tm.Members[i].Id)
 	}
-	err = t.notif.SendSilentUpdateNotification(silent, team.EventID)
+	err = t.notif.SendSilentUpdateNotification(silent, tm.EventID)
 	if err != nil {
 		return nil, err
 	}
 
-	return team, nil
+	return tm, nil
 }
 
 func (t *Team) Get(id int) (*models.Team, error) {
@@ -123,7 +122,6 @@ func (t *Team) Create(newTeam *models.Team, evtID int) (*models.Team, error) {
 	return t.teams.Create(newTeam, evtID)
 }
 
-//chekc invite
 func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 	tm, err := t.teams.AddMember(tid, uid...)
 	if err != nil {
@@ -139,6 +137,18 @@ func (t *Team) AddMember(tid int, uid ...int) (*models.Team, error) {
 
 func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 	err := t.teams.RemoveMember(tid, uid)
+	if err != nil {
+		return nil, err
+	}
+	vt, err := t.teams.GetVote(uid, tid)
+	if err != nil {
+		return nil, err
+	}
+	err = t.teams.CancelVote(vt)
+	if err != nil {
+		return nil, err
+	}
+	err = t.teams.ChangeUserVotesCount(vt.TeamID, vt.ForWhomID, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -161,20 +171,18 @@ func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 	if len((*tm).Members) <= 1 {
 		return &models.Team{}, t.teams.RemoveTeam(tid)
 	}
-	if uid == tm.LeadID {
-		leadID, err := t.teams.SelectLead(tm)
-		fmt.Println("new Lead id and old", leadID, tm.LeadID)
+	leadID, err := t.teams.SelectLead(tm)
+	fmt.Println("new Lead id and old", leadID, tm.LeadID)
+	if err != nil {
+		return nil, err
+	}
+	if leadID != tm.LeadID {
+		err = t.notif.SendTeamLeadNotification(teamIDs, tm.EventID)
 		if err != nil {
 			return nil, err
 		}
-		if leadID != tm.LeadID {
-			err = t.notif.SendTeamLeadNotification(teamIDs, tm.EventID)
-			if err != nil {
-				return nil, err
-			}
-		}
-		tm.LeadID = leadID
 	}
+	tm.LeadID = leadID
 	return tm, nil
 }
 
@@ -229,7 +237,7 @@ func (t *Team) GetTeamByUser(uid, evtID int) (*models.Team, error) {
 	return tm, err
 }
 
-//на успешный добавление , апдейт юзер
+// Union на успешный добавление , апдейт юзер
 func (t *Team) Union(uid1, uid2, evtID int) (*models.Team, error) {
 
 	//if !t.events.CheckUser(evtID, uid1) || !t.events.CheckUser(evtID, uid2) {

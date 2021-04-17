@@ -168,6 +168,20 @@ for_whom_id = $4`
 	return nil
 }
 
+func (t TeamDatabase) CancelUserVotes(teamID, userID int) error {
+	sql := `delete from votes 
+	where team_id = $1 AND
+	who_id = $2`
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		teamID, userID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	log.Println(affected)
+	return nil
+}
+
 func (t TeamDatabase) SetName(newTeam *models.Team) error {
 	sql := `update team set name = $1 
 where id = $2 and event = $3 `
