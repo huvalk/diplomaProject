@@ -35,7 +35,9 @@ create table event
     logo               varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_logo.svg',
     background         varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_background.svg',
     site               varchar(380) not null default '',
-    team_size          integer      not null default 1
+    team_size          integer      not null default 1,
+    is_private         bool         not null default false,
+    is_verified        bool         not null default false
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 

@@ -2471,6 +2471,10 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels29(in *jlexer.Lexer, o
 			out.Site = string(in.String())
 		case "teamSize":
 			out.TeamSize = int(in.Int())
+		case "isPrivate":
+			out.IsPrivate = bool(in.Bool())
+		case "isVerified":
+			out.IsVerified = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -2549,6 +2553,16 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels29(out *jwriter.Writer
 		const prefix string = ",\"teamSize\":"
 		out.RawString(prefix)
 		out.Int(int(in.TeamSize))
+	}
+	{
+		const prefix string = ",\"isPrivate\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsPrivate))
+	}
+	{
+		const prefix string = ",\"isVerified\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsVerified))
 	}
 	out.RawByte('}')
 }
@@ -2695,6 +2709,10 @@ func easyjsonD2b7633eDecodeDiplomaProjectApplicationModels31(in *jlexer.Lexer, o
 			(out.Feed).UnmarshalEasyJSON(in)
 		case "prizeList":
 			(out.PrizeList).UnmarshalEasyJSON(in)
+		case "isPrivate":
+			out.IsPrivate = bool(in.Bool())
+		case "isVerified":
+			out.IsVerified = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -2783,6 +2801,16 @@ func easyjsonD2b7633eEncodeDiplomaProjectApplicationModels31(out *jwriter.Writer
 		const prefix string = ",\"prizeList\":"
 		out.RawString(prefix)
 		(in.PrizeList).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"isPrivate\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsPrivate))
+	}
+	{
+		const prefix string = ",\"isVerified\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsVerified))
 	}
 	out.RawByte('}')
 }

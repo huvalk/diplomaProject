@@ -24,7 +24,11 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 
 func (e *EventDatabase) GetTopEvents() (*models.EventDBArr, error) {
 	var evtArr models.EventDBArr
-	sql := `SELECT * from event where state = 'Open' order by participants_count desc limit 10`
+	sql := `SELECT * from event where 
+			state = 'Open' 
+			and isVerified = true 
+			and isPrivate = false 
+			order by participants_count desc limit 10`
 
 	err := pgxscan.Select(context.Background(), e.conn, &evtArr, sql)
 
@@ -402,7 +406,7 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 	queryResult := e.conn.QueryRow(context.Background(), sql, id)
 	err := queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
 		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount,
-		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize)
+		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize, &evt.IsPrivate, &evt.IsVerified)
 	if err != nil {
 		return nil, err
 	}
