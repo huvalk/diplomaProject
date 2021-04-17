@@ -163,6 +163,7 @@ func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 	}
 	if uid == tm.LeadID {
 		leadID, err := t.teams.SelectLead(tm)
+		fmt.Println("new Lead id and old", leadID, tm.LeadID)
 		if err != nil {
 			return nil, err
 		}
