@@ -93,9 +93,9 @@ func (ud *UserDatabase) SearchUserByTag(eid int, tag string) (models.UserArr, er
 	var users models.UserArr
 	sql := `select u.* from users u
 			join event_users eu on u.id = eu.user_id
-			where (LOWER(vk_url) like concat($1::text, '%')
-				or LOWER(gh_url) like concat($1::text, '%')
-				or LOWER(tg_url) like concat($1::text, '%'))
+			where (vk_url like concat(LOWER($1::text), '%')
+				or gh_url like concat(LOWER($1::text), '%')
+				or tg_url like concat(LOWER($1::text), '%'))
    			and event_id = $2
 			limit 10`
 
