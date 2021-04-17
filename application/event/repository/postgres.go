@@ -416,14 +416,14 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 func (e EventDatabase) Create(newEvent *models.Event) (*models.EventDB, error) {
 	sql := `INSERT INTO event 
 			(id,name, description, founder, date_start, date_end, state, place,
-				participants_count, site, team_size)
-			VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10)  RETURNING id`
+				participants_count, site, team_size, is_private)
+			VALUES(default,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)  RETURNING id`
 	id := 0
 	fmt.Println(sql)
 	err := e.conn.QueryRow(context.Background(), sql, newEvent.Name, newEvent.Description,
 		newEvent.Founder, newEvent.DateStart, newEvent.DateEnd,
 		newEvent.State, newEvent.Place, newEvent.ParticipantsCount,
-		newEvent.Site, newEvent.TeamSize).Scan(&id)
+		newEvent.Site, newEvent.TeamSize, newEvent.IsPrivate).Scan(&id)
 	if err != nil {
 		return nil, err
 	}
