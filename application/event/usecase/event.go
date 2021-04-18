@@ -135,6 +135,14 @@ func (e *Event) Finish(uID, evtID int) (*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
+	usrArr, err := e.events.GetSoloEventUsers(evtID)
+	if err != nil {
+		return nil, err
+	}
+	err = e.events.CreateManyEventTeams(evtID, usrArr)
+	if err != nil {
+		return nil, err
+	}
 	ev.State = constants.EventStatusClosed
 	return ev, nil
 }
