@@ -18,6 +18,7 @@ type Repository interface {
 	UpdateTeamMerged(tid1, tid2, tid3, evtID int) error
 	AddVote(vote *models.Vote) error
 	CancelVote(vote *models.Vote) error
+	CancelUserVotes(teamID, userID int) error
 	ChangeUserVotesCount(tID, uID, state int) error
 	SelectLead(tm *models.Team) (int, error)
 	TeamVotes(teamID int) (*models.TeamVotesArr, error)
