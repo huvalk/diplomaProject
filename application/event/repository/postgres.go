@@ -454,7 +454,7 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 	queryResult := e.conn.QueryRow(context.Background(), sql, id)
 	err := queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
 		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount,
-		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize)
+		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize, &evt.IsPrivate, &evt.IsVerified)
 	if err != nil {
 		return nil, err
 	}
