@@ -3,16 +3,16 @@ package models
 //db model
 type User struct {
 	Id          int    `json:"id"`
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
+	FirstName   string `json:"firstName" db:"firstname"`
+	LastName    string `json:"lastName" db:"lastname"`
 	Email       string `json:"email"`
-	WorkPlace   string `json:"workPlace"`
+	WorkPlace   string `json:"workPlace" db:"workplace"`
 	Description string `json:"description"`
 	Bio         string `json:"bio"`
 	Avatar      string `json:"avatar"`
-	Vk          string `json:"vk"`
-	Tg          string `json:"tg"`
-	Git         string `json:"gh"`
+	Vk          string `json:"vk" db:"vk_url"`
+	Tg          string `json:"tg" db:"tg_url"`
+	Git         string `json:"gh" db:"gh_url"`
 }
 
 //type OauthConfig struct {

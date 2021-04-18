@@ -22,6 +22,54 @@ func NewEventDatabase(db *pgxpool.Pool) event.Repository {
 	return &EventDatabase{conn: db}
 }
 
+func (e *EventDatabase) GetSoloEventUsers(evtID int) (*models.UserArr, error) {
+	var usrArr models.UserArr
+	sql := `select u1.* from event_users eu1 
+			left join (
+				select tu1.user_id from team_users tu1 
+				join team t1 on t1.id=tu1.team_id where event=$1
+			) as tu1 
+			on eu1.user_id=tu1.user_id 
+			join users u1 on eu1.user_id=u1.id
+			where eu1.event_id=$1 and tu1.user_id is null`
+
+	err := pgxscan.Select(context.Background(), e.conn, &usrArr, sql, evtID)
+
+	if err != nil {
+		return &models.UserArr{}, err
+	}
+
+	return &usrArr, nil
+}
+
+func (e *EventDatabase) CreateManyEventTeams(evtID int, usrArr *models.UserArr) error {
+	sql := `insert into team values `
+	sqlU := `insert into team_users values `
+	var id []int
+	teamName := ""
+	for i := range *usrArr {
+		teamName = fmt.Sprintf("team_%v_%v", (*usrArr)[i].LastName, (*usrArr)[i].FirstName)
+		sql += fmt.Sprintf("(default,'%v',%v,%v),", teamName, evtID, (*usrArr)[i].Id)
+	}
+	sql = sql[:len(sql)-1] + "returning id"
+	err := pgxscan.Select(context.Background(), e.conn, &id, sql)
+	if err != nil {
+		return err
+	}
+
+	for i := range id {
+		sqlU += fmt.Sprintf("(%v,%v,0),", id[i], (*usrArr)[i].Id)
+	}
+	sqlU = sqlU[:len(sqlU)-1]
+	queryResult, err := e.conn.Exec(context.Background(), sqlU)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	log.Println(affected)
+	return nil
+}
+
 func (e *EventDatabase) GetTopEvents() (*models.EventDBArr, error) {
 	var evtArr models.EventDBArr
 	sql := `SELECT * from event where 
@@ -406,7 +454,7 @@ func (e EventDatabase) Get(id int) (*models.EventDB, error) {
 	queryResult := e.conn.QueryRow(context.Background(), sql, id)
 	err := queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
 		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount,
-		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize, &evt.IsPrivate, &evt.IsVerified)
+		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize)
 	if err != nil {
 		return nil, err
 	}
