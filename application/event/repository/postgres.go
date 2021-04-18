@@ -26,8 +26,8 @@ func (e *EventDatabase) GetTopEvents() (*models.EventDBArr, error) {
 	var evtArr models.EventDBArr
 	sql := `SELECT * from event where 
 			state = 'Open' 
-			and isVerified = true 
-			and isPrivate = false 
+			and is_verified = true 
+			and is_private = false 
 			order by participants_count desc limit 10`
 
 	err := pgxscan.Select(context.Background(), e.conn, &evtArr, sql)
