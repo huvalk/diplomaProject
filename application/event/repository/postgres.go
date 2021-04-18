@@ -514,3 +514,10 @@ func (e *EventDatabase) SetBackground(uid, eid int, link string) error {
 	}
 	return nil
 }
+
+func (e *EventDatabase) Verify(eid int) (result bool, err error) {
+	sql := `update event set is_verified = not is_verified where id=$1 returning is_verified`
+
+	err = e.conn.QueryRow(context.Background(), sql, eid).Scan(&result)
+	return result, err
+}

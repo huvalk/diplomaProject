@@ -4,6 +4,7 @@ import (
 	"diplomaProject/application/event"
 	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
+	"diplomaProject/pkg/globalVars"
 	"errors"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
@@ -29,6 +30,7 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 	e.GET("/event/:id/teams/win", handler.GetEventWinnerTeams)
 	e.POST("/event", handler.CreateEvent, middleware.UserID)
 	e.POST("/event/:id", handler.UpdateEvent, middleware.UserID)
+	e.GET("/event/:id/verify", handler.Verify)
 	e.POST("/event/:id/win", handler.SelectWinner, middleware.UserID)
 	e.POST("/event/:id/unwin", handler.SelectUnWinner, middleware.UserID)
 	e.POST("/event/:id/logo", handler.SetLogo, middleware.UserID)
@@ -272,6 +274,29 @@ func (eh *EventHandler) UpdateEvent(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(newEvt, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (eh *EventHandler) Verify(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	secret := ctx.QueryParam("secret")
+	if secret != globalVars.POSTGRES_PASSWORD {
+		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not valid secret"))
+	}
+
+	newStatus, err := eh.useCase.Verify(evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if _, err = easyjson.MarshalToWriter(&models.Result{Success: newStatus}, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

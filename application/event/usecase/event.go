@@ -221,3 +221,7 @@ func (e *Event) SetBackground(uid, eid int, avatar *multipart.Form) (string, err
 	}
 	return link, nil
 }
+
+func (e *Event) Verify(eid int) (bool, error) {
+	return e.events.Verify(eid)
+}

@@ -19,4 +19,5 @@ type UseCase interface {
 	SetLogo(uid, eid int, avatar *multipart.Form) (string, error)
 	SetBackground(uid, eid int, avatar *multipart.Form) (string, error)
 	GetTopEvents() (*models.EventDBArr, error)
+	Verify(eid int) (bool, error)
 }

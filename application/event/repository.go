@@ -25,4 +25,5 @@ type Repository interface {
 	GetTopEvents() (*models.EventDBArr, error)
 	GetSoloEventUsers(evtID int) (*models.UserArr, error)
 	CreateManyEventTeams(evtID int, usrArr *models.UserArr) error
+	Verify(eid int) (bool, error)
 }
