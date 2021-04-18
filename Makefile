@@ -17,27 +17,27 @@ start-db:
 
 export DROP_ALL_TABLES
 db-dump:
-	pg_dump -U postgres -h localhost -p 8081 --column-inserts --data-only hhton >> config/dump.sql
+	pg_dump -U postgres -h localhost -p 8081 --column-inserts --data-only hhton > config/postgres/dump.sql
 
 new-db-schema-from-dump:
 	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
-	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/dump.sql
+	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/dump.sql -f pkg/infrastructure/funcs.sql
 
 new-db-schema-local:
 	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
-	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/hhton_public.sql
+	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/hhton_public.sql
 
 new-db-schema-dev:
 	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
-	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/hhton_public.sql
+	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/hhton_public.sql
 
 refresh-db-local:
 	make clear-db-local
-	psql -h localhost -p 8081 -U postgres -d hhton -f config/hhton_public.sql
+	psql -h localhost -p 8081 -U postgres -d hhton -f config/postgres/hhton_public.sql
 
 refresh-db-dev:
 	make clear-db-dev
-	sudo psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f config/hhton_public.sql
+	sudo psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f config/postgres/hhton_public.sql
 
 build-local:
 	docker build -t huvalk/app:local -f docker/app.Dockerfile .
@@ -56,4 +56,4 @@ lint:
 	golangci-lint run ./...
 
 upload-nginx-conf:
-	scp config/team-up.online.conf root@hahao.ru:/etc/nginx/conf.d/
+	scp config/postgres/team-up.online.conf root@hahao.ru:/etc/nginx/conf.d/

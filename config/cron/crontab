@@ -1,0 +1,1 @@
+0 3 */1 * * . /home/akiraq_yandex_ru/cron.env; psql -h localhost -p 8081 -U postgres -d hhton -f /home/akiraq_yandex_ru/teamup/config/postgres/clear_junk.sql >/dev/null 2>&1

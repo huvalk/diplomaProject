@@ -1,3 +1,5 @@
+# Dockerfile relative to docker-compose.yml
+
 FROM golang:alpine
 
 COPY . /app
