@@ -4,6 +4,7 @@ import (
 	"diplomaProject/application/event"
 	"diplomaProject/application/middleware"
 	"diplomaProject/application/models"
+	"diplomaProject/pkg/crypto"
 	"diplomaProject/pkg/globalVars"
 	"errors"
 	"github.com/labstack/echo"
@@ -23,6 +24,7 @@ func NewEventHandler(e *echo.Echo, usecase event.UseCase) error {
 
 	e.GET("/event/top", handler.GetTopEvents)
 	e.GET("/event/:id", handler.GetEvent)
+	e.GET("/event/:id/link", handler.GetEventLink, middleware.UserID)
 	e.POST("/event/:id/finish", handler.FinishEvent, middleware.UserID)
 	e.DELETE("/event/:id/prize", handler.DeletePrize, middleware.UserID)
 	e.GET("/event/:id/users", handler.GetEventUsers)
@@ -62,6 +64,37 @@ func (eh *EventHandler) GetEvent(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	if _, err = easyjson.MarshalToWriter(evt, ctx.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+func (eh *EventHandler) GetEventLink(ctx echo.Context) error {
+	evtID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
+
+	evt, err := eh.useCase.Get(evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	if !evt.IsPrivate {
+		return echo.NewHTTPError(http.StatusBadRequest, "not private event")
+	}
+	if evt.Founder != userID {
+		log.Println("user is not founder")
+		return echo.NewHTTPError(http.StatusForbidden, errors.New("user is not founder"))
+	}
+	secret := crypto.CreateToken(strconv.Itoa(evt.Id))
+	if _, err = easyjson.MarshalToWriter(models.EventLink{Id: evtID, Secret: secret}, ctx.Response().Writer); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return nil

@@ -25,6 +25,10 @@ func NewUser(u user.Repository, f feed.Repository, t team.UseCase) user.UseCase 
 	return &User{users: u, feeds: f, teams: t, tagRegexp: r}
 }
 
+func (u *User) GetBDEvent(evtID int) (*models.EventDB, error) {
+	return u.users.GetBDEvent(evtID)
+}
+
 func (u *User) GetFounderEvents(userID int) (*models.EventDBArr, error) {
 	return u.users.GetFounderEvents(userID)
 }

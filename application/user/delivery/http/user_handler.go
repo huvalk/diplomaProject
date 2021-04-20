@@ -5,6 +5,7 @@ import (
 	"diplomaProject/application/models"
 	"diplomaProject/application/user"
 	"diplomaProject/pkg/constants"
+	"diplomaProject/pkg/crypto"
 	"errors"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
@@ -125,19 +126,23 @@ func (uh *UserHandler) JoinEvent(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	//add := &models.AddToTeam{}
-	//if err := easyjson.UnmarshalFromReader(ctx.Request().Body, add); err != nil {
-	//	log.Println(err)
-	//	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	//}
 	userID, found := ctx.Get("userID").(int)
 	if !found {
 		log.Println("userID not found")
 		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
 	}
-	//if userID != add.UID {
-	//	return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
-	//}
+
+	evt, err := uh.useCase.GetBDEvent(evtID)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if evt.IsPrivate {
+		if !crypto.CheckToken(strconv.Itoa(evtID), ctx.QueryParam("secret")) {
+			return echo.NewHTTPError(http.StatusUnauthorized, errors.New("not valid secret"))
+		}
+	}
 
 	err = uh.useCase.JoinEvent(userID, evtID)
 	if err != nil {

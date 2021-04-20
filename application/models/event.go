@@ -63,3 +63,8 @@ func (e *Event) Convert(evt EventDB) {
 	e.IsPrivate = evt.IsPrivate
 	e.IsVerified = evt.IsVerified
 }
+
+type EventLink struct {
+	Id     int    `json:"id"`
+	Secret string `json:"Secret"`
+}

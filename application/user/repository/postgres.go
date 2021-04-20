@@ -17,6 +17,20 @@ func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
 }
 
+func (ud *UserDatabase) GetBDEvent(evtID int) (*models.EventDB, error) {
+	evt := models.EventDB{}
+	sql := `select * from event where id = $1`
+
+	queryResult := ud.conn.QueryRow(context.Background(), sql, evtID)
+	err := queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
+		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount,
+		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize, &evt.IsPrivate, &evt.IsVerified)
+	if err != nil {
+		return nil, err
+	}
+	return &evt, err
+}
+
 func (ud *UserDatabase) GetFounderEvents(userID int) (*models.EventDBArr, error) {
 	var evtArr models.EventDBArr
 	sql := `SELECT * from event where founder = $1`
