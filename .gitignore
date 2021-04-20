@@ -21,4 +21,4 @@ go_build_golang_server_
 app/app
 
 config/after_hack_dump.sql
-config/dump.sql
+config/postgres/dump.sql

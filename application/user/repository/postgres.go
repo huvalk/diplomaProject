@@ -17,6 +17,20 @@ func NewUserDatabase(db *pgxpool.Pool) user.Repository {
 	return &UserDatabase{conn: db}
 }
 
+func (ud *UserDatabase) GetBDEvent(evtID int) (*models.EventDB, error) {
+	evt := models.EventDB{}
+	sql := `select * from event where id = $1`
+
+	queryResult := ud.conn.QueryRow(context.Background(), sql, evtID)
+	err := queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
+		&evt.DateStart, &evt.DateEnd, &evt.State, &evt.Place, &evt.ParticipantsCount,
+		&evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize, &evt.IsPrivate, &evt.IsVerified)
+	if err != nil {
+		return nil, err
+	}
+	return &evt, err
+}
+
 func (ud *UserDatabase) GetFounderEvents(userID int) (*models.EventDBArr, error) {
 	var evtArr models.EventDBArr
 	sql := `SELECT * from event where founder = $1`
@@ -93,9 +107,9 @@ func (ud *UserDatabase) SearchUserByTag(eid int, tag string) (models.UserArr, er
 	var users models.UserArr
 	sql := `select u.* from users u
 			join event_users eu on u.id = eu.user_id
-			where (LOWER(vk_url) like concat($1::text, '%')
-				or LOWER(gh_url) like concat($1::text, '%')
-				or LOWER(tg_url) like concat($1::text, '%'))
+			where (vk_url like concat(LOWER($1::text), '%')
+				or gh_url like concat(LOWER($1::text), '%')
+				or tg_url like concat(LOWER($1::text), '%'))
    			and event_id = $2
 			limit 10`
 
@@ -171,7 +185,8 @@ where eu1.user_id = $1`
 	for queryResult.Next() {
 		err = queryResult.Scan(&evt.Id, &evt.Name, &evt.Description, &evt.Founder,
 			&evt.DateStart, &evt.DateEnd, &evt.Place, &evt.Place,
-			&evt.ParticipantsCount, &evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize)
+			&evt.ParticipantsCount, &evt.Logo, &evt.Background, &evt.Site, &evt.TeamSize,
+			&evt.IsPrivate, &evt.IsVerified)
 		if err != nil {
 			return nil, err
 		}

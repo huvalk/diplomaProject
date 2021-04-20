@@ -59,8 +59,8 @@ func (t TeamDatabase) TeamVotes(teamID int) (*models.TeamVotesArr, error) {
 func (t TeamDatabase) SelectLead(tm *models.Team) (int, error) {
 	userID := 0
 	votes := 0
-	leadVotes := 0
-	maxVotes := 0
+	leadVotes := -1
+	maxVotes := -1
 	maxVotesID := 0
 	sql := `Select user_id,votes from team_users tu1
 where votes = (select max(tu2.votes) from team_users tu2 where tu2.team_id = $1)
@@ -68,12 +68,12 @@ and team_id=$1 or (team_id=$1 AND user_id=$2)`
 
 	queryResult, err := t.conn.Query(context.Background(), sql, tm.Id, tm.LeadID)
 	if err != nil {
-		return 0, err
+		return 0, errors.New("select votes fail" + err.Error())
 	}
 	for queryResult.Next() {
 		err = queryResult.Scan(&userID, &votes)
 		if err != nil {
-			return 0, err
+			return 0, errors.New("can't find team votes and lead votes" + err.Error())
 		}
 		if votes > maxVotes {
 			maxVotes = votes
@@ -101,11 +101,11 @@ where id = $2 `
 
 	queryResult, err := t.conn.Exec(context.Background(), sql, newLeadID, tmID)
 	if err != nil {
-		return err
+		return errors.New("update lead fail" + err.Error())
 	}
 	affected := queryResult.RowsAffected()
 	log.Println(affected)
-	return err
+	return nil
 }
 
 func (t TeamDatabase) ChangeUserVotesCount(tID, uID, state int) error {
@@ -165,6 +165,20 @@ for_whom_id = $4`
 	if affected != 1 {
 		return errors.New("can't find vote or already voted")
 	}
+	return nil
+}
+
+func (t TeamDatabase) CancelUserVotes(teamID, userID int) error {
+	sql := `delete from votes 
+	where team_id = $1 AND
+	who_id = $2`
+	queryResult, err := t.conn.Exec(context.Background(), sql,
+		teamID, userID)
+	if err != nil {
+		return err
+	}
+	affected := queryResult.RowsAffected()
+	log.Println(affected)
 	return nil
 }
 

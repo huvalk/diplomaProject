@@ -35,7 +35,9 @@ create table event
     logo               varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_logo.svg',
     background         varchar(380) not null default 'https://teamup-online.s3.eu-north-1.amazonaws.com/default_background.svg',
     site               varchar(380) not null default '',
-    team_size          integer      not null default 1
+    team_size          integer      not null default 1,
+    is_private         bool         not null default false,
+    is_verified        bool         not null default false
 );
 -- insert into event values(default,'event1','descr1',1,'2021-02-25 10:23:54+02','2021-02-25 15:23:54+02','place1');
 
@@ -141,26 +143,26 @@ alter table invite
             (user_id != invite.guest_user_id) is null
             or user_id != invite.guest_user_id
         );
-
-create unique index t_to_u_unique_invite on invite (team_id, guest_user_id, event_id);
---     where (
---             approved = false
---         );
-
-create unique index u_to_t_unique_invite on invite (user_id, guest_team_id, event_id);
---     where (
---             approved = false
---         );
-
-create unique index t_to_t_unique_invite on invite (team_id, guest_team_id, event_id);
---     where (
---             approved = false
---         );
-
-create unique index u_to_u_unique_invite on invite (user_id, guest_user_id, event_id);
---     where (
---             approved = false
---         );
+-- Убрано из-законфликтов инвайтов при мердже команд
+-- create unique index t_to_u_unique_invite on invite (team_id, guest_user_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
+--
+-- create unique index u_to_t_unique_invite on invite (user_id, guest_team_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
+--
+-- create unique index t_to_t_unique_invite on invite (team_id, guest_team_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
+--
+-- create unique index u_to_u_unique_invite on invite (user_id, guest_user_id, event_id);
+-- --     where (
+-- --             approved = false
+-- --         );
 
 create table job
 (
@@ -183,68 +185,6 @@ create table job_skills_users
     skill_id integer REFERENCES skills (id) on delete cascade on update cascade,
     user_id  integer REFERENCES users (id) on delete cascade
 );
-
-create or replace function inc_event_participants() returns trigger as
-$inc_event_participants$
-begin
-    update event
-    set participants_count = participants_count + 1
-    where new.event_id = event.id;
-    return null;
-end;
-$inc_event_participants$ language plpgsql;
-
-create or replace function dec_event_participants() returns trigger as
-$dec_event_participants$
-begin
-    update event
-    set participants_count = participants_count - 1
-    where old.event_id = event.id
-      and event.participants_count > 0;
-    return null;
-end;
-$dec_event_participants$ language plpgsql;
-
-create or replace function find_users_team(integer, integer) returns integer
-as
-'select team_id
- from team_users
-          inner join team t on team_users.team_id = t.id
- where team_users.user_id = $1
-   and t.event = $2
- union
- select null
- order by team_id
- limit 1;'
-    language sql
-    immutable
-    returns null on null input;
-
-create or replace function find_users_lead_team(integer, integer) returns bigint
-as
-'select id
- from team t
- where t.lead_id = $1
-   and t.event = $2
- union
- select null
- order by id
- limit 1;'
-    language sql
-    immutable
-    returns null on null input;
-
-create trigger added_event_user
-    after insert
-    on event_users
-    for each row
-execute procedure inc_event_participants();
-
-create trigger deleted_event_user
-    after delete
-    on event_users
-    for each row
-execute procedure dec_event_participants();
 
 
 

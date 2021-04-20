@@ -32,6 +32,10 @@ func (i *InviteUseCase) Invite(invitation *models.Invitation) (inviters []int, i
 	if err != nil || is || banned {
 		return nil, nil, err
 	}
+	is, banned, err = i.IsInvited(invitation)
+	if err != nil || is || banned {
+		return nil, nil, err
+	}
 	err = i.invites.Invite(invitation)
 	if err != nil {
 		return nil, nil, err

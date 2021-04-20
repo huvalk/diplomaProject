@@ -16,6 +16,8 @@ type EventDB struct {
 	Background        string    `json:"background"`
 	Site              string    `json:"site"`
 	TeamSize          int       `json:"teamSize"`
+	IsPrivate         bool      `json:"isPrivate"`
+	IsVerified        bool      `json:"isVerified"`
 }
 
 //easyjson:json
@@ -37,6 +39,8 @@ type Event struct {
 	TeamSize          int       `json:"teamSize"`
 	Feed              Feed      `json:"feed"`
 	PrizeList         PrizeArr  `json:"prizeList"`
+	IsPrivate         bool      `json:"isPrivate"`
+	IsVerified        bool      `json:"isVerified"`
 }
 
 //easyjson:json
@@ -56,4 +60,11 @@ func (e *Event) Convert(evt EventDB) {
 	e.Background = evt.Background
 	e.Site = evt.Site
 	e.TeamSize = evt.TeamSize
+	e.IsPrivate = evt.IsPrivate
+	e.IsVerified = evt.IsVerified
+}
+
+type EventLink struct {
+	Id     int    `json:"id"`
+	Secret string `json:"Secret"`
 }

@@ -23,4 +23,7 @@ type Repository interface {
 	SetLogo(uid, eid int, link string) error
 	SetBackground(uid, eid int, link string) error
 	GetTopEvents() (*models.EventDBArr, error)
+	GetSoloEventUsers(evtID int) (*models.UserArr, error)
+	CreateManyEventTeams(evtID int, usrArr *models.UserArr) error
+	Verify(eid int) (bool, error)
 }

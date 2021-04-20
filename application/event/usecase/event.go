@@ -135,6 +135,14 @@ func (e *Event) Finish(uID, evtID int) (*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
+	usrArr, err := e.events.GetSoloEventUsers(evtID)
+	if err != nil {
+		return nil, err
+	}
+	err = e.events.CreateManyEventTeams(evtID, usrArr)
+	if err != nil {
+		return nil, err
+	}
 	ev.State = constants.EventStatusClosed
 	return ev, nil
 }
@@ -212,4 +220,8 @@ func (e *Event) SetBackground(uid, eid int, avatar *multipart.Form) (string, err
 		return "", err
 	}
 	return link, nil
+}
+
+func (e *Event) Verify(eid int) (bool, error) {
+	return e.events.Verify(eid)
 }
