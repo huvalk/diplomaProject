@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run golangci-lint
-        uses: actions-contrib/golangci-lint@v2
+        uses: golangci/golangci-lint-action@v2
 
   test:
     runs-on: ubuntu-latest
