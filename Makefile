@@ -25,11 +25,11 @@ new-db-schema-from-dump:
 
 new-db-schema-local:
 	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
-	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/hhton_public.sql
+	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/hhton_public.sql -f pkg/infrastructure/funcs.sql
 
 new-db-schema-dev:
 	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
-	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/hhton_public.sql
+	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/hhton_public.sql -f pkg/infrastructure/funcs.sql
 
 refresh-db-local:
 	make clear-db-local
