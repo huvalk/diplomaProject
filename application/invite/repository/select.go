@@ -44,7 +44,7 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 	sqlQuery := `WITH guest_user_team(team_id) AS (
 				select find_users_team($1, $2)
 			)
-			select distinct guest_user_id
+			select distinct user_id
 			from invite, guest_user_team
 			where ( guest_user_id = $1
 				or invite.guest_team_id = guest_user_team.team_id
@@ -67,7 +67,7 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, decline
 	sqlQuery := `WITH guest_user_team(team_id) AS (
 				select find_users_team($1, $2)
 			)
-			select distinct guest_team_id
+			select distinct team_id
 			from invite, guest_user_team
 			where ( guest_user_id = $1
 				or invite.guest_team_id = guest_user_team.team_id
