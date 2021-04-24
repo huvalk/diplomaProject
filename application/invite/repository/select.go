@@ -41,13 +41,13 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (invited boo
 
 // TODO поправить
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, declined bool) (arr []int, err error) {
-	sqlQuery := `WITH owner_user_team(team_id) AS (
+	sqlQuery := `WITH guest_user_team(team_id) AS (
 				select find_users_team($1, $2)
 			)
-			select distinct guest_user_id
-			from invite, owner_user_team
-			where ( user_id = $1
-				or invite.team_id = owner_user_team.team_id
+			select distinct user_id
+			from invite, guest_user_team
+			where ( guest_user_id = $1
+				or invite.guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $2
 			and guest_team_id is null
@@ -64,13 +64,13 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 
 // TODO поправить
 func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, declined bool) (arr []int, err error) {
-	sqlQuery := `WITH owner_user_team(team_id) AS (
+	sqlQuery := `WITH guest_user_team(team_id) AS (
 				select find_users_team($1, $2)
 			)
-			select distinct guest_team_id
-			from invite, owner_user_team
-			where ( user_id = $1
-				or invite.team_id = owner_user_team.team_id
+			select distinct team_id
+			from invite, guest_user_team
+			where ( guest_user_id = $1
+				or invite.guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $2
 			and guest_team_id is not null
