@@ -101,6 +101,9 @@ func (u *User) LeaveEvent(uid, evtID int) error {
 	}
 	tm, err := u.teams.GetTeamByUser(uid, evtID)
 	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return nil
+		}
 		return err
 	}
 	_, err = u.teams.RemoveMember(tm.Id, uid)
