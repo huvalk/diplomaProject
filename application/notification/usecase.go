@@ -24,6 +24,10 @@ type UseCase interface {
 	SendUnInviteNotification(userID []int, evtID int) error
 	// Безшумное оповещение
 	SendSilentUpdateNotification(userID []int, evtID int) error
+	// Оповещение о завершении евента
+	SendEventFinishedNotification(users []int, evtID int) error
+	// Оповещение о награждении победителей
+	SendEventWinnersNotification(users []int, evtID int) error
 	GetLastNotification(userID int) (models.NotificationArr, error)
 	GetPendingNotification(userID int) (models.NotificationArr, error)
 	EnterChannel(userID int, socket *websocket.Conn) error
