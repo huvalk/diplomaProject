@@ -41,7 +41,9 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (invited boo
 
 // TODO поправить
 func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, declined bool) (arr []int, err error) {
-	sqlQuery := `WITH guest_user_team(team_id) AS (
+	var sqlQuery string
+	if declined {
+		sqlQuery = `WITH guest_user_team(team_id) AS (
 				select find_users_team($1, $2)
 			)
 			select distinct user_id
@@ -52,11 +54,22 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 			and event_id = $2
 			and guest_team_id is null
 			and guest_user_id is not null
-			and approved = false`
-	if declined {
-		sqlQuery += "\n and rejected = true"
+			and approved = false
+			and rejected = true`
 	} else {
-		sqlQuery += "\n and rejected = false"
+		sqlQuery = `WITH owner_user_team(team_id) AS (
+				select find_users_team($1, $2)
+			)
+			select distinct guest_user_id
+			from invite, owner_user_team
+			where ( user_id = $1
+				or invite.team_id = owner_user_team.team_id
+			)
+			and event_id = $2
+			and guest_team_id is null
+			and guest_user_id is not null
+			and approved = false
+			and rejected = false`
 	}
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.OwnerID, invitation.EventID)
@@ -64,21 +77,33 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 
 // TODO поправить
 func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, declined bool) (arr []int, err error) {
-	sqlQuery := `WITH guest_user_team(team_id) AS (
+	var sqlQuery string
+	if declined {
+		sqlQuery = `WITH guest_user_team(team_id) AS (
 				select find_users_team($1, $2)
 			)
-			select distinct team_id
+			select distinct invite.team_id
 			from invite, guest_user_team
 			where ( guest_user_id = $1
 				or invite.guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $2
 			and guest_team_id is not null
-			and approved = false`
-	if declined {
-		sqlQuery += "\n and rejected = true"
+			and approved = false
+			and rejected = true`
 	} else {
-		sqlQuery += "\n and rejected = false"
+		sqlQuery = `WITH owner_user_team(team_id) AS (
+				select find_users_team($1, $2)
+			)
+			select distinct guest_team_id
+			from invite, owner_user_team
+			where ( user_id = $1
+				or invite.team_id = owner_user_team.team_id
+			)
+			and event_id = $2
+			and guest_team_id is not null
+			and approved = false
+			and rejected = false`
 	}
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.OwnerID, invitation.EventID)

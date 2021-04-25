@@ -1,5 +1,16 @@
 set schema 'public';
 
+create or replace function clear_user_invites() returns trigger as
+$inc_event_participants$
+begin
+    update invite
+    set user_id = null
+    where invite.event_id = old.event_id
+      and invite.user_id = old.user_id;
+    return null;
+end;
+$inc_event_participants$ language plpgsql;
+
 create or replace function inc_event_participants() returns trigger as
 $inc_event_participants$
 begin
@@ -61,3 +72,9 @@ create trigger deleted_event_user
     on event_users
     for each row
 execute procedure dec_event_participants();
+
+create trigger clear_invites
+    after delete
+    on event_users
+    for each row
+execute procedure clear_user_invites();
