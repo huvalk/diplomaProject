@@ -49,7 +49,7 @@ func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []chan
 			where user_id = $1
 			and watched = FALSE
 			order by created desc
-			limit 20`
+			limit 3`
 
 	rows, err := r.conn.Query(context.Background(), sql, userID)
 	if err != nil {

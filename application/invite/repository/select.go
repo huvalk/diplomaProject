@@ -21,7 +21,7 @@ func (r *InviteRepository) IsInvited(invitation *models.Invitation) (invited boo
 				or i.guest_team_id = guest_user_team.team_id
 			)
 			and i.approved = false
-			order by rejected desc
+			order by rejected asc
 			limit 1`
 
 	err = r.conn.QueryRow(context.Background(), sqlQuery, invitation.OwnerID, invitation.EventID, invitation.GuestID).
