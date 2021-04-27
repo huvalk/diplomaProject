@@ -52,8 +52,7 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 				or invite.guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $2
-			and guest_team_id is null
-			and guest_user_id is not null
+			and team_id is null
 			and approved = false
 			and rejected = true
 			and user_id is not null`
@@ -70,8 +69,7 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 			and guest_team_id is null
 			and guest_user_id is not null
 			and approved = false
-			and rejected = false
-			and guest_user_id is not null`
+			and rejected = false`
 	}
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.OwnerID, invitation.EventID)
