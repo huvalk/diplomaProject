@@ -125,15 +125,9 @@ func (n *NotificationUseCase) SendInviteNotification(users []int, evtID int) (er
 }
 
 func (n *NotificationUseCase) SendDenyNotification(users []int, evtID int) error {
-	eventName, err := n.notifications.GetEventName(evtID)
-	if err != nil {
-		return err
-	}
-	message := fmt.Sprintf("%s | Похоже Вам кто-то отказал, проверьте свою команду", eventName)
-
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
-		Message: message,
+		Message: "",
 		Created: time.Now(),
 		Status:  "NewDenyNotification",
 		Watched: false,
@@ -186,6 +180,40 @@ func (n *NotificationUseCase) SendSilentUpdateNotification(users []int, evtID in
 		Message: "",
 		Created: time.Now(),
 		Status:  "SilentUpdate",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
+func (n *NotificationUseCase) SendEventFinishedNotification(users []int, evtID int) error {
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | Соревнование завершено", eventName)
+
+	newNot := channel.Notification{
+		Type:    fmt.Sprintf("%d",evtID),
+		Message: message,
+		Created: time.Now(),
+		Status:  "EventFinished",
+		Watched: false,
+	}
+	return n.SendNotification(newNot, users)
+}
+
+func (n *NotificationUseCase) SendEventWinnersNotification(users []int, evtID int) error {
+	eventName, err := n.notifications.GetEventName(evtID)
+	if err != nil {
+		return err
+	}
+	message := fmt.Sprintf("%s | Выбраны победители", eventName)
+
+	newNot := channel.Notification{
+		Type:    fmt.Sprintf("%d",evtID),
+		Message: message,
+		Created: time.Now(),
+		Status:  "EventWinners",
 		Watched: false,
 	}
 	return n.SendNotification(newNot, users)

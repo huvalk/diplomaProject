@@ -141,14 +141,20 @@ func (t *Team) RemoveMember(tid, uid int) (*models.Team, error) {
 		return nil, err
 	}
 	vt, err := t.teams.GetVote(uid, tid)
-	if err != nil {
+	if err != nil && err.Error() != "no rows in result set" {
 		return nil, err
 	}
-	err = t.teams.CancelVote(vt)
-	if err != nil {
-		return nil, err
+	if err == nil {
+		err = t.teams.CancelVote(vt)
+		if err != nil {
+			return nil, err
+		}
+		err = t.teams.ChangeUserVotesCount(vt.TeamID, vt.ForWhomID, -1)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = t.teams.ChangeUserVotesCount(vt.TeamID, vt.ForWhomID, -1)
+	err = t.teams.CancelForUserVotes(tid, uid)
 	if err != nil {
 		return nil, err
 	}

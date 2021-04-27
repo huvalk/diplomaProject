@@ -177,42 +177,26 @@ func (e EventDatabase) GetEventTeams(evtID int) (*models.TeamArr, error) {
 }
 
 func (e EventDatabase) UpdateEvent(evt *models.Event) error {
-	sql := `update event set  `
-	if evt.Name != "" {
-		sql += "name = '" + evt.Name + "', "
-	}
-	if evt.Description != "" {
-		sql += "description = '" + evt.Description + "', "
-	}
-	if !evt.DateStart.IsZero() {
-		sql += fmt.Sprintf("date_start = to_timestamp(%d), ", evt.DateStart.Unix())
-	}
-	if !evt.DateEnd.IsZero() {
-		sql += fmt.Sprintf("date_end = to_timestamp(%d), ", evt.DateEnd.Unix())
-	}
-	if evt.Place != "" {
-		sql += "place = '" + evt.Place + "', "
-	}
-	if evt.Site != "" {
-		sql += "site = '" + evt.Site + "', "
-	}
-	if evt.TeamSize != 0 {
-		sql += fmt.Sprintf("team_size = '%v', ", evt.TeamSize)
-	}
-	if len(sql) <= 18 {
-		return nil
-	}
-	sql = sql[:len(sql)-2] + ` where id=$1`
+	sql := `update event set
+			name = COALESCE(NULLIF($2, ''), name),
+			description = COALESCE(NULLIF($3, ''), description),
+			date_start = COALESCE(NULLIF($4,TIMESTAMP '0001-01-01 00:00:00'), date_start),
+			date_end = COALESCE(NULLIF($5,TIMESTAMP '0001-01-01 00:00:00'), date_end),
+			place = COALESCE(NULLIF($6, ''), place),
+			site = COALESCE(NULLIF($7, ''), site),
+			team_size = COALESCE(NULLIF($8, 0), team_size)
+			where id = $1`
 
-	queryResult, err := e.conn.Exec(context.Background(), sql, evt.Id)
+	queryResult, err := e.conn.Exec(context.Background(), sql, evt.Id, evt.Name,
+		evt.Description, evt.DateStart, evt.DateEnd, evt.Place, evt.Site, evt.TeamSize)
 	if err != nil {
 		return err
 	}
 	affected := queryResult.RowsAffected()
 	log.Println(affected)
-	//if affected != 1 {
-	//	return errors.New("no event")
-	//}
+	if affected != 1 {
+		return errors.New("no event")
+	}
 	return nil
 }
 

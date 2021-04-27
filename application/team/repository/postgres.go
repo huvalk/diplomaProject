@@ -168,10 +168,10 @@ for_whom_id = $4`
 	return nil
 }
 
-func (t TeamDatabase) CancelUserVotes(teamID, userID int) error {
+func (t TeamDatabase) CancelForUserVotes(teamID, userID int) error {
 	sql := `delete from votes 
 	where team_id = $1 AND
-	who_id = $2`
+	for_whom_id = $2`
 	queryResult, err := t.conn.Exec(context.Background(), sql,
 		teamID, userID)
 	if err != nil {
