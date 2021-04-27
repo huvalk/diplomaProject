@@ -55,7 +55,8 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 			and guest_team_id is null
 			and guest_user_id is not null
 			and approved = false
-			and rejected = true`
+			and rejected = true
+			and user_id is not null`
 	} else {
 		sqlQuery = `WITH owner_user_team(team_id) AS (
 				select find_users_team($1, $2)
@@ -69,7 +70,8 @@ func (r *InviteRepository) GetInvitedUser(invitation *models.Invitation, decline
 			and guest_team_id is null
 			and guest_user_id is not null
 			and approved = false
-			and rejected = false`
+			and rejected = false
+			and guest_user_id is not null`
 	}
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.OwnerID, invitation.EventID)
@@ -88,9 +90,9 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, decline
 				or invite.guest_team_id = guest_user_team.team_id
 			)
 			and event_id = $2
-			and guest_team_id is not null
 			and approved = false
-			and rejected = true`
+			and rejected = true
+			and invite.team_id is not null`
 	} else {
 		sqlQuery = `WITH owner_user_team(team_id) AS (
 				select find_users_team($1, $2)
@@ -101,9 +103,9 @@ func (r *InviteRepository) GetInvitedTeam(invitation *models.Invitation, decline
 				or invite.team_id = owner_user_team.team_id
 			)
 			and event_id = $2
-			and guest_team_id is not null
 			and approved = false
-			and rejected = false`
+			and rejected = false
+			and guest_team_id is not null`
 	}
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.OwnerID, invitation.EventID)
@@ -122,9 +124,9 @@ func (r *InviteRepository) GetInvitationFromUser(invitation *models.Invitation) 
 			)
 			and event_id = $2
 			and invite.team_id is null
-			and user_id is not null
 			and rejected = false
-			and approved = false`
+			and approved = false
+			and user_id is not null`
 
 	return r.getIdsByEventAndID(sqlQuery, invitation.GuestID, invitation.EventID)
 }
