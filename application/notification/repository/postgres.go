@@ -4,7 +4,6 @@ import (
 	"context"
 	"diplomaProject/application/notification"
 	"diplomaProject/pkg/channel"
-	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -44,9 +43,16 @@ func (r *NotificationRepository) MarkAsWatched(notificationID int) error {
 // TODO убрать
 func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sql := `select distinct(type, user_id, status), message, created, id
+	sql := `select type, status, message, created
 			from notification 
 			where user_id = $1
+			where id in (
+				select max(id)
+				from notification
+				where user_id=$1
+				and watched = FALSE
+				group by type, user_id, status
+				)
 			and watched = FALSE
 			order by created desc
 			limit 3`
@@ -60,7 +66,7 @@ func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []chan
 	for rows.Next() {
 		var n channel.Notification
 
-		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created, &n.ID)
+		err = rows.Scan(&n.Type, &n.Status, &n.Message, &n.Created)
 		if err != nil {
 			return nil, err
 		}
@@ -72,9 +78,14 @@ func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []chan
 
 func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.Notification, err error) {
 	arr = []channel.Notification{}
-	sqlRow := `select distinct(type, user_id, status), message, created, id
+	sqlRow := `select type, status, message, created
 			from notification 
-			where user_id = $1
+			where id in (
+				select max(id)
+				from notification
+				where user_id=$1
+				group by type, user_id, status
+				)
 			order by created desc
 			limit 10`
 
@@ -88,7 +99,7 @@ func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.
 	for rows.Next() {
 		var n channel.Notification
 
-		err = rows.Scan(pgtype.CompositeFields{&n.Type, &n.UserID, &n.Status}, &n.Message, &n.Created, &n.ID)
+		err = rows.Scan(&n.Type, &n.Status, &n.Message, &n.Created)
 		if err != nil {
 			return nil, err
 		}

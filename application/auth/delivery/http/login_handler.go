@@ -67,7 +67,7 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 		Value:   t,
 		Expires: time.Now().Add(constants.CookieDuration),
 		SameSite: http.SameSiteStrictMode,
-		Secure:   false,
+		Secure:   globalVars.ENV == constants.PROD,
 		HttpOnly: true,
 	})
 	return ctx.Redirect(http.StatusTemporaryRedirect, globalVars.FRONTEND_URI+backTo)
@@ -79,7 +79,7 @@ func (eh *AuthHandler) UnAuth(ctx echo.Context) error {
 		Value:   "",
 		Expires: time.Now(),
 		SameSite: http.SameSiteStrictMode,
-		Secure:   false,
+		Secure:   globalVars.ENV == constants.PROD,
 		HttpOnly: true,
 	})
 	return nil
