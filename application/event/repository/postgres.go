@@ -179,11 +179,11 @@ func (e EventDatabase) GetEventTeams(evtID int) (*models.TeamArr, error) {
 func (e EventDatabase) UpdateEvent(evt *models.Event) error {
 	sql := `update event set
 			name = COALESCE(NULLIF($2, ''), name),
-			description = COALESCE(NULLIF($3, ''), description),
+			description = COALESCE(NULLIF($3, 'SAVE_THIS_FIELD'), description),
 			date_start = COALESCE(NULLIF($4,TIMESTAMP '0001-01-01 00:00:00'), date_start),
 			date_end = COALESCE(NULLIF($5,TIMESTAMP '0001-01-01 00:00:00'), date_end),
-			place = COALESCE(NULLIF($6, ''), place),
-			site = COALESCE(NULLIF($7, ''), site),
+			place = COALESCE(NULLIF($6, 'SAVE_THIS_FIELD'), place),
+			site = COALESCE(NULLIF($7, 'SAVE_THIS_FIELD'), site),
 			team_size = COALESCE(NULLIF($8, 0), team_size)
 			where id = $1`
 

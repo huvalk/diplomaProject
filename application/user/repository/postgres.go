@@ -83,15 +83,15 @@ func (ud *UserDatabase) SetImage(uid int, link string) error {
 func (ud *UserDatabase) Update(usr *models.User) (*models.User, error) {
 	//	update users set workplace = 'wp' , description = 'dr'  where id=4 returning id;
 	sql := `update users set
-			workplace = COALESCE(NULLIF($2, ''), workplace),
-			description = COALESCE(NULLIF($3, ''), description),
-			bio = COALESCE(NULLIF($4, ''), bio),
+			workplace = COALESCE(NULLIF($2, 'SAVE_THIS_FIELD'), workplace),
+			description = COALESCE(NULLIF($3, 'SAVE_THIS_FIELD'), description),
+			bio = COALESCE(NULLIF($4, 'SAVE_THIS_FIELD'), bio),
 			email = COALESCE(NULLIF($5, ''), email),
 			firstname = COALESCE(NULLIF($6, ''), firstname),
 			lastname = COALESCE(NULLIF($7, ''), lastname),
-			vk_url = COALESCE(NULLIF(LOWER($8), ''), vk_url),
-			gh_url = COALESCE(NULLIF(LOWER($9), ''), gh_url),
-			tg_url = COALESCE(NULLIF(LOWER($10), ''), tg_url)
+			vk_url = COALESCE(NULLIF(LOWER($8), 'SAVE_THIS_FIELD'), vk_url),
+			gh_url = COALESCE(NULLIF(LOWER($9), 'SAVE_THIS_FIELD'), gh_url),
+			tg_url = COALESCE(NULLIF(LOWER($10), 'SAVE_THIS_FIELD'), tg_url)
 			where id=$1 returning id`
 
 	id := 0
