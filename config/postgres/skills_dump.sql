@@ -14,7 +14,7 @@ INSERT INTO public.skills (id, name, job_id) VALUES (6, 'PostgreSQL', 2);
 INSERT INTO public.skills (id, name, job_id) VALUES (7, 'Rust', 2);
 INSERT INTO public.skills (id, name, job_id) VALUES (8, 'Oracle', 2);
 INSERT INTO public.skills (id, name, job_id) VALUES (9, 'Nginx', 2);
-INSERT INTO public.skills (id, name, job_id) VALUES (10, 'Docker', 2);
+INSERT INTO public.skills (id, name, job_id) VALUES (10, 'Tarantool', 2);
 INSERT INTO public.skills (id, name, job_id) VALUES (11, 'Autodesk', 3);
 INSERT INTO public.skills (id, name, job_id) VALUES (12, 'ZBrush', 3);
 INSERT INTO public.skills (id, name, job_id) VALUES (13, 'Blender', 3);

@@ -66,7 +66,7 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 		Name:    constants.CookieName,
 		Value:   t,
 		Expires: time.Now().Add(constants.CookieDuration),
-		//SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteStrictMode,
 		Secure:   false,
 		HttpOnly: true,
 	})
@@ -78,7 +78,7 @@ func (eh *AuthHandler) UnAuth(ctx echo.Context) error {
 		Name:    constants.CookieName,
 		Value:   "",
 		Expires: time.Now(),
-		//SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteStrictMode,
 		Secure:   false,
 		HttpOnly: true,
 	})
