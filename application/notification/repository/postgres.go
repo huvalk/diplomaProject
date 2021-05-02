@@ -46,7 +46,7 @@ func (r *NotificationRepository) GetMoreLastNotification(userID int) (arr []chan
 	sql := `select type, status, message, created
 			from notification 
 			where user_id = $1
-			where id in (
+			and id in (
 				select max(id)
 				from notification
 				where user_id=$1
@@ -86,6 +86,7 @@ func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.
 				where user_id=$1
 				group by type, user_id, status
 				)
+			and user_id=$1
 			order by created desc
 			limit 10`
 
