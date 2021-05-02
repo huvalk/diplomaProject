@@ -207,7 +207,7 @@ func (n *NotificationUseCase) SendEventWinnersNotification(users []int, evtID in
 	if err != nil {
 		return err
 	}
-	message := fmt.Sprintf("%s | Выбраны победители", eventName)
+	message := fmt.Sprintf("%s | Вас номинировали", eventName)
 
 	newNot := channel.Notification{
 		Type:    fmt.Sprintf("%d",evtID),
