@@ -56,19 +56,19 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 		return nil
 	}
 
-	//event handler
-	events := repository2.NewEventDatabase(db)
-	event := usecase2.NewEvent(events, feed)
-	err = http2.NewEventHandler(e, event)
+	//notification
+	notificationRepo := repositoryNotification.NewNotificationRepository(db)
+	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
+	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 
-	//notification
-	notificationRepo := repositoryNotification.NewNotificationRepository(db)
-	notificationUsecase := usecaseNotification.NewNotificationUsecase(notificationRepo)
-	err = httpNotification.NewNotificationHandler(e, notificationUsecase)
+	//event handler
+	events := repository2.NewEventDatabase(db)
+	event := usecase2.NewEvent(events, feed, notificationUsecase)
+	err = http2.NewEventHandler(e, event)
 	if err != nil {
 		log.Println(err)
 		return nil

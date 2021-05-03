@@ -4,6 +4,7 @@ import (
 	"diplomaProject/application/event"
 	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
+	"diplomaProject/application/notification"
 	"diplomaProject/pkg/constants"
 	"diplomaProject/pkg/sss"
 	"errors"
@@ -13,10 +14,11 @@ import (
 type Event struct {
 	events event.Repository
 	feeds  feed.UseCase
+	notif  notification.UseCase
 }
 
-func NewEvent(e event.Repository, f feed.UseCase) event.UseCase {
-	return &Event{events: e, feeds: f}
+func NewEvent(e event.Repository, f feed.UseCase, n notification.UseCase) event.UseCase {
+	return &Event{events: e, feeds: f, notif: n}
 }
 
 func (e *Event) GetTopEvents() (*models.EventDBArr, error) {
@@ -116,9 +118,20 @@ func (e *Event) SelectWinner(uID, evtID, PrizeID, tId int) error {
 	if ev.State != constants.EventStatusClosed {
 		return errors.New("not finished")
 	}
-	//sendeventwinnernotif
 	//check team in event
 	//add to team members prize
+	users, err := e.GetEventUsers(evtID)
+	if err != nil {
+		return nil
+	}
+	var userIDs []int
+	for i := range *users {
+		userIDs = append(userIDs, (*users)[i].Id)
+	}
+	err = e.notif.SendEventWinnersNotification(userIDs, evtID)
+	if err != nil {
+		return nil
+	}
 	return e.events.SelectWinner(PrizeID, tId)
 }
 
