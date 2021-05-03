@@ -43,6 +43,9 @@ func (e *EventDatabase) GetSoloEventUsers(evtID int) (*models.UserArr, error) {
 }
 
 func (e *EventDatabase) CreateManyEventTeams(evtID int, usrArr *models.UserArr) error {
+	if usrArr == nil || len(*usrArr) == 0 {
+		return nil
+	}
 	sql := `insert into team values `
 	sqlU := `insert into team_users values `
 	var id []int

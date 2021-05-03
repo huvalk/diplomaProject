@@ -3,6 +3,8 @@ package usecase
 import (
 	"diplomaProject/application/feed"
 	"diplomaProject/application/models"
+	"math/rand"
+	"time"
 )
 
 type Feed struct {
@@ -22,6 +24,8 @@ func (f Feed) Get(feedID int) (*models.Feed, error) {
 	if err != nil {
 		return nil, err
 	}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(us), func(i, j int) { us[i], us[j] = us[j], us[i] })
 	fd.Users = us
 	return fd, nil
 }
@@ -56,6 +60,8 @@ func (f Feed) FilterFeed(eventID int, params map[string][]string) (*models.Feed,
 	if err != nil {
 		return nil, err
 	}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(us), func(i, j int) { us[i], us[j] = us[j], us[i] })
 	fd.Users = us
 	return fd, nil
 }

@@ -116,8 +116,7 @@ func (e *Event) SelectWinner(uID, evtID, PrizeID, tId int) error {
 	if ev.State != constants.EventStatusClosed {
 		return errors.New("not finished")
 	}
-	//TODO:check amount>=1
-
+	//sendeventwinnernotif
 	//check team in event
 	//add to team members prize
 	return e.events.SelectWinner(PrizeID, tId)
