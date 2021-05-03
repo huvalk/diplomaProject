@@ -5,7 +5,7 @@ import "diplomaProject/application/models"
 type UseCase interface {
 	Get(id int) (*models.Team, error)
 	Create(newTeam *models.Team, evtID int) (*models.Team, error)
-	SetName(newTeam *models.Team) (*models.Team, error)
+	SetName(newTeam *models.Team, userID int) (*models.Team, error)
 	AddMember(tid int, uid ...int) (*models.Team, error)
 	RemoveMember(tid, uid int) (*models.Team, error)
 	KickMember(tid, leadID, userID int) (*models.Team, error)

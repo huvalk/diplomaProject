@@ -84,15 +84,19 @@ func (t *Team) SendVote(vote *models.Vote) (*models.Team, error) {
 	return tm, nil
 }
 
-func (t *Team) SetName(newTeam *models.Team) (*models.Team, error) {
-	err := t.teams.SetName(newTeam)
-	if err != nil {
-		return nil, errors.New("can't update team name: " + err.Error())
-	}
+func (t *Team) SetName(newTeam *models.Team, userID int) (*models.Team, error) {
 	tm, err := t.Get(newTeam.Id)
 	if err != nil {
 		return nil, err
 	}
+	if tm.LeadID != userID {
+		return nil, errors.New("only lead can change team name")
+	}
+	err = t.teams.SetName(newTeam)
+	if err != nil {
+		return nil, errors.New("can't update team name: " + err.Error())
+	}
+	tm.Name = newTeam.Name
 	var silent []int
 	for i := range tm.Members {
 		silent = append(silent, tm.Members[i].Id)
