@@ -66,5 +66,5 @@ func (e *Event) Convert(evt EventDB) {
 
 type EventLink struct {
 	Id     int    `json:"id"`
-	Secret string `json:"Secret"`
+	Secret string `json:"secret"`
 }

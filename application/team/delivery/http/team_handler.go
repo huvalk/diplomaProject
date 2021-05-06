@@ -21,7 +21,7 @@ func NewTeamHandler(e *echo.Echo, usecase team.UseCase) error {
 	handler := TeamHandler{useCase: usecase}
 
 	e.GET("/team/:id", handler.GetTeam)
-	e.POST("/team/:id", handler.UpdateTeam)
+	e.POST("/team/:id", handler.UpdateTeam, middleware.UserID)
 	e.GET("/event/:evtid/user/:id/team", handler.GetTeamByUser)
 	e.POST("/event/:evtid/team", handler.CreateTeam)
 	e.POST("/team/:id/add", handler.AddMember)
@@ -181,14 +181,18 @@ func (th *TeamHandler) UpdateTeam(ctx echo.Context) error {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
+	userID, found := ctx.Get("userID").(int)
+	if !found {
+		log.Println("userID not found")
+		return echo.NewHTTPError(http.StatusInternalServerError, errors.New("userID not found"))
+	}
 	newTeam := &models.Team{}
 	if err = easyjson.UnmarshalFromReader(ctx.Request().Body, newTeam); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	newTeam.Id = tmID
-	newTeam, err = th.useCase.SetName(newTeam)
+	newTeam, err = th.useCase.SetName(newTeam, userID)
 	if err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

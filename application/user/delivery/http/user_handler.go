@@ -212,7 +212,14 @@ func (uh *UserHandler) Update(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, errors.New("userID doesnt match current user"))
 	}
 
-	usr := &models.User{}
+	usr := &models.User{
+		WorkPlace: "SAVE_THIS_FIELD",
+		Description: "SAVE_THIS_FIELD",
+		Bio: "SAVE_THIS_FIELD",
+		Vk: "SAVE_THIS_FIELD",
+		Tg: "SAVE_THIS_FIELD",
+		Git: "SAVE_THIS_FIELD",
+	}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
 		log.Println(err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

@@ -291,8 +291,6 @@ func (n *NotificationUseCase) EnterChannel(userID int, socket *websocket.Conn) e
 		waitToClose.Done()
 	}()
 
-	// TODO Проверить
-	//time.Sleep(2 * time.Second)
 	waitToSendPending.Wait()
 	err := n.SendPendingNotification(userID)
 
