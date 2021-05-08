@@ -114,17 +114,19 @@ join users u1  on f1.user_id=u1.id
 join job_skills_users jsu1 on u1.id=jsu1.user_id
 join job j1 on jsu1.job_id=j1.id
 join skills s1 on jsu1.skill_id=s1.id
-where f1.feed_id=$1 AND j1.name = $2 AND (`
-	for i := range skills {
-		sql += fmt.Sprintf(` s1.name = '%v' OR`, skills[i])
-	}
+where f1.feed_id=$1`
 	if len(skills) == 0 {
-		sql = sql[:len(sql)-5]
+		sql += fmt.Sprintf(` AND j1.name = '%s'`, job)
 	} else {
-		sql = sql[:len(sql)-2] + `)`
+		sql += fmt.Sprintf(` AND (`)
+		for i := range skills {
+			sql += fmt.Sprintf(` s1.name = '%v' OR`, skills[i])
+		}
+		sql = sql[:len(sql)-3] + `)`
 	}
+
 	fmt.Println(sql)
-	queryResult, err := f.conn.Query(context.Background(), sql, feedID, job)
+	queryResult, err := f.conn.Query(context.Background(), sql, feedID)
 	if err != nil {
 		return nil, err
 	}
