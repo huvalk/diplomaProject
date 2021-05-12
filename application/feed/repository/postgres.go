@@ -118,7 +118,7 @@ where f1.feed_id=$1`
 	if len(skills) == 0 {
 		sql += fmt.Sprintf(` AND j1.name = '%s'`, job)
 	} else {
-		sql += fmt.Sprintf(` AND (`)
+		sql += " AND ("
 		for i := range skills {
 			sql += fmt.Sprintf(` s1.name = '%v' OR`, skills[i])
 		}
