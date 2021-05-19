@@ -19,7 +19,11 @@ export DROP_ALL_TABLES
 db-dump:
 	pg_dump -U postgres -h localhost -p 8081 --column-inserts --data-only hhton > config/postgres/dump.sql
 
-new-db-schema-from-dump:
+new-db-schema-from-dump-dev:
+	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
+	psql -h dev.team-up.online -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/dump.sql -f pkg/infrastructure/funcs.sql
+
+new-db-schema-from-dump-local:
 	psql -h localhost -p 8081 -U postgres -d hhton -c "$$DROP_ALL_TABLES"
 	psql -h localhost -p 8081 -U postgres -d hhton -f pkg/infrastructure/postgres.sql -f config/postgres/dump.sql -f pkg/infrastructure/funcs.sql
 
@@ -56,4 +60,4 @@ lint:
 	golangci-lint run ./...
 
 upload-nginx-conf:
-	scp config/postgres/team-up.online.conf root@hahao.ru:/etc/nginx/conf.d/
+	scp config/postgres/team-up.online.conf root@dev.team-up.online:/etc/nginx/conf.d/

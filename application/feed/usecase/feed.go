@@ -53,6 +53,8 @@ func (f Feed) FilterFeed(eventID int, params map[string][]string) (*models.Feed,
 		if err != nil {
 			return nil, err
 		}
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(us), func(i, j int) { us[i], us[j] = us[j], us[i] })
 		fd.Users = us
 		return fd, nil
 	}

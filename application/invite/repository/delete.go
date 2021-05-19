@@ -9,6 +9,8 @@ import (
 func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
 	query := `WITH owner_user_team(team_id) AS (
 				select find_users_lead_team($1, $2)
+			), guest_user_team(team_id) AS (
+				select find_users_lead_team($3, $2)
 			) delete from invite
 			using owner_user_team
 			where (
@@ -21,11 +23,7 @@ func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
 			and event_id = $2
 			and ( 
 				guest_user_id = $3
-				or guest_team_id = (
-					select distinct(team_id) 
-					from team_users
-					where user_id = $3
-				)
+				or guest_team_id = guest_user_team.team_id
 			)
 			and rejected = false`
 

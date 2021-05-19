@@ -204,7 +204,26 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 	if leadID != tm.LeadID {
 		return nil, errors.New("only lead can kick")
 	}
+
 	err = t.teams.RemoveMember(tid, userID)
+	if err != nil {
+		return nil, err
+	}
+	vt, err := t.teams.GetVote(userID, tid)
+	if err != nil && err.Error() != "no rows in result set" {
+		return nil, err
+	}
+	if err == nil {
+		err = t.teams.CancelVote(vt)
+		if err != nil {
+			return nil, err
+		}
+		err = t.teams.ChangeUserVotesCount(vt.TeamID, vt.ForWhomID, -1)
+		if err != nil {
+			return nil, err
+		}
+	}
+	err = t.teams.CancelForUserVotes(tid, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -216,21 +235,33 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 	for i := range tm.Members {
 		teamIDs = append(teamIDs, tm.Members[i].Id)
 	}
-	err = t.invites.UpdateUserLeftTeam(userID, tid, tm.EventID)
-	if err != nil {
-		return nil, err
-	}
 	err = t.notif.SendSilentUpdateNotification(teamIDs, tm.EventID)
 	if err != nil {
 		return nil, err
 	}
-	err = t.notif.SendYouKickedNotification([]int{userID}, tm.EventID)
+	err = t.invites.UpdateUserLeftTeam(userID, tid, tm.EventID)
+	if err != nil {
+		return nil, err
+	}
+	err = t.notif.SendYouKickedNotification(teamIDs, tm.EventID)
 	if err != nil {
 		return nil, err
 	}
 	if len((*tm).Members) <= 1 {
 		return &models.Team{}, t.teams.RemoveTeam(tid)
 	}
+	leadID, err = t.teams.SelectLead(tm)
+	fmt.Println("new Lead id and old", leadID, tm.LeadID)
+	if err != nil {
+		return nil, err
+	}
+	if leadID != tm.LeadID {
+		err = t.notif.SendTeamLeadNotification(teamIDs, tm.EventID)
+		if err != nil {
+			return nil, err
+		}
+	}
+	tm.LeadID = leadID
 	return tm, nil
 }
 
