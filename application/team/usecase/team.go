@@ -243,10 +243,6 @@ func (t *Team) KickMember(tid, leadID, userID int) (*models.Team, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = t.notif.SendYouKickedNotification(teamIDs, tm.EventID)
-	if err != nil {
-		return nil, err
-	}
 	if len((*tm).Members) <= 1 {
 		return &models.Team{}, t.teams.RemoveTeam(tid)
 	}
