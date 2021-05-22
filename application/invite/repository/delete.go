@@ -10,9 +10,9 @@ func (r *InviteRepository) UnInvite(inv *models.Invitation) error {
 	query := `WITH owner_user_team(team_id) AS (
 				select find_users_lead_team($1, $2)
 			), guest_user_team(team_id) AS (
-				select find_users_lead_team($3, $2)
+				select find_users_team($3, $2)
 			) delete from invite
-			using owner_user_team
+			using owner_user_team, guest_user_team
 			where (
 				(
 					user_id = $1
@@ -103,6 +103,7 @@ func (r *InviteRepository) UpdateTeamMerged(teamFromID1 int, teamFromID2 int, te
 
 // TODO Возможно лишнее, ничего не удаляет
 func (r *InviteRepository) AcceptInvite(userID1 int, userID2 int, eventID int) error {
+	// должна быть проверка на лида, но она работает в юзкейсе
 	query := `WITH owner_user_team(team_id) AS (
 					select find_users_team($1, $2)
 				), guest_user_team(team_id) AS (
