@@ -38,7 +38,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 	handler := AuthHandler{
 		useCase: au,
-		tmpl:    &Template{templates: template.Must(template.ParseFiles("static/index.html"))},
+		tmpl:    &Template{templates: template.Must(template.ParseFiles(globalVars.STATIC_PATH))},
 	}
 
 	e.GET("/redirect", handler.RedirectLogin)
