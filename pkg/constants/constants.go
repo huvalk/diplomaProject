@@ -21,7 +21,7 @@ const (
 )
 
 const (
-	PROD = "prod"
+	PROD  = "prod"
 	DEV   = "dev"
-	LOCAL   = "local"
+	LOCAL = "local"
 )

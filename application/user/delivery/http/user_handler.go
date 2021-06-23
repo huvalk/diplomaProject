@@ -213,12 +213,12 @@ func (uh *UserHandler) Update(ctx echo.Context) error {
 	}
 
 	usr := &models.User{
-		WorkPlace: "SAVE_THIS_FIELD",
+		WorkPlace:   "SAVE_THIS_FIELD",
 		Description: "SAVE_THIS_FIELD",
-		Bio: "SAVE_THIS_FIELD",
-		Vk: "SAVE_THIS_FIELD",
-		Tg: "SAVE_THIS_FIELD",
-		Git: "SAVE_THIS_FIELD",
+		Bio:         "SAVE_THIS_FIELD",
+		Vk:          "SAVE_THIS_FIELD",
+		Tg:          "SAVE_THIS_FIELD",
+		Git:         "SAVE_THIS_FIELD",
 	}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, usr); err != nil {
 		log.Println(err)

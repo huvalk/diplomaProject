@@ -10,6 +10,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/mailru/easyjson"
+	"html/template"
+	"io"
 	"log"
 	"net/http"
 	url2 "net/url"
@@ -18,17 +20,33 @@ import (
 
 type AuthHandler struct {
 	useCase auth.UseCase
+	tmpl    *Template
+}
+
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	meta, ok := data.(string)
+	if !ok {
+		return errors.New("not string as meta")
+	}
+	return t.templates.Execute(w, template.HTML(meta))
 }
 
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 	handler := AuthHandler{
 		useCase: au,
+		tmpl:    &Template{templates: template.Must(template.ParseFiles(globalVars.STATIC_PATH))},
 	}
 
 	e.GET("/redirect", handler.RedirectLogin)
 	e.GET("/auth", handler.Auth)
 	e.GET("/unauth", handler.UnAuth)
 	e.GET("/check", handler.Check, middleware.UserID)
+	e.GET("/index/*", handler.Static)
+	e.Renderer = handler.tmpl
 	return nil
 }
 
@@ -63,9 +81,9 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 	}
 
 	ctx.SetCookie(&http.Cookie{
-		Name:    constants.CookieName,
-		Value:   t,
-		Expires: time.Now().Add(constants.CookieDuration),
+		Name:     constants.CookieName,
+		Value:    t,
+		Expires:  time.Now().Add(constants.CookieDuration),
 		SameSite: http.SameSiteStrictMode,
 		Secure:   globalVars.ENV == constants.PROD,
 		HttpOnly: true,
@@ -75,9 +93,9 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 
 func (eh *AuthHandler) UnAuth(ctx echo.Context) error {
 	ctx.SetCookie(&http.Cookie{
-		Name:    constants.CookieName,
-		Value:   "",
-		Expires: time.Now(),
+		Name:     constants.CookieName,
+		Value:    "",
+		Expires:  time.Now(),
 		SameSite: http.SameSiteStrictMode,
 		Secure:   globalVars.ENV == constants.PROD,
 		HttpOnly: true,
@@ -100,4 +118,14 @@ func (eh *AuthHandler) Check(ctx echo.Context) error {
 	}
 
 	return nil
+}
+
+func (eh *AuthHandler) Static(ctx echo.Context) error {
+	query := ctx.Request().URL.Path
+	meta, err := eh.useCase.GenerateMeta(query)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.Render(http.StatusOK, "meta", meta)
 }

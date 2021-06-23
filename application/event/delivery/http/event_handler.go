@@ -291,8 +291,8 @@ func (eh *EventHandler) UpdateEvent(ctx echo.Context) error {
 
 	newEvt := &models.Event{
 		Description: "SAVE_THIS_FIELD",
-		Place: "SAVE_THIS_FIELD",
-		Site: "SAVE_THIS_FIELD",
+		Place:       "SAVE_THIS_FIELD",
+		Site:        "SAVE_THIS_FIELD",
 	}
 	if err := easyjson.UnmarshalFromReader(ctx.Request().Body, newEvt); err != nil {
 		log.Println(err)

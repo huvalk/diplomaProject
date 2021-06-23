@@ -13,5 +13,5 @@ type Invitation struct {
 
 type IsInvited struct {
 	IsInvited bool `json:"isInvited"`
-	IsBanned bool `json:"isBanned"`
+	IsBanned  bool `json:"isBanned"`
 }
