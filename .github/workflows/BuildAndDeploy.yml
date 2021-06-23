@@ -100,7 +100,7 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           password: ${{ secrets.PROD_PASSWORD }}
           script: |
-            cd /home/akiraq_yandex_ru/teamup
+            cd ${{ env.PROD_PROJ_PATH }}
             git checkout master
             git pull
 
