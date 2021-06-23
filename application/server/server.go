@@ -122,7 +122,7 @@ func NewServer(e *echo.Echo, db *pgxpool.Pool) *Server {
 
 	//auth
 	authRepo := repositoryAuth.NewAuthRepository(db)
-	authUsecase := usecaseAuth.NewUsecase(authRepo)
+	authUsecase := usecaseAuth.NewUsecase(authRepo, users, events)
 	err = httpAuth.NewAuthHandler(e, authUsecase)
 	if err != nil {
 		log.Println(err)
