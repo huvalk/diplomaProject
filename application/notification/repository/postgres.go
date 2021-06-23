@@ -90,7 +90,6 @@ func (r *NotificationRepository) GetLastNotification(userID int) (arr []channel.
 			order by created desc
 			limit 10`
 
-
 	rows, err := r.conn.Query(context.Background(), sqlRow, userID)
 	if err != nil {
 		return nil, err

@@ -20,7 +20,7 @@ import (
 
 type AuthHandler struct {
 	useCase auth.UseCase
-	tmpl *Template
+	tmpl    *Template
 }
 
 type Template struct {
@@ -38,7 +38,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 func NewAuthHandler(e *echo.Echo, au auth.UseCase) error {
 	handler := AuthHandler{
 		useCase: au,
-		tmpl: &Template{templates: template.Must(template.ParseFiles("static/index.html"))},
+		tmpl:    &Template{templates: template.Must(template.ParseFiles("static/index.html"))},
 	}
 
 	e.GET("/redirect", handler.RedirectLogin)
@@ -81,9 +81,9 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 	}
 
 	ctx.SetCookie(&http.Cookie{
-		Name:    constants.CookieName,
-		Value:   t,
-		Expires: time.Now().Add(constants.CookieDuration),
+		Name:     constants.CookieName,
+		Value:    t,
+		Expires:  time.Now().Add(constants.CookieDuration),
 		SameSite: http.SameSiteStrictMode,
 		Secure:   globalVars.ENV == constants.PROD,
 		HttpOnly: true,
@@ -93,9 +93,9 @@ func (eh *AuthHandler) Auth(ctx echo.Context) error {
 
 func (eh *AuthHandler) UnAuth(ctx echo.Context) error {
 	ctx.SetCookie(&http.Cookie{
-		Name:    constants.CookieName,
-		Value:   "",
-		Expires: time.Now(),
+		Name:     constants.CookieName,
+		Value:    "",
+		Expires:  time.Now(),
 		SameSite: http.SameSiteStrictMode,
 		Secure:   globalVars.ENV == constants.PROD,
 		HttpOnly: true,

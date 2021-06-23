@@ -150,7 +150,7 @@ func (i *InviteUseCase) getAllUsers(initiator, victim, event int) (silent []int,
 	return silent, nil
 }
 
-func (i *InviteUseCase) UnInvite(invitation *models.Invitation) (inviters []int, err error)  {
+func (i *InviteUseCase) UnInvite(invitation *models.Invitation) (inviters []int, err error) {
 	err = i.invites.UnInvite(invitation)
 	if err != nil {
 		return nil, err

@@ -61,7 +61,7 @@ func (r *InviteRepository) Deny(inv *models.Invitation) error {
 			)
 			and event_id = $3
 			and approved = false`
-//			TODO убрать rejected для разбана 'and rejected = false'
+	//			TODO убрать rejected для разбана 'and rejected = false'
 	res, err := r.conn.Exec(context.Background(), deny, inv.OwnerID, inv.GuestID, inv.EventID)
 	if err != nil {
 		return err

@@ -17,19 +17,19 @@ import (
 )
 
 type UseCase struct {
-	auths         auth.Repository
-	users         user.Repository
-	events         event.Repository
-	rx *regexp.Regexp
+	auths  auth.Repository
+	users  user.Repository
+	events event.Repository
+	rx     *regexp.Regexp
 }
 
 func NewUsecase(a auth.Repository, u user.Repository, e event.Repository) auth.UseCase {
-	r, _ := regexp.Compile("\\/\\d*$")
+	r, _ := regexp.Compile(`[^/]\d*$`)
 	return &UseCase{
-		auths: a,
-		users: u,
+		auths:  a,
+		users:  u,
 		events: e,
-		rx: r,
+		rx:     r,
 	}
 }
 
@@ -83,9 +83,9 @@ const defaultMeta = "<title>%s</title>" +
 	"<meta property=\"og:site_name\" content=\"Team-up.online\">"
 
 func (u *UseCase) GenerateMeta(url string) (string, error) {
-	print()
+	strId := u.rx.FindString(url)
 	if strings.Contains(url, "event") {
-		id, err := strconv.Atoi(u.rx.FindString(url)[1:])
+		id, err := strconv.Atoi(strId)
 		if err != nil {
 			return "", err
 		}
@@ -97,7 +97,7 @@ func (u *UseCase) GenerateMeta(url string) (string, error) {
 
 		return fmt.Sprintf(defaultMeta, e.Name, e.Description, e.Name, e.Description, e.Logo), nil
 	} else if strings.Contains(url, "user") {
-		id, err := strconv.Atoi(u.rx.FindString(url)[1:])
+		id, err := strconv.Atoi(strId)
 		if err != nil {
 			return "", err
 		}
@@ -107,8 +107,8 @@ func (u *UseCase) GenerateMeta(url string) (string, error) {
 			return "", err
 		}
 
-		return fmt.Sprintf(defaultMeta, u.FirstName + " " + u.LastName, "Работает в " + u.WorkPlace + ". " + u.Bio,
-			u.FirstName + " " + u.LastName, "Работает в " + u.WorkPlace + ". " + u.Bio, u.Avatar), nil
+		return fmt.Sprintf(defaultMeta, u.FirstName+" "+u.LastName, "Работает в "+u.WorkPlace+". "+u.Bio,
+			u.FirstName+" "+u.LastName, "Работает в "+u.WorkPlace+". "+u.Bio, u.Avatar), nil
 	} else {
 		return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage), nil
 	}
