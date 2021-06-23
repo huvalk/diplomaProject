@@ -59,7 +59,7 @@ jobs:
 
   deployOnDev:
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'dev') && contains(github.event_name, 'push')
+    if: contains(github.ref, 'dev') && (contains(github.event_name, 'push') || contains(github.event_name, 'workflow_dispatch'))
     needs: build
     steps:
       - name: Pull docker-compose
@@ -89,7 +89,7 @@ jobs:
 
   deployOnProd:
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'master') && contains(github.event_name, 'push')
+    if: contains(github.ref, 'master') && (contains(github.event_name, 'push') || contains(github.event_name, 'workflow_dispatch'))
     needs: build
     steps:
       - name: Pull docker-compose
