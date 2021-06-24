@@ -99,7 +99,7 @@ func (u *UseCase) GenerateMeta(url string) (string, error) {
 	} else if strings.Contains(url, "user") {
 		id, err := strconv.Atoi(strId)
 		if err != nil {
-			return "", err
+			return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage), nil
 		}
 
 		u, err := u.users.GetByID(id)
