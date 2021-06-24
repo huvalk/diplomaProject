@@ -82,34 +82,34 @@ const defaultMeta = "<title>%s</title>" +
 	"<meta property=\"og:image\" content=\"%s\">" +
 	"<meta property=\"og:site_name\" content=\"Team-up.online\">"
 
-func (u *UseCase) GenerateMeta(url string) (string, error) {
+func (u *UseCase) GenerateMeta(url string) string {
 	strId := u.rx.FindString(url)
 	if strings.Contains(url, "event") {
 		id, err := strconv.Atoi(strId)
 		if err != nil {
-			return "", err
+			return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage)
 		}
 
 		e, err := u.events.Get(id)
 		if err != nil {
-			return "", err
+			return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage)
 		}
 
-		return fmt.Sprintf(defaultMeta, e.Name, e.Description, e.Name, e.Description, e.Logo), nil
+		return fmt.Sprintf(defaultMeta, e.Name, e.Description, e.Name, e.Description, e.Logo)
 	} else if strings.Contains(url, "user") {
 		id, err := strconv.Atoi(strId)
 		if err != nil {
-			return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage), nil
+			return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage)
 		}
 
 		u, err := u.users.GetByID(id)
 		if err != nil {
-			return "", err
+			return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage)
 		}
 
 		return fmt.Sprintf(defaultMeta, u.FirstName+" "+u.LastName, "Работает в "+u.WorkPlace+". "+u.Bio,
-			u.FirstName+" "+u.LastName, "Работает в "+u.WorkPlace+". "+u.Bio, u.Avatar), nil
+			u.FirstName+" "+u.LastName, "Работает в "+u.WorkPlace+". "+u.Bio, u.Avatar)
 	} else {
-		return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage), nil
+		return fmt.Sprintf(defaultMeta, defaultTitle, defaultDescription, defaultTitle, defaultDescription, defaultImage)
 	}
 }
