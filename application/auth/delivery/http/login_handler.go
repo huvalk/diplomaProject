@@ -122,10 +122,7 @@ func (eh *AuthHandler) Check(ctx echo.Context) error {
 
 func (eh *AuthHandler) Static(ctx echo.Context) error {
 	query := ctx.Request().URL.Path
-	meta, err := eh.useCase.GenerateMeta(query)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	meta := eh.useCase.GenerateMeta(query)
 
 	return ctx.Render(http.StatusOK, "meta", meta)
 }
